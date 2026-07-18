@@ -178,6 +178,7 @@ These rules do not authorize implementation before the permanent player-ID cross
 - Public Board Accuracy uses two decimals and no percent symbol.
 - Percentile is the only public result that uses percentage language.
 - Display rounding never creates an official tie.
+- Row-level Player Accuracy is not part of the 2026 launch. `Accuracy` means Board Accuracy on public 2026 surfaces.
 
 This section locks presentation only. It does not authorize scoring implementation or choose whether production stores scores as 0-1 or 0-100.
 
@@ -195,13 +196,13 @@ This section locks presentation only. It does not authorize scoring implementati
 - All real-world outcomes after Official Entry count.
 - Tuesday results remain provisional until finalization after Week 17.
 
-The exact Top-12 calculation, true-tie normalization, Player Accuracy, and scoring implementation remain blocked by the missing Scoring Specification Pack.
+The approved Scoring Specification defines the Top-12 calculation, true-tie normalization, field percentile, and scoring implementation. Row-level Player Accuracy is removed from the 2026 launch.
 
 ## 10. Explicit implementation boundary
 
 This product specification may guide non-production UI and state-flow prototypes only. It does not authorize production implementation of:
 
-- scoring formulas, expected-value curves, BVM generation, Player Accuracy, Top-N calculations, percentile, or tiebreaker normalization;
+- scoring formulas, expected-value curves, BVM generation, Top-N calculations, percentile, or tiebreaker normalization, except where an approved Scoring Specification expressly supplies implementation authority;
 - production player identity matching, source ingestion, source permissions, attribution, archival behavior, correction handling, or fallback behavior;
 - the opening player pool or Current Market Value feed;
 - season dates, deadline configuration, correction windows, or finalization dates;

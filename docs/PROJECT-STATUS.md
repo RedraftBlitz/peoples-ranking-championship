@@ -1,6 +1,6 @@
 # Project Status
 
-This file is a concise status view of the 2026 PRC Source-of-Truth Audit. The audit is a read-only consolidation, not a new Bible version. It does not approve unresolved items, supersede governing decisions, change formulas, or authorize application implementation.
+This file is a concise status view of the 2026 PRC Source-of-Truth Audit. The audit is a read-only consolidation, not a new Bible version. Later owner approvals and implementation authority are recorded in the controlled `SCORING-SPEC.md`; where this historical status summary conflicts with that newer approval record, the controlled Scoring Specification governs scoring implementation.
 
 ## 1. Locked product behavior safe to prototype
 
@@ -16,16 +16,16 @@ These items may be represented in non-production UI and state-flow prototypes. P
 - **Consensus and Leaderboard presentation:** People's Consensus launches as editorial/social content rather than a dedicated application page. Before scoring, the Leaderboard shows 25 randomized, unnumbered public Boards; ranked standings begin after the first scored Tuesday. The locked columns, precision split, and permanent-Board detail model may be prototyped without calculating scores.
 - **Awards and lifecycle surfaces:** The locked award names, winner exclusions, weeks 1-17 lifecycle, Week 18 exclusion, and provisional/final states may be represented. Award calculations and prize details remain blocked where specified below.
 
-## 2. Scoring and data blockers that must not be implemented
+## 2. Scoring and data implementation boundaries
 
-- Do not choose between the printed 210-row and workbook 330-row expected-value curve depths.
-- Do not implement BVM generation without the approved Scoring Engine Appendix, replacement baselines, formulas, final reference, and reproducible fixtures.
-- Do not choose a 0-1 or 0-100 production storage representation. Public mockups must preserve the locked 0-100 index with two decimals and no percent symbol.
-- Do not infer Top-12, Top-24, Top-50, or Top-100 window calculations, First Round Crown calculation, true-tie normalization, Player Accuracy, or live-field percentile rules.
+- The controlled Scoring Specification approves the 330-row expected-value curve pack and its full-precision values; do not substitute the older printed 210-row depth.
+- The controlled Scoring Specification approves the 70/30 BVM construction, replacement ranks, negative-week treatment, normalization, and deterministic ties. The versioned regression pack is published and verified; every production build must pass it.
+- Scores use the fullest stored precision for ordering and tiers. Public Board Accuracy is a 0-100 index with two decimals and no percent symbol.
+- The controlled Scoring Specification defines Top-12/24/50/100 calculations, First Round Crown calculation, true-tie treatment, and live-field percentile. Row-level Player Accuracy is removed from the 2026 launch; `Accuracy` means Board Accuracy.
 - Do not trust stale workbook caches, expose editable weights as a production setting, or treat static workbook BVM values as a reproducible scoring engine.
 - Do not use the supplied Half-PPR FFC sample as a silent replacement for the locked PPR Current-MV decision, or treat its draft/player counts as feed invariants.
 - Do not adopt `Player Pool.csv` as the official opening seed, use its opaque AVG as a formula, assume all 413 players are eligible, or trim it without approval.
-- Do not create production player identity mappings from display name, team, suffix, or position. A permanent PRC Player ID crosswalk and approved aliases are missing.
+- Do not create production player identity mappings from display name, team, suffix, or position alone. Immutable-ID, alias, collision, and manual-resolution rules are approved, but the permanent PRC Player ID crosswalk must still be generated and tested.
 - Do not implement production source ingestion until source permissions, attribution, access, archival behavior, correction handling, coverage thresholds, and tested fallbacks are approved.
 
 ## 3. Launch decisions that remain unresolved
@@ -42,4 +42,4 @@ These items may be represented in non-production UI and state-flow prototypes. P
 | UR-008 | Privacy, Terms, retention, deletion, security-token, analytics, vendor, public-permanence, correction, contact, and request-handling rules |
 | UR-009 | Board Name moderation policy, enforcement, notice, appeal, and audit trail |
 
-No application implementation should begin until the Scoring Specification Pack and Player Data Pack are approved, the unresolved items are resolved at their required gates, and an approved Volume III translates the locked contract into technical architecture without changing behavior.
+Core scoring implementation may begin under the controlled Scoring Specification. The scoring regression pack is complete. Production launch still requires the Player Data Pack and permanent ID crosswalk, unresolved launch items at their assigned gates, and an approved Volume III that translates the locked contract into technical architecture without changing behavior.

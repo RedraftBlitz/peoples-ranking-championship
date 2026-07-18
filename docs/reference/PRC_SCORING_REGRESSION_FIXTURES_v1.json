@@ -1,0 +1,307 @@
+{
+  "schema_version": "1.0",
+  "scoring_spec_version": "0.3",
+  "score_scale": "0-100",
+  "constants": {
+    "missing_bvm_rank": 151,
+    "full_bvm_target_count": 150,
+    "full_bvm_denominator": 11325,
+    "board_positional_weight_fraction": "4/5",
+    "board_bvm_weight_fraction": "1/5",
+    "bvm_season_weight_fraction": "7/10",
+    "bvm_weekly_weight_fraction": "3/10",
+    "replacement_ranks": {
+      "QB": 13,
+      "RB": 37,
+      "WR": 49,
+      "TE": 13
+    },
+    "curve_depths": {
+      "QB": 50,
+      "RB": 100,
+      "WR": 120,
+      "TE": 60
+    }
+  },
+  "curve_pack": {
+    "path": "docs/reference/PRC_EXPECTED_VALUE_CURVES_2023_2025_v1.csv",
+    "sha256": "0d7742224506523cb2ee801c4e06d3ecd3cb75e3a65f4f89bb65218ed625f4ac",
+    "row_count": 330
+  },
+  "bvm_accuracy": [
+    {
+      "id": "BVM-001",
+      "submitted_rule": "exact",
+      "expected_total_error": 0,
+      "expected_score_fraction": "100/1"
+    },
+    {
+      "id": "BVM-002",
+      "submitted_rule": "swap_first_two",
+      "expected_total_error": 2,
+      "expected_score_fraction": "45292/453"
+    },
+    {
+      "id": "BVM-003",
+      "submitted_rule": "omit_final_rank_150",
+      "expected_total_error": 1,
+      "expected_score_fraction": "45296/453"
+    },
+    {
+      "id": "BVM-004",
+      "submitted_rule": "reverse",
+      "expected_total_error": 11250,
+      "expected_score_fraction": "100/151"
+    },
+    {
+      "id": "BVM-005",
+      "submitted_rule": "all_omitted",
+      "expected_total_error": 11325,
+      "expected_score_fraction": "0/1"
+    },
+    {
+      "id": "BVM-006",
+      "submitted_rule": "final_101_to_150_in_submitted_1_to_50",
+      "expected_total_error": 15050,
+      "expected_score_fraction": "0/1"
+    }
+  ],
+  "positional_accuracy": [
+    {
+      "id": "POS-001",
+      "description": "Exact expected values",
+      "rows": [
+        {"position": "QB", "predicted": "100", "actual": "100"},
+        {"position": "RB", "predicted": "40", "actual": "40"}
+      ],
+      "expected_total_error_fraction": "0/1",
+      "expected_total_scale_fraction": "140/1",
+      "expected_score_fraction": "100/1"
+    },
+    {
+      "id": "POS-002",
+      "description": "Single hand-calculated 80 versus 100 row",
+      "rows": [
+        {"position": "WR", "predicted": "80", "actual": "100"}
+      ],
+      "expected_total_error_fraction": "20/1",
+      "expected_total_scale_fraction": "100/1",
+      "expected_score_fraction": "80/1"
+    },
+    {
+      "id": "POS-003",
+      "description": "All positions aggregate before division; zero-zero row contributes nothing",
+      "rows": [
+        {"position": "QB", "predicted": "80", "actual": "100"},
+        {"position": "RB", "predicted": "40", "actual": "40"},
+        {"position": "WR", "predicted": "0", "actual": "20"},
+        {"position": "TE", "predicted": "10", "actual": "5"},
+        {"position": "TE", "predicted": "0", "actual": "0"}
+      ],
+      "expected_total_error_fraction": "45/1",
+      "expected_total_scale_fraction": "170/1",
+      "expected_score_fraction": "1250/17"
+    },
+    {
+      "id": "POS-004",
+      "description": "Omitted comparison-pool player",
+      "rows": [
+        {"position": "RB", "predicted": "0", "actual": "100"}
+      ],
+      "expected_total_error_fraction": "100/1",
+      "expected_total_scale_fraction": "100/1",
+      "expected_score_fraction": "0/1"
+    },
+    {
+      "id": "POS-005",
+      "description": "Submitted player beyond the approved curve has zero predicted expected points",
+      "rows": [
+        {"position": "TE", "predicted": "0", "actual": "20"}
+      ],
+      "expected_total_error_fraction": "20/1",
+      "expected_total_scale_fraction": "20/1",
+      "expected_score_fraction": "0/1"
+    },
+    {
+      "id": "POS-006",
+      "description": "Actual finisher beyond the approved curve has zero actual expected points",
+      "rows": [
+        {"position": "QB", "predicted": "20", "actual": "0"}
+      ],
+      "expected_total_error_fraction": "20/1",
+      "expected_total_scale_fraction": "20/1",
+      "expected_score_fraction": "0/1"
+    }
+  ],
+  "invalid_positional": [
+    {
+      "id": "POS-INVALID-001",
+      "rows": [
+        {"position": "QB", "predicted": "0", "actual": "0"}
+      ],
+      "expected_result": "reject_zero_denominator_snapshot"
+    }
+  ],
+  "positional_ties": [
+    {
+      "id": "POS-TIE-001",
+      "ttl_descending_input": ["100", "90", "90", "80"],
+      "expected_competition_ranks": [1, 2, 2, 4]
+    }
+  ],
+  "comparison_pool": [
+    {
+      "id": "POOL-001",
+      "submitted_player_ids": ["P1", "P2", "P3"],
+      "bvm_top_player_ids": ["P2", "P4"],
+      "expected_union_player_ids": ["P1", "P2", "P3", "P4"]
+    }
+  ],
+  "top_n": [
+    {"n": 12, "expected_denominator": 1734, "exact_score_fraction": "100/1", "all_omitted_score_fraction": "0/1"},
+    {"n": 24, "expected_denominator": 3324, "exact_score_fraction": "100/1", "all_omitted_score_fraction": "0/1"},
+    {"n": 50, "expected_denominator": 6275, "exact_score_fraction": "100/1", "all_omitted_score_fraction": "0/1"},
+    {"n": 100, "expected_denominator": 10050, "exact_score_fraction": "100/1", "all_omitted_score_fraction": "0/1"}
+  ],
+  "board_accuracy": [
+    {"id": "BOARD-001", "positional_score": "100", "bvm_score": "100", "expected_score_fraction": "100/1"},
+    {"id": "BOARD-002", "positional_score": "80", "bvm_score": "50", "expected_score_fraction": "74/1"}
+  ],
+  "bvm_construction": {
+    "replacement_baselines": [
+      {"position": "QB", "rank": 13, "descending_start": "100", "step": "1", "count": 15, "expected_baseline": "88"},
+      {"position": "RB", "rank": 37, "descending_start": "100", "step": "1", "count": 39, "expected_baseline": "64"},
+      {"position": "WR", "rank": 49, "descending_start": "100", "step": "1", "count": 51, "expected_baseline": "52"},
+      {"position": "TE", "rank": 13, "descending_start": "100", "step": "1", "count": 15, "expected_baseline": "88"}
+    ],
+    "negative_weekly_value": {
+      "player_weekly_points": ["20", "0", "10"],
+      "replacement_weekly_points": ["15", "5", "12"],
+      "expected_weekly_net_vor_fraction": "-2/1"
+    },
+    "midrank_percentile": {
+      "values": ["0", "10", "10", "30"],
+      "expected_percentile_fractions": ["25/2", "50/1", "50/1", "175/2"]
+    },
+    "blend": {
+      "season_percentile": "50",
+      "weekly_percentile": "87.5",
+      "expected_bvm_value_fraction": "245/4"
+    }
+  },
+  "bvm_tie_ordering": {
+    "description": "Three exact BVM-value ties cross a hypothetical Top-150 cutoff; season percentile, weekly percentile, then PRC Player ID decide their deterministic order.",
+    "candidates": [
+      {"prc_player_id": "PRC-TEST-B", "bvm_value": "90", "season_percentile": "90", "weekly_percentile": "90"},
+      {"prc_player_id": "PRC-TEST-C", "bvm_value": "90", "season_percentile": "91", "weekly_percentile": "263/3"},
+      {"prc_player_id": "PRC-TEST-A", "bvm_value": "90", "season_percentile": "90", "weekly_percentile": "90"}
+    ],
+    "expected_order": ["PRC-TEST-C", "PRC-TEST-A", "PRC-TEST-B"]
+  },
+  "field_percentile": {
+    "board_scores": ["60", "60", "50", "40"],
+    "expected_percentile_fractions": ["75/1", "75/1", "75/2", "25/2"]
+  },
+  "display_rounding": [
+    {"score": "57.534", "expected_display": "57.53"},
+    {"score": "57.535", "expected_display": "57.54"},
+    {"score": "57.5", "expected_display": "57.50"}
+  ],
+  "performance_tiers": [
+    {"score": "62.000000000001", "expected_tier": "Historic"},
+    {"score": "62", "expected_tier": "Historic"},
+    {"score": "61.999999999999", "expected_tier": "Championship"},
+    {"score": "60.000000000001", "expected_tier": "Championship"},
+    {"score": "60", "expected_tier": "Championship"},
+    {"score": "59.999999999999", "expected_tier": "Elite"},
+    {"score": "58.500000000001", "expected_tier": "Elite"},
+    {"score": "58.5", "expected_tier": "Elite"},
+    {"score": "58.499999999999", "expected_tier": "Excellent"},
+    {"score": "57.000000000001", "expected_tier": "Excellent"},
+    {"score": "57", "expected_tier": "Excellent"},
+    {"score": "56.999999999999", "expected_tier": "Strong"},
+    {"score": "55.500000000001", "expected_tier": "Strong"},
+    {"score": "55.5", "expected_tier": "Strong"},
+    {"score": "55.499999999999", "expected_tier": "Competitive"},
+    {"score": "53.000000000001", "expected_tier": "Competitive"},
+    {"score": "53", "expected_tier": "Competitive"},
+    {"score": "52.999999999999", "expected_tier": "Developing"},
+    {"score": "50.000000000001", "expected_tier": "Developing"},
+    {"score": "50", "expected_tier": "Developing"},
+    {"score": "49.999999999999", "expected_tier": "Off the Pace"}
+  ],
+  "leaderboard_ordering": {
+    "rounded_display_not_tie": {
+      "boards": [
+        {"board_name": "Board A", "board_accuracy": "60.0049", "expected_display": "60.00"},
+        {"board_name": "Board B", "board_accuracy": "60.0048", "expected_display": "60.00"}
+      ],
+      "expected_order": ["Board A", "Board B"]
+    },
+    "nonwinning_exact_tie": {
+      "boards": [
+        {"board_name": "Champion", "board_accuracy": "61"},
+        {"board_name": "Zulu Board", "board_accuracy": "60"},
+        {"board_name": "Alpha Board", "board_accuracy": "60"},
+        {"board_name": "Beta Board", "board_accuracy": "59"}
+      ],
+      "expected": [
+        {"board_name": "Champion", "placement": 1},
+        {"board_name": "Alpha Board", "placement": 2},
+        {"board_name": "Zulu Board", "placement": 2},
+        {"board_name": "Beta Board", "placement": 4}
+      ]
+    },
+    "championship_exact_tie": {
+      "boards": [
+        {"board_name": "Alpha Board", "board_accuracy": "60", "tiebreakers": ["90", "90", "90", "90", "80", "70"]},
+        {"board_name": "Zulu Board", "board_accuracy": "60", "tiebreakers": ["91", "80", "80", "80", "70", "60"]},
+        {"board_name": "Beta Board", "board_accuracy": "59", "tiebreakers": ["100", "100", "100", "100", "100", "100"]}
+      ],
+      "expected_champion": "Zulu Board"
+    },
+    "championship_true_tie": {
+      "boards": [
+        {"board_name": "Zulu Board", "board_accuracy": "60", "tiebreakers": ["90", "80", "70", "60", "50", "40"]},
+        {"board_name": "Alpha Board", "board_accuracy": "60", "tiebreakers": ["90", "80", "70", "60", "50", "40"]}
+      ],
+      "expected_official_tie": ["Alpha Board", "Zulu Board"]
+    }
+  },
+  "identity": {
+    "approved_alias_groups": [
+      {"prc_player_id": "PRC-TEST-JAMES-COOK", "aliases": ["James Cook", "James Cook III", "JAMES   COOK"], "expected_normalized_name": "james cook"},
+      {"prc_player_id": "PRC-TEST-CHRIS-GODWIN", "aliases": ["Chris Godwin", "Chris Godwin Jr.", "Chris Godwin, Jr."], "expected_normalized_name": "chris godwin"}
+    ],
+    "team_change": {
+      "prc_player_id": "PRC-TEST-TEAM-CHANGE",
+      "records": [
+        {"display_name": "Example Player", "team": "OLD"},
+        {"display_name": "Example Player", "team": "NEW"}
+      ],
+      "expected_identity_count": 1
+    },
+    "manual_collision": {
+      "records": [
+        {"external_id": "SOURCE-A-001", "display_name": "Alex Smith", "position": "QB"},
+        {"external_id": "SOURCE-B-002", "display_name": "Alex Smith", "position": "RB"}
+      ],
+      "expected_action": "manual_review_do_not_auto_merge"
+    }
+  },
+  "historical_bvm_fixture": {
+    "path": "docs/reference/PRC_BVM_2025_REGRESSION_v1.csv",
+    "sha256": "521ee49a21a33b904384d0fc47a6bf0670182c7b39b34ff048e13677e353a3e6",
+    "source_sha256": "9d2c22480b1c86b9005accb196bcfc544d4e8f011f77d4848905b20215e3d5f0",
+    "row_count": 150,
+    "note": "Fixture IDs are deterministic test identities, not production PRC Player IDs.",
+    "recovered_html_float_parity": {
+      "eligible_population": 649,
+      "top_150_membership_difference": 0,
+      "exact_rank_matches": 138,
+      "one_rank_differences": 12,
+      "maximum_rank_difference": 1,
+      "explanation": "The exact-decimal fixture preserves the same Top-150 membership. Twelve adjacent positions differ because the exploratory HTML uses binary floating-point equality and CSV input order; the approved full-precision and deterministic-tie rules supersede those artifacts."
+    }
+  }
+}

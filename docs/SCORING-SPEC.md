@@ -2,11 +2,11 @@
 
 ## Document control
 
-- **Version:** 0.2
+- **Version:** 0.3
 - **Date:** 2026-07-18
-- **Status:** Controlled scoring-specification draft; official Board math, winner ordering, 330-row curves, comparison pool, equal-TTL rule, precision, and BVM construction approved; row-level Player Accuracy and production fixtures remain in Section 9
+- **Status:** Controlled scoring specification; all 2026 scoring formulas, winner ordering, and regression fixtures approved; production identity crosswalk remains in Section 9
 - **Scope:** Positional Accuracy, BVM Accuracy, Board Accuracy, score ordering, current evidence, and approval gates
-- **Implementation authority:** Core Board, positional, BVM, percentile, and ordering implementation may begin. Week 1 production publication additionally requires the row-level Player Accuracy closure and the regression and identity controls in SS-07, SS-09, and SS-10.
+- **Implementation authority:** Core Board, positional, BVM, percentile, and ordering implementation may begin. Week 1 production publication additionally requires the permanent identity crosswalk in SS-10.
 
 This document records the scoring rules that the supplied sources and explicit 2026-07-18 owner approvals support. It does not treat a passing workbook cell as broader test coverage than it provides, and it preserves the few remaining choices that can still change a score or winner.
 
@@ -23,6 +23,8 @@ If this document conflicts with a governing source, the source hierarchy in the 
 - Exact BVM-value ties use higher Season VOR percentile, then higher Weekly Net VOR percentile, then permanent PRC Player ID ascending.
 - Before the first scored Tuesday, the Leaderboard shows 25 randomized, unnumbered public Boards and no scoring accuracy or percentile. Those results appear beginning with the Week 1 scoring update.
 - Exact Board Accuracy ties outside the championship decision share one placement number and are displayed alphabetically by Board Name.
+- Row-level Player Accuracy is removed from the 2026 launch. `Accuracy` means the complete-Board Board Accuracy score unless a future approved version explicitly introduces another metric.
+- The versioned regression pack uses exact rational arithmetic and an exact-decimal 2025 BVM fixture; its standard run passes 889 checks and its archived-source rebuild passes 896.
 - A live 2026 BVM reference is generated from in-season scoring data; it is not a preseason prerequisite.
 
 ### Status labels
@@ -285,7 +287,9 @@ Exact BVM-value ties, including a tie crossing the Top-150 cutoff, are ordered b
 3. Higher exact Weekly Net VOR percentile.
 4. Permanent PRC Player ID ascending.
 
-The historical lab's CSV-input-order fallback is superseded. Status: construction and tie ordering `LOCKED / CONFIRMED`; historical reproduction remains `UNVERIFIED / MISSING TEST` under SS-09.
+The historical lab's CSV-input-order fallback is superseded. The approved [`PRC_BVM_2025_REGRESSION_v1.csv`](reference/PRC_BVM_2025_REGRESSION_v1.csv) rebuild uses the archived 2025 weekly source, SHA-256 `9d2c22480b1c86b9005accb196bcfc544d4e8f011f77d4848905b20215e3d5f0`, and produces 150 exact-decimal output rows, SHA-256 `521ee49a21a33b904384d0fc47a6bf0670182c7b39b34ff048e13677e353a3e6`.
+
+The exact rebuild preserves the recovered HTML's complete Top-150 membership. Of the 150 positions, 138 are identical and 12 move by exactly one adjacent position. Those 12 differences come from binary floating-point equality and CSV-input-order artifacts in the exploratory HTML; the approved exact-decimal calculation and deterministic tie keys govern production. Status: construction, tie ordering, and historical reproduction `LOCKED / CONFIRMED` and `VERIFIED BY CURRENT TESTING`.
 
 ## 5. Board Accuracy
 
@@ -299,33 +303,7 @@ Board Accuracy
 
 The weights are fixed production rules. The lab exposes them as editable for private sensitivity testing only; users and production administrators must not be able to change them.
 
-All component and Board calculations are persisted at the engine's fullest available precision without deliberate score rounding. Production storage must round-trip the computed value used for ordering; the exact database numeric type is a Volume III implementation choice, not permission to reduce precision. Rounding occurs only for display. Public Board Accuracy is displayed to two decimals with no percent symbol; percentile is the only result that uses percentage language.
-
-### 5.1 Player Accuracy diagnostic
-
-Beginning with the first scored Tuesday, every submitted player row displays one Player Accuracy diagnostic using an 80% positional / 20% BVM blend. It explains an individual preseason placement; it never affects Board Accuracy, Leaderboard placement, tiebreakers, or awards, and averaging the 150 row values does not reproduce Board Accuracy.
-
-The governing source locks the blend and timing but omits the two row-component normalizations. The recommended exact definition awaiting final approval is:
-
-```text
-P = predicted positional expected points for this Board row
-A = actual positional expected points for the current snapshot
-S = submitted overall rank, 1..150
-B = current BVM rank, or 151 when outside the current BVM Top 150
-
-player_positional_accuracy
-  = 100 × max(0, 1 - |P - A| / max(P, A)), when max(P, A) > 0
-  = 100, when P = A = 0
-
-player_bvm_accuracy
-  = 100 × max(0, 1 - |S - B| / 150)
-
-Player Accuracy
-  = 0.80 × player_positional_accuracy
-  + 0.20 × player_bvm_accuracy
-```
-
-The denominator 150 is the complete possible distance between rank 1 and the outside-Top-150 sentinel rank 151. Calculations use full precision and the row displays two decimals without a percent symbol. Status: `CONTRADICTION / APPROVAL REQUIRED` for this exact normalization and the `P = A = 0` convention.
+All component and Board calculations are persisted at the engine's fullest available precision without deliberate score rounding. Production storage must round-trip the computed value used for ordering; the exact database numeric type is a Volume III implementation choice, not permission to reduce precision. Rounding occurs only for display using decimal half-up rounding. Public Board Accuracy is displayed to two decimals with no percent symbol; percentile is the only result that uses percentage language.
 
 ## 6. Ordering, tiebreakers, and tiers
 
@@ -383,7 +361,7 @@ The thresholds and full-precision comparison rule are `LOCKED / CONFIRMED`. Tier
 
 ### 6.3 Leaderboard timing and field percentile
 
-After Championship Lock but before the first scored Tuesday, the Leaderboard shows 25 randomized, unnumbered public Boards. Board Accuracy, Player Accuracy, and field percentile are not displayed before scoring exists.
+After Championship Lock but before the first scored Tuesday, the Leaderboard shows 25 randomized, unnumbered public Boards. Board Accuracy and field percentile are not displayed before scoring exists.
 
 Beginning with the Week 1 scoring update, ranked standings and accuracy results appear. Field percentile is calculated from exact full-precision Board Accuracy over all valid scored Boards in the published snapshot:
 
@@ -416,6 +394,7 @@ Independent reconciliation also confirmed:
 - every curve key is unique and the ranks are present at the workbook depths;
 - the BVM denominator independently derives to 11,325;
 - exact order produces BVM Accuracy 100 and all omitted produces zero;
+- all seven visible workbook sheets and all 9,509 formulas contain no row-level Player Accuracy calculation, defined name, hidden calculation sheet, macro, or external calculation link; the only 80/20 score formula is complete-Board Board Accuracy;
 - the workbook contains no literal cached `#REF!`, `#DIV/0!`, `#VALUE!`, `#NAME?`, or `#N/A` values.
 
 ### 7.2 What the lab does not test
@@ -432,10 +411,10 @@ The supplied automatic QA does not test:
 - frozen benchmark Boards or the reported expert/simulation results;
 - Top-12/24/50/100 calculations, First Round Crown, or true-tie behavior;
 - Performance Tier boundary rounding;
-- Player Accuracy or live-field percentile;
+- live-field percentile;
 - a historical snapshot reproducing the approved 70/30 BVM reference construction.
 
-Those items remain `UNVERIFIED / MISSING TEST` or `BLOCKED / MISSING ARTIFACT` as applicable.
+The published v1 regression pack now covers every mathematical and ordering item in that list except the unavailable frozen expert/simulation Board artifacts. Those historical claims remain unverified and must not be repeated as current test results, but they are not required to execute the approved formulas because exact unit, boundary, ordering, identity, and complete 2025 BVM construction fixtures now exist.
 
 ### 7.3 Workbook cache and presentation warnings
 
@@ -443,9 +422,9 @@ The current Board Input is empty and cached `Valid Rows` is zero, but the cached
 
 The lab's percentage formatting is also not a public UI contract. Public output must use a two-decimal 0-100 index such as `57.53`, never `57.53%` or `57.5%`.
 
-## 8. Minimum regression fixtures required for approval
+## 8. Published regression fixtures
 
-The following exact tests must exist in a versioned, machine-readable fixture pack before production scoring publication is approved.
+[`PRC_SCORING_REGRESSION_FIXTURES_v1.json`](reference/PRC_SCORING_REGRESSION_FIXTURES_v1.json), SHA-256 `0f6e2c359883459de73c803695f9cf40053cc178854c801f21a468db2bca86d2`, is the approved machine-readable pack. [`validate_scoring_regression.py`](../tests/validate_scoring_regression.py) performs 889 committed-fixture checks using exact rational arithmetic and zero winner-math tolerance. With the archived 2025 source supplied, it performs 896 checks, requires the exact source hash, regenerates the BVM output, and requires the exact output hash.
 
 ### 8.1 BVM unit fixtures
 
@@ -471,7 +450,7 @@ At minimum:
 - at least one equal-`TTL` group using the approved tie rule;
 - invalid or zero-denominator snapshot behavior.
 
-Every positional fixture must name the exact curve-pack version and use permanent PRC Player IDs.
+Every positional fixture names the exact curve-pack version. Synthetic IDs are used only inside the regression pack; production scoring must use permanent PRC Player IDs.
 
 ### 8.3 Board and ordering fixtures
 
@@ -488,7 +467,7 @@ Every positional fixture must name the exact curve-pack version and use permanen
 
 ### 8.4 BVM construction fixtures
 
-The recovered BVM lab must be converted into small hand-calculated fixtures and at least one complete historical weekly snapshot that reproduces:
+The recovered BVM lab is represented by small hand-calculated fixtures and the complete 2025 historical reconstruction, which reproduce:
 
 1. Season Value Over Replacement from `TTL`.
 2. Weekly Net Value Over Replacement from completed week columns.
@@ -513,15 +492,15 @@ The recovered BVM lab must be converted into small hand-calculated fixtures and 
 | SS-01 | Approve curve depths and publish the full-precision curve pack | `CLOSED / APPROVED`: 330 rows; versioned CSV published with exact rational values |
 | SS-02 | Approve the Positional Accuracy comparison pool | `CLOSED / APPROVED`: submitted Board union final BVM Top 150 |
 | SS-03 | Define the exact shared curve rank for equal-`TTL` players | `CLOSED / APPROVED`: competition rank; tied players share the first occupied rank's exact curve value |
-| SS-04 | Recover and approve the 70/30 BVM construction | `CLOSED / APPROVED` for formula and settings; historical regression fixture remains under SS-09 |
+| SS-04 | Recover and approve the 70/30 BVM construction | `CLOSED / APPROVED`: formula, settings, deterministic ties, and exact 2025 historical reconstruction |
 | SS-05 | Produce the live final BVM reference | `OPERATIONAL OUTPUT`: generated from each in-season snapshot; not a preseason blocker |
 | SS-06 | Define exact Top-12/24/50/100 calculations and true-tie normalization | `CLOSED / APPROVED`: final BVM Top-N targets, rank-151 omissions, frozen all-omitted denominators, and winner-only ladder application |
-| SS-07 | Define row-level Player Accuracy, field percentile, and display timing | `PARTIALLY APPROVED`: pre-scoring random Board display, Week 1 activation, and midrank field percentile are approved; exact row-level Player Accuracy component normalization remains |
+| SS-07 | Define scoring display timing and live-field percentile; decide row-level Player Accuracy | `CLOSED / APPROVED`: Week 1 activation and midrank field percentile approved; row-level Player Accuracy removed from 2026 launch |
 | SS-08 | Approve score precision, public display, and tier comparison | `CLOSED / APPROVED`: fullest stored precision; two-decimal no-percent display; full-precision tiering |
-| SS-09 | Publish the complete regression pack and numerical tolerances | `UNVERIFIED / MISSING TEST` |
+| SS-09 | Publish the complete regression pack and numerical tolerances | `CLOSED / VERIFIED`: exact-rational v1 pack; 889 committed-fixture checks and 896 archived-source rebuild checks pass |
 | SS-10 | Supply the permanent PRC Player ID crosswalk and scoring-source operating approvals | `RULES APPROVED / ARTIFACT PENDING`: FantasyCalc API plus the FantasyPros list build the preseason pool; immutable ID, alias, collision, and manual-resolution rules approved; crosswalk remains to be generated and tested |
 
-Core Board, positional, BVM, percentile, and ordering implementation may begin. Week 1 publication additionally requires the exact row-level Player Accuracy normalization, regression pack, and permanent identity crosswalk in SS-07, SS-09, and SS-10. A live BVM Top 150 is generated during the season and is not required before games begin.
+Core Board, positional, BVM, percentile, and ordering implementation may begin. Week 1 publication additionally requires the permanent identity crosswalk in SS-10. A live BVM Top 150 is generated during the season and is not required before games begin.
 
 ## 10. Source and reproducibility record
 
@@ -531,6 +510,10 @@ Core Board, positional, BVM, percentile, and ordering implementation may begin. 
 | `PRC_Bible_Volume_II_v1.0_Definitive_Product_and_User_Experience_Edition.docx` | `e414099637b90923bddfb028a902ea3d34e84471462e9828d5ebb25847343afd` | Preserves Board math; restores 70/30 BVM input layer and weekly data contract |
 | `PRC_Board_Accuracy_Testing_Lab_v0.2_FINAL.xlsx` | `930873a595b18929621e2724637535c4fd93dff563ad96cf982a14f3eb0c2350` | Historical executable formula and limited QA evidence |
 | [`PRC_EXPECTED_VALUE_CURVES_2023_2025_v1.csv`](reference/PRC_EXPECTED_VALUE_CURVES_2023_2025_v1.csv) | `0d7742224506523cb2ee801c4e06d3ecd3cb75e3a65f4f89bb65218ed625f4ac` | Approved 330-row exact expected-value curve pack |
+| [`PRC_SCORING_REGRESSION_FIXTURES_v1.json`](reference/PRC_SCORING_REGRESSION_FIXTURES_v1.json) | `0f6e2c359883459de73c803695f9cf40053cc178854c801f21a468db2bca86d2` | Approved exact scoring, ordering, percentile, tier, BVM construction, and identity fixtures |
+| [`PRC_BVM_2025_REGRESSION_v1.csv`](reference/PRC_BVM_2025_REGRESSION_v1.csv) | `521ee49a21a33b904384d0fc47a6bf0670182c7b39b34ff048e13677e353a3e6` | Exact-decimal historical BVM Top-150 reconstruction; source hash is recorded in the fixture manifest |
+| [`validate_scoring_regression.py`](../tests/validate_scoring_regression.py) | `ed7c52c4dbd0d70e93d04ceca7cd8a0f6650c1e9ae1e8662d729d7c60f4a3dc7` | Standard-library exact validator; 889 committed checks and 896 full-rebuild checks |
+| [`rebuild_bvm_2025_fixture.py`](../tests/rebuild_bvm_2025_fixture.py) | `f999eb68c1a92733cb7634884d9bdb217b10fe3a865230a37ceecaafa839a716` | Reproducible 2025 exact BVM fixture builder with source-hash enforcement |
 | [`RB_Value_Score_Lab_v0.1.html`](reference/RB_Value_Score_Lab_v0.1.html) | `04fabc4bb4ce629d97486f028c78cceb17dbe0dde47c67cf248a8b1e100fc1af` | Recovered season VOR, weekly net VOR, percentile normalization, blend, and sensitivity implementation |
 | [`RB_Value_Score_Lab_v0.1_README.txt`](reference/RB_Value_Score_Lab_v0.1_README.txt) | `69992f6a1d4d1bfc45b91e84034db46be96dffdd168c9df0a7dda201d9ff182e` | Original operating notes and exploratory-status record for the BVM lab |
 | [`PRC_2026_Consolidated_Source_of_Truth_Audit_v1.0.pdf`](reference/PRC_2026_Consolidated_Source_of_Truth_Audit_v1.0.pdf) | `98bac4862ba3696454eb8f9d0bdd847436eed739e9b6ef640c71548d08ae19c4` | Consolidated audit, contradictions, missing artifacts, and no-guess boundary |
@@ -547,4 +530,4 @@ Core Board, positional, BVM, percentile, and ordering implementation may begin. 
 | Floors, precision, and edge behavior | Volume I Chapters 35-36 and 49 |
 | Tiebreaker ladder | Volume I Chapter 36; Volume II continuity record |
 | Performance Tiers and display | Volume I Chapter 49 |
-| Current executable QA | Lab `QA`, `Dashboard`, `Scoring Detail`, and `Settings` |
+| Current executable QA | Lab `QA`, `Dashboard`, `Scoring Detail`, and `Settings`; versioned JSON/CSV regression pack and exact validator |
