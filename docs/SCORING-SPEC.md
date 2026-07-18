@@ -424,7 +424,7 @@ The recovered BVM lab must be converted into small hand-calculated fixtures and 
 | SS-07 | Define or defer row-level Player Accuracy and define live-field percentile | `CONTRADICTION / APPROVAL REQUIRED` |
 | SS-08 | Approve score precision, public display, and tier comparison | `CLOSED / APPROVED`: fullest stored precision; two-decimal no-percent display; full-precision tiering |
 | SS-09 | Publish the complete regression pack and numerical tolerances | `UNVERIFIED / MISSING TEST` |
-| SS-10 | Supply the permanent PRC Player ID crosswalk and scoring-source operating approvals | `PARTIALLY DEFINED`: FFC API plus FantasyPros build the preseason pool; immutable IDs and aliases remain to be generated |
+| SS-10 | Supply the permanent PRC Player ID crosswalk and scoring-source operating approvals | `PARTIALLY DEFINED`: FantasyCalc API plus the FantasyPros list build the preseason pool; immutable IDs and aliases remain to be generated |
 
 Core scoring implementation can begin after SS-06 and SS-07 are closed. Production publication additionally requires the regression pack and permanent identity crosswalk in SS-09 and SS-10. A live BVM Top 150 is expected to be generated during the season and is not required before games begin.
 
