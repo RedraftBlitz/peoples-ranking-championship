@@ -4,9 +4,9 @@
 
 - **Version:** 0.2
 - **Date:** 2026-07-18
-- **Status:** Controlled scoring-specification draft; Board math, 330-row curves, comparison pool, equal-TTL rule, precision, and BVM construction approved; remaining winner-affecting details listed in Section 9
+- **Status:** Controlled scoring-specification draft; official Board math, winner ordering, 330-row curves, comparison pool, equal-TTL rule, precision, and BVM construction approved; row-level Player Accuracy and production fixtures remain in Section 9
 - **Scope:** Positional Accuracy, BVM Accuracy, Board Accuracy, score ordering, current evidence, and approval gates
-- **Implementation authority:** Core scoring implementation may begin after SS-06 and SS-07 are closed. Production scoring and publication additionally require the regression and identity controls in SS-09 and SS-10.
+- **Implementation authority:** Core Board, positional, BVM, percentile, and ordering implementation may begin. Week 1 production publication additionally requires the row-level Player Accuracy closure and the regression and identity controls in SS-07, SS-09, and SS-10.
 
 This document records the scoring rules that the supplied sources and explicit 2026-07-18 owner approvals support. It does not treat a passing workbook cell as broader test coverage than it provides, and it preserves the few remaining choices that can still change a score or winner.
 
@@ -17,9 +17,12 @@ If this document conflicts with a governing source, the source hierarchy in the 
 - The full 330-row expected-value curve depth is approved: QB 50, RB 100, WR 120, and TE 60.
 - The Positional Accuracy comparison pool is the union of the submitted Board and final BVM Top 150.
 - Equal-`TTL` players receive the exact curve value at the first occupied rank (competition ranking); the next distinct player resumes after every occupied slot.
-- Top-12/24/50/100 tiebreakers are 100% BVM-based because BVM already incorporates positional value over replacement; the exact window population and denominator remain to be confirmed in SS-06.
+- Top-12/24/50/100 tiebreakers are 100% BVM-based, use final BVM Top-N targets, and are applied only to select a winner from an exact full-precision first-place tie.
 - Scores are saved at the engine's fullest available precision, ordered and tiered at that precision, and displayed to two decimals without a percent symbol.
 - BVM uses a 70% season-value / 30% weekly-net-value blend, replacement ranks QB13/RB37/WR49/TE13, and permits negative weekly value.
+- Exact BVM-value ties use higher Season VOR percentile, then higher Weekly Net VOR percentile, then permanent PRC Player ID ascending.
+- Before the first scored Tuesday, the Leaderboard shows 25 randomized, unnumbered public Boards and no scoring accuracy or percentile. Those results appear beginning with the Week 1 scoring update.
+- Exact Board Accuracy ties outside the championship decision share one placement number and are displayed alphabetically by Board Name.
 - A live 2026 BVM reference is generated from in-season scoring data; it is not a preseason prerequisite.
 
 ### Status labels
@@ -64,7 +67,15 @@ FantasyPros `RK` and `AVG` do not determine PRC scores. `GP` is validation-only.
 
 Names, team labels, suffixes, and positions are not permanent identity keys. A scoring run must join data through the approved PRC Player ID crosswalk. A position change must be manually approved and applied consistently to every Board without changing the player's submitted rank or identity.
 
-The permanent crosswalk and the complete production position-change procedure are not supplied. This dependency remains `BLOCKED / MISSING ARTIFACT`.
+Each player receives one immutable, opaque PRC Player ID. FantasyCalc, FantasyPros, and any later external IDs are source mappings to that identity, not replacements for it. The matching order is:
+
+1. An already approved external-source-ID mapping.
+2. An approved alias mapping to an existing PRC Player ID.
+3. Manual resolution when neither mapping exists or when normalized names collide.
+
+Case, punctuation, whitespace, and suffix variants such as `Jr.`, `Sr.`, `II`, `III`, and `IV` may be stored as aliases, but display-name normalization alone must never silently merge two records. `James Cook` and `James Cook III` must resolve to one PRC Player ID, as must `Chris Godwin` and `Chris Godwin Jr.`. Team changes never create a new identity. Ambiguous same-name records require external-ID evidence or manual approval.
+
+The identity rules are `LOCKED / CONFIRMED`; generating and validating the production crosswalk remains an SS-10 deliverable.
 
 ### 2.2 Actual positional finish
 
@@ -267,7 +278,14 @@ Players are ordered from highest exact BVM value to lowest and the leading 150 b
 
 The saved HTML's initial controls display 50/50 and positive-only weekly value. Those were exploratory defaults. The 2026-07-18 owner approval supersedes the defaults with 70/30 and negative weekly value; the underlying source code supports both settings.
 
-Remaining BVM implementation detail: exact BVM-value ties and a tie crossing the Top-150 cutoff need one deterministic ordering rule. The historical lab currently falls back to CSV input order, which is not an acceptable permanent identity rule. Status: core construction `LOCKED / CONFIRMED`; tie ordering and historical fixture `UNVERIFIED / MISSING TEST`.
+Exact BVM-value ties, including a tie crossing the Top-150 cutoff, are ordered by these full-precision keys:
+
+1. Higher exact BVM value.
+2. Higher exact Season VOR percentile.
+3. Higher exact Weekly Net VOR percentile.
+4. Permanent PRC Player ID ascending.
+
+The historical lab's CSV-input-order fallback is superseded. Status: construction and tie ordering `LOCKED / CONFIRMED`; historical reproduction remains `UNVERIFIED / MISSING TEST` under SS-09.
 
 ## 5. Board Accuracy
 
@@ -283,6 +301,32 @@ The weights are fixed production rules. The lab exposes them as editable for pri
 
 All component and Board calculations are persisted at the engine's fullest available precision without deliberate score rounding. Production storage must round-trip the computed value used for ordering; the exact database numeric type is a Volume III implementation choice, not permission to reduce precision. Rounding occurs only for display. Public Board Accuracy is displayed to two decimals with no percent symbol; percentile is the only result that uses percentage language.
 
+### 5.1 Player Accuracy diagnostic
+
+Beginning with the first scored Tuesday, every submitted player row displays one Player Accuracy diagnostic using an 80% positional / 20% BVM blend. It explains an individual preseason placement; it never affects Board Accuracy, Leaderboard placement, tiebreakers, or awards, and averaging the 150 row values does not reproduce Board Accuracy.
+
+The governing source locks the blend and timing but omits the two row-component normalizations. The recommended exact definition awaiting final approval is:
+
+```text
+P = predicted positional expected points for this Board row
+A = actual positional expected points for the current snapshot
+S = submitted overall rank, 1..150
+B = current BVM rank, or 151 when outside the current BVM Top 150
+
+player_positional_accuracy
+  = 100 × max(0, 1 - |P - A| / max(P, A)), when max(P, A) > 0
+  = 100, when P = A = 0
+
+player_bvm_accuracy
+  = 100 × max(0, 1 - |S - B| / 150)
+
+Player Accuracy
+  = 0.80 × player_positional_accuracy
+  + 0.20 × player_bvm_accuracy
+```
+
+The denominator 150 is the complete possible distance between rank 1 and the outside-Top-150 sentinel rank 151. Calculations use full precision and the row displays two decimals without a percent symbol. Status: `CONTRADICTION / APPROVAL REQUIRED` for this exact normalization and the `P = A = 0` convention.
+
 ## 6. Ordering, tiebreakers, and tiers
 
 ### 6.1 Official order
@@ -296,9 +340,31 @@ All component and Board calculations are persisted at the engine's fullest avail
 7. Full unrounded Positional Accuracy
 8. Official tie only if every objective value remains identical
 
-The ladder and order are `LOCKED / CONFIRMED`. The 2026-07-18 approval establishes that every Top-12, Top-24, Top-50, and Top-100 window is scored 100% against BVM; Positional Accuracy is not blended into those tiebreakers because the approved BVM construction already accounts for position-adjusted value over replacement.
+The ladder is used only to select a winner from Boards tied for the highest full-precision Board Accuracy. Routine Leaderboard ordering does not use the ladder to separate exact ties below first place. Those Boards share the same competition placement number and are displayed alphabetically by Board Name. For example, an exact tie occupying places 5 and 6 displays both Boards as `5`; the next Board displays as `7`. If a first-place tie is resolved by the ladder, the winner displays as `1` and any remaining exact-Board-Accuracy ties share the next placement and are alphabetized. If every objective value remains identical, the result is an official tie.
 
-One exact formula decision remains: whether each window evaluates the submitted first `N` players or evaluates the final BVM first `N` targets across the participant's complete Board, and the corresponding all-missed denominator. Status: approved BVM-only principle; `CONTRADICTION / APPROVAL REQUIRED` for the exact window definition.
+For each `N` in `12`, `24`, `50`, and `100`, the window evaluates the players who actually occupy final BVM ranks 1 through `N`. Each target uses the participant's submitted overall rank or 151 when omitted:
+
+```text
+top_n_error
+  = Σ |submitted overall rank of final BVM target r, or 151 - r|
+    for r = 1..N
+
+top_n_denominator
+  = Σ(151 - r), for r = 1..N
+  = 151N - N(N + 1) / 2
+
+Top-N Board Accuracy
+  = 100 × max(0, 1 - top_n_error / top_n_denominator)
+```
+
+| Window | Frozen all-omitted denominator |
+| --- | ---: |
+| Top 12 | 1,734 |
+| Top 24 | 3,324 |
+| Top 50 | 6,275 |
+| Top 100 | 10,050 |
+
+These windows are 100% BVM-based because BVM already incorporates position-adjusted value over replacement. The same exact Top-12 measure determines the First Round Crown. If the highest Top-12 result is tied, the remaining ladder begins at Top-24 and continues through the objective values above; equality after every value is an official award tie. Status: `LOCKED / CONFIRMED` by the 2026-07-18 owner approval.
 
 ### 6.2 Performance tiers
 
@@ -314,6 +380,21 @@ One exact formula decision remains: whether each window evaluates the submitted 
 | Below 50.00 | Off the Pace |
 
 The thresholds and full-precision comparison rule are `LOCKED / CONFIRMED`. Tier assignment uses the complete stored Board Accuracy value, never the two-decimal display value. Boundary behavior must be included in regression tests.
+
+### 6.3 Leaderboard timing and field percentile
+
+After Championship Lock but before the first scored Tuesday, the Leaderboard shows 25 randomized, unnumbered public Boards. Board Accuracy, Player Accuracy, and field percentile are not displayed before scoring exists.
+
+Beginning with the Week 1 scoring update, ranked standings and accuracy results appear. Field percentile is calculated from exact full-precision Board Accuracy over all valid scored Boards in the published snapshot:
+
+```text
+field_percentile(board)
+  = 100 × (count of Boards below its exact score
+           + 0.5 × count of Boards with its exact score)
+    / count of all valid scored Boards
+```
+
+The count of exactly tied Boards includes the Board itself. This is a display statistic only and never affects placement, awards, or tiebreakers. Status: timing and calculation `LOCKED / CONFIRMED`; final percentile label and display rounding belong to the product/design specification.
 
 ## 7. Current testing reconciliation
 
@@ -364,7 +445,7 @@ The lab's percentage formatting is also not a public UI contract. Public output 
 
 ## 8. Minimum regression fixtures required for approval
 
-The following exact tests must exist in a versioned, machine-readable fixture pack before scoring implementation is approved.
+The following exact tests must exist in a versioned, machine-readable fixture pack before production scoring publication is approved.
 
 ### 8.1 BVM unit fixtures
 
@@ -397,7 +478,12 @@ Every positional fixture must name the exact curve-pack version and use permanen
 - Positional 100 plus BVM 100 produces Board Accuracy 100.
 - Positional 80 plus BVM 50 produces Board Accuracy 74.
 - Values that display identically to two decimals remain correctly ordered at full precision.
-- Every approved Top-N tiebreaker and a true tie are reproduced exactly.
+- Every Top-N window produces 100 for exact order and 0 for all targets omitted.
+- The Top-12/24/50/100 denominators reproduce 1,734, 3,324, 6,275, and 10,050 respectively.
+- A first-place exact Board Accuracy tie invokes the objective ladder; an exact tie below first place does not.
+- Two nonwinning exact ties share one competition placement and sort alphabetically by Board Name; the next placement skips the occupied slot.
+- A true first-place tie after every objective tiebreaker remains an official tie.
+- A known field with exact score ties reproduces the approved midrank percentile.
 - Every Performance Tier boundary is tested immediately below, at, and immediately above the threshold under the approved rounding rule.
 
 ### 8.4 BVM construction fixtures
@@ -411,6 +497,15 @@ The recovered BVM lab must be converted into small hand-calculated fixtures and 
 5. The approved deterministic BVM tie ordering.
 6. The final ordered BVM Top 150 and its file hash.
 
+### 8.5 Player identity fixtures
+
+- `James Cook` and `James Cook III` resolve to the same permanent PRC Player ID.
+- `Chris Godwin` and `Chris Godwin Jr.` resolve to the same permanent PRC Player ID.
+- Case, punctuation, and whitespace variants resolve through approved aliases.
+- A team change preserves the PRC Player ID.
+- Two distinct players whose normalized display names collide are not automatically merged.
+- An unmatched or ambiguous record blocks publication until it is manually resolved and the mapping is preserved.
+
 ## 9. Approval gates
 
 | ID | Required closure | Current state |
@@ -420,13 +515,13 @@ The recovered BVM lab must be converted into small hand-calculated fixtures and 
 | SS-03 | Define the exact shared curve rank for equal-`TTL` players | `CLOSED / APPROVED`: competition rank; tied players share the first occupied rank's exact curve value |
 | SS-04 | Recover and approve the 70/30 BVM construction | `CLOSED / APPROVED` for formula and settings; historical regression fixture remains under SS-09 |
 | SS-05 | Produce the live final BVM reference | `OPERATIONAL OUTPUT`: generated from each in-season snapshot; not a preseason blocker |
-| SS-06 | Define exact Top-12/24/50/100 calculations and true-tie normalization | `CONTRADICTION / APPROVAL REQUIRED`: BVM-only approved; window population and denominator remain |
-| SS-07 | Define or defer row-level Player Accuracy and define live-field percentile | `CONTRADICTION / APPROVAL REQUIRED` |
+| SS-06 | Define exact Top-12/24/50/100 calculations and true-tie normalization | `CLOSED / APPROVED`: final BVM Top-N targets, rank-151 omissions, frozen all-omitted denominators, and winner-only ladder application |
+| SS-07 | Define row-level Player Accuracy, field percentile, and display timing | `PARTIALLY APPROVED`: pre-scoring random Board display, Week 1 activation, and midrank field percentile are approved; exact row-level Player Accuracy component normalization remains |
 | SS-08 | Approve score precision, public display, and tier comparison | `CLOSED / APPROVED`: fullest stored precision; two-decimal no-percent display; full-precision tiering |
 | SS-09 | Publish the complete regression pack and numerical tolerances | `UNVERIFIED / MISSING TEST` |
-| SS-10 | Supply the permanent PRC Player ID crosswalk and scoring-source operating approvals | `PARTIALLY DEFINED`: FantasyCalc API plus the FantasyPros list build the preseason pool; immutable IDs and aliases remain to be generated |
+| SS-10 | Supply the permanent PRC Player ID crosswalk and scoring-source operating approvals | `RULES APPROVED / ARTIFACT PENDING`: FantasyCalc API plus the FantasyPros list build the preseason pool; immutable ID, alias, collision, and manual-resolution rules approved; crosswalk remains to be generated and tested |
 
-Core scoring implementation can begin after SS-06 and SS-07 are closed. Production publication additionally requires the regression pack and permanent identity crosswalk in SS-09 and SS-10. A live BVM Top 150 is expected to be generated during the season and is not required before games begin.
+Core Board, positional, BVM, percentile, and ordering implementation may begin. Week 1 publication additionally requires the exact row-level Player Accuracy normalization, regression pack, and permanent identity crosswalk in SS-07, SS-09, and SS-10. A live BVM Top 150 is generated during the season and is not required before games begin.
 
 ## 10. Source and reproducibility record
 
