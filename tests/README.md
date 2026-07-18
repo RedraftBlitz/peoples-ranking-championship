@@ -41,3 +41,13 @@ python tests/rebuild_bvm_2025_fixture.py path/to/FantasyPros_Fantasy_Football_Po
 ```
 
 Historical fixture IDs are deterministic test identities only. Production scoring must use the approved permanent PRC Player ID crosswalk.
+
+## Permanent player-identity validation
+
+```powershell
+python tests/validate_player_identity.py
+```
+
+The committed v1 identity pack passes 8,323 checks covering all 413 immutable PRC Player IDs, 455 approved aliases, 1,196 source-ID links, full FantasyCalc Top-200 coverage, suffix and initials behavior, explicit nickname/full-name groups, collision prevention, excluded unobserved typos, required attribution, and artifact hashes.
+
+To refresh the crosswalk from approved source snapshots, use `build_player_identity_pack.py`. Keep the committed player and alias files in the output directory so existing PRC Player IDs are preserved. Any unresolved source record is written to the manual-review queue and must not enter production.

@@ -4,9 +4,9 @@
 
 - **Version:** 0.3
 - **Date:** 2026-07-18
-- **Status:** Controlled scoring specification; all 2026 scoring formulas, winner ordering, and regression fixtures approved; production identity crosswalk remains in Section 9
+- **Status:** Controlled scoring specification; all 2026 scoring formulas, winner ordering, regression fixtures, and permanent identity crosswalk approved; source operating permissions remain in Section 9
 - **Scope:** Positional Accuracy, BVM Accuracy, Board Accuracy, score ordering, current evidence, and approval gates
-- **Implementation authority:** Core Board, positional, BVM, percentile, and ordering implementation may begin. Week 1 production publication additionally requires the permanent identity crosswalk in SS-10.
+- **Implementation authority:** Core Board, positional, BVM, percentile, ordering, and permanent-ID joins may begin. Week 1 production publication additionally requires the source operating approvals remaining in SS-10.
 
 This document records the scoring rules that the supplied sources and explicit 2026-07-18 owner approvals support. It does not treat a passing workbook cell as broader test coverage than it provides, and it preserves the few remaining choices that can still change a score or winner.
 
@@ -77,7 +77,7 @@ Each player receives one immutable, opaque PRC Player ID. FantasyCalc, FantasyPr
 
 Case, punctuation, whitespace, and suffix variants such as `Jr.`, `Sr.`, `II`, `III`, and `IV` may be stored as aliases, but display-name normalization alone must never silently merge two records. `James Cook` and `James Cook III` must resolve to one PRC Player ID, as must `Chris Godwin` and `Chris Godwin Jr.`. Team changes never create a new identity. Ambiguous same-name records require external-ID evidence or manual approval.
 
-The identity rules are `LOCKED / CONFIRMED`; generating and validating the production crosswalk remains an SS-10 deliverable.
+The identity rules are `LOCKED / CONFIRMED`. The approved v1 production crosswalk is governed by [`PLAYER-IDENTITY-SPEC.md`](PLAYER-IDENTITY-SPEC.md) and its versioned artifacts.
 
 ### 2.2 Actual positional finish
 
@@ -498,9 +498,9 @@ The recovered BVM lab is represented by small hand-calculated fixtures and the c
 | SS-07 | Define scoring display timing and live-field percentile; decide row-level Player Accuracy | `CLOSED / APPROVED`: Week 1 activation and midrank field percentile approved; row-level Player Accuracy removed from 2026 launch |
 | SS-08 | Approve score precision, public display, and tier comparison | `CLOSED / APPROVED`: fullest stored precision; two-decimal no-percent display; full-precision tiering |
 | SS-09 | Publish the complete regression pack and numerical tolerances | `CLOSED / VERIFIED`: exact-rational v1 pack; 889 committed-fixture checks and 896 archived-source rebuild checks pass |
-| SS-10 | Supply the permanent PRC Player ID crosswalk and scoring-source operating approvals | `RULES APPROVED / ARTIFACT PENDING`: FantasyCalc API plus the FantasyPros list build the preseason pool; immutable ID, alias, collision, and manual-resolution rules approved; crosswalk remains to be generated and tested |
+| SS-10 | Supply the permanent PRC Player ID crosswalk and scoring-source operating approvals | `IDENTITY ARTIFACT APPROVED / SOURCE OPERATIONS PENDING`: the 413-player v1 crosswalk, aliases, 1,196 source-ID mappings, zero-open review queue, and 8,323-check validator are approved; commercial/production permission, access, archival, correction, coverage, and fallback approvals remain |
 
-Core Board, positional, BVM, percentile, and ordering implementation may begin. Week 1 publication additionally requires the permanent identity crosswalk in SS-10. A live BVM Top 150 is generated during the season and is not required before games begin.
+Core Board, positional, BVM, percentile, ordering, and permanent-ID joins may begin. Week 1 publication additionally requires the source operating approvals remaining in SS-10. A live BVM Top 150 is generated during the season and is not required before games begin.
 
 ## 10. Source and reproducibility record
 
@@ -512,6 +512,7 @@ Core Board, positional, BVM, percentile, and ordering implementation may begin. 
 | [`PRC_EXPECTED_VALUE_CURVES_2023_2025_v1.csv`](reference/PRC_EXPECTED_VALUE_CURVES_2023_2025_v1.csv) | `0d7742224506523cb2ee801c4e06d3ecd3cb75e3a65f4f89bb65218ed625f4ac` | Approved 330-row exact expected-value curve pack |
 | [`PRC_SCORING_REGRESSION_FIXTURES_v1.json`](reference/PRC_SCORING_REGRESSION_FIXTURES_v1.json) | `0f6e2c359883459de73c803695f9cf40053cc178854c801f21a468db2bca86d2` | Approved exact scoring, ordering, percentile, tier, BVM construction, and identity fixtures |
 | [`PRC_BVM_2025_REGRESSION_v1.csv`](reference/PRC_BVM_2025_REGRESSION_v1.csv) | `521ee49a21a33b904384d0fc47a6bf0670182c7b39b34ff048e13677e353a3e6` | Exact-decimal historical BVM Top-150 reconstruction; source hash is recorded in the fixture manifest |
+| [`PRC_PLAYER_IDENTITY_MANIFEST_v1.json`](reference/player_identity/PRC_PLAYER_IDENTITY_MANIFEST_v1.json) | `af569637ce3ce52358e112809edf6f8b84b785581621c47dbffbbfbaab374581` | Approved 413-player permanent crosswalk manifest, alias/source-ID counts, attribution rule, source hashes, and artifact hashes |
 | [`validate_scoring_regression.py`](../tests/validate_scoring_regression.py) | `ed7c52c4dbd0d70e93d04ceca7cd8a0f6650c1e9ae1e8662d729d7c60f4a3dc7` | Standard-library exact validator; 889 committed checks and 896 full-rebuild checks |
 | [`rebuild_bvm_2025_fixture.py`](../tests/rebuild_bvm_2025_fixture.py) | `f999eb68c1a92733cb7634884d9bdb217b10fe3a865230a37ceecaafa839a716` | Reproducible 2025 exact BVM fixture builder with source-hash enforcement |
 | [`RB_Value_Score_Lab_v0.1.html`](reference/RB_Value_Score_Lab_v0.1.html) | `04fabc4bb4ce629d97486f028c78cceb17dbe0dde47c67cf248a8b1e100fc1af` | Recovered season VOR, weekly net VOR, percentile normalization, blend, and sensitivity implementation |

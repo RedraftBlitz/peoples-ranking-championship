@@ -57,7 +57,7 @@ Primary PRC navigation:
 - The complete eligible QB/RB/WR/TE player pool remains searchable.
 - Only ranks 1-150 are submitted as the official artifact.
 
-The opening player pool, eligibility rules, size, permanent player IDs, source aliases, and curated fallback remain unresolved under UR-003. This section therefore locks the user-facing list model but does not approve a production data set.
+The approved Player Identity Pack supplies permanent player IDs and source aliases for the 413-record identity seed. Final opening eligibility, Board/search pool treatment, Current Market Value operation, and curated fallback remain unresolved under UR-003/UR-004. This section therefore locks the user-facing list model but does not independently approve the remaining production data decisions.
 
 ## 3. Board movement and Personal Rankings
 
@@ -157,7 +157,7 @@ The exact 2026 date, time, IANA timezone, public wording, and display rule remai
 - Field averages are sorted and only the final Top 150 is published.
 - People's Consensus launches as Redraft Blitz editorial and social content, not as a dedicated application page.
 
-These rules do not authorize implementation before the permanent player-ID crosswalk and approved Player Data Pack exist.
+The permanent player-ID crosswalk now exists and is approved. These rules do not authorize production publication before the remaining Player Data Pack, source-operation, and fallback decisions are approved.
 
 ## 8. Leaderboard and Board presentation
 
@@ -203,7 +203,7 @@ The approved Scoring Specification defines the Top-12 calculation, true-tie norm
 This product specification may guide non-production UI and state-flow prototypes only. It does not authorize production implementation of:
 
 - scoring formulas, expected-value curves, BVM generation, Top-N calculations, percentile, or tiebreaker normalization, except where an approved Scoring Specification expressly supplies implementation authority;
-- production player identity matching, source ingestion, source permissions, attribution, archival behavior, correction handling, or fallback behavior;
+- production source ingestion, source permissions, archival behavior, correction handling, or fallback behavior; permanent-ID joining and the required FantasyCalc/FantasyPros attribution are governed by the approved Player Identity Specification;
 - the opening player pool or Current Market Value feed;
 - season dates, deadline configuration, correction windows, or finalization dates;
 - legal eligibility, one-person enforcement, Official Rules, privacy, retention, disputes, taxes, or sponsor language;
@@ -219,7 +219,7 @@ Placeholder content used in a prototype must not be represented as an approved p
 | --- | --- | --- |
 | UR-001 | ENTRY | Exact 2026 Championship deadline, IANA timezone, public wording, and display rule |
 | UR-002 | OPEN | Complete 2026 master calendar |
-| UR-003 | OPEN | Opening eligible player pool, eligibility rules, size, permanent IDs, and curated fallback |
+| UR-003 | OPEN | Final opening eligibility rules, Board/search pool treatment, and curated fallback; permanent IDs are complete |
 | UR-004 | OPEN | Current Market Value source terms, access, attribution, limits, archival rights, and tested fallback |
 | UR-005 | W1 | Weekly scoring-data rights, correction handling, export availability, and reproducible backup |
 | UR-006 | ENTRY | Final Official Rules and required public language |
@@ -230,7 +230,7 @@ Placeholder content used in a prototype must not be represented as an approved p
 ## 12. Approval sequence before application implementation
 
 1. Approve the Scoring Specification Pack and its complete regression fixtures.
-2. Approve the Player Data Pack, including opening seed, PPR versus Half-PPR Current Market Value, permanent identity mappings, source terms, archival behavior, and tested fallbacks.
+2. Approve the remaining Player Data Pack decisions, including final opening eligibility, PPR versus Half-PPR Current Market Value, source terms, archival behavior, and tested fallbacks. Permanent identity mappings are complete.
 3. Resolve UR-001 through UR-009 at their required gates.
 4. Create and approve Volume III technical architecture without changing locked behavior.
 5. Begin application implementation only from approved, versioned source packs and Volume III.

@@ -24,8 +24,8 @@ These items may be represented in non-production UI and state-flow prototypes. P
 - The controlled Scoring Specification defines Top-12/24/50/100 calculations, First Round Crown calculation, true-tie treatment, and live-field percentile. Row-level Player Accuracy is removed from the 2026 launch; `Accuracy` means Board Accuracy.
 - Do not trust stale workbook caches, expose editable weights as a production setting, or treat static workbook BVM values as a reproducible scoring engine.
 - Do not use the supplied Half-PPR FFC sample as a silent replacement for the locked PPR Current-MV decision, or treat its draft/player counts as feed invariants.
-- Do not adopt `Player Pool.csv` as the official opening seed, use its opaque AVG as a formula, assume all 413 players are eligible, or trim it without approval.
-- Do not create production player identity mappings from display name, team, suffix, or position alone. Immutable-ID, alias, collision, and manual-resolution rules are approved, but the permanent PRC Player ID crosswalk must still be generated and tested.
+- The 413-record file is approved as the v1 identity seed only. Its rank and opaque AVG are not identity fields, do not define the final opening order or formula, and do not independently settle eligibility or fallback rules.
+- The permanent v1 PRC Player ID crosswalk is generated and passes 8,323 checks. Production joins must use its immutable IDs, approved aliases, external-source mappings, and fail-closed manual-review queue; display name, team, suffix, or position alone never establishes identity.
 - Do not implement production source ingestion until source permissions, attribution, access, archival behavior, correction handling, coverage thresholds, and tested fallbacks are approved.
 
 ## 3. Launch decisions that remain unresolved
@@ -34,7 +34,7 @@ These items may be represented in non-production UI and state-flow prototypes. P
 | --- | --- |
 | UR-001 | Exact 2026 Championship deadline, time, IANA timezone, public wording, and display rule |
 | UR-002 | Complete 2026 master calendar, including opening, MV, lock, scoring, correction, and finalization milestones |
-| UR-003 | Approved opening player pool, eligibility rules, size, permanent IDs, and curated fallback |
+| UR-003 | Final opening eligibility rules, Board/search pool treatment, and curated fallback; the permanent ID crosswalk is complete |
 | UR-004 | Current-MV source terms, attribution, access, limits, archival rights, and tested fallback |
 | UR-005 | Weekly scoring-data rights, export availability, correction handling, and reproducible backup |
 | UR-006 | Final Official Rules, including eligibility, one-person enforcement, failures, disputes, taxes, sponsor language, and public wording |
@@ -42,4 +42,4 @@ These items may be represented in non-production UI and state-flow prototypes. P
 | UR-008 | Privacy, Terms, retention, deletion, security-token, analytics, vendor, public-permanence, correction, contact, and request-handling rules |
 | UR-009 | Board Name moderation policy, enforcement, notice, appeal, and audit trail |
 
-Core scoring implementation may begin under the controlled Scoring Specification. The scoring regression pack is complete. Production launch still requires the Player Data Pack and permanent ID crosswalk, unresolved launch items at their assigned gates, and an approved Volume III that translates the locked contract into technical architecture without changing behavior.
+Core scoring implementation may begin under the controlled Scoring Specification. The scoring regression pack and permanent player-ID crosswalk are complete. Production launch still requires the remaining Player Data Pack decisions, source operating permissions and fallbacks, unresolved launch items at their assigned gates, and an approved Volume III that translates the locked contract into technical architecture without changing behavior.

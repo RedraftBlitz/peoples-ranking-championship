@@ -1,0 +1,87 @@
+{
+  "pack_name": "PRC Player Identity Crosswalk",
+  "pack_version": "1.0.0",
+  "as_of_date": "2026-07-18",
+  "status": "approved_identity_artifact_source_operating_permissions_pending",
+  "counts": {
+    "prc_players": 413,
+    "approved_aliases": 455,
+    "source_id_mappings": 1196,
+    "fantasycalc_records": 200,
+    "fantasycalc_records_mapped": 200,
+    "manual_review_open": 0
+  },
+  "sources": [
+    {
+      "source_system": "fantasypros_player_pool",
+      "role": "2026 full searchable identity seed; ranking values are not identity keys",
+      "record_count": 413,
+      "sha256": "108945800e17623a5a76093c9c63d81b624831c50d730d632068e804f5c42c37",
+      "homepage": "https://www.fantasypros.com/",
+      "terms": "https://www.fantasypros.com/about/legal/"
+    },
+    {
+      "source_system": "fantasycalc",
+      "role": "2026 redraft PPR Top-200 source IDs and cross-platform IDs",
+      "record_count": 200,
+      "sha256": "42419846d3d6ee47f0dcd2f261dca803b4e1ddb1b9a57e28bb1f653cad0d4259",
+      "endpoint": "https://api.fantasycalc.com/values/current?isDynasty=false&numQbs=1&numTeams=12&ppr=1",
+      "homepage": "https://fantasycalc.com/",
+      "terms": "https://fantasycalc.com/terms-of-usage"
+    }
+  ],
+  "matching_order": [
+    "approved_source_id",
+    "approved_exact_alias",
+    "manual_review"
+  ],
+  "normalization": {
+    "automatic": [
+      "unicode_diacritic_fold",
+      "case_fold",
+      "punctuation_removal",
+      "whitespace_collapse",
+      "leading_initial_collapse"
+    ],
+    "candidate_only": [
+      "suffix_removal",
+      "team_and_position_validation"
+    ],
+    "never_automatic": [
+      "nickname_expansion",
+      "typo_correction",
+      "position_change",
+      "same_name_merge"
+    ]
+  },
+  "explicitly_excluded_unobserved_typos": [
+    "Chig Onkonkwo",
+    "Chigoziem Onkonkwo",
+    "Cam Scattebo",
+    "Cameron Scattebo"
+  ],
+  "attribution": {
+    "required_ui_text": "Player data sources: FantasyCalc \u00b7 FantasyPros",
+    "fantasycalc_link": "https://fantasycalc.com/",
+    "fantasypros_link": "https://www.fantasypros.com/",
+    "placement": "Visible near the player list or score/data view on every page using either source"
+  },
+  "source_operating_notes": {
+    "fantasycalc": "Cache at most once per day; commercial use requires written permission under the current terms.",
+    "fantasypros": "Production/commercial API use requires the applicable FantasyPros license; attribution is required for published work using the data."
+  },
+  "files": {
+    "PRC_PLAYERS_v1.csv": {
+      "sha256": "540e730a511797d74131598393d489e6ee187eec7f004aa081499ac98e1b0012"
+    },
+    "PRC_PLAYER_ALIASES_v1.csv": {
+      "sha256": "197d5979393240c2305aafe5d292560db8ce878d5fec386ed92d3ecc8441d26d"
+    },
+    "PRC_PLAYER_SOURCE_IDS_v1.csv": {
+      "sha256": "dcb874f21a60e3618944103eb4b76b5b5798754138be46a85df997960dcdaaf9"
+    },
+    "PRC_PLAYER_MANUAL_REVIEW_v1.csv": {
+      "sha256": "e3f09193f078ea1504468777ce622bf2896c24b41a2d39cb2ceacc61ff43ee50"
+    }
+  }
+}
