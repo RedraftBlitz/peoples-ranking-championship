@@ -9,6 +9,9 @@
 ## Read-only reference
 
 - [`reference/PRC_2026_Consolidated_Source_of_Truth_Audit_v1.0.pdf`](reference/PRC_2026_Consolidated_Source_of_Truth_Audit_v1.0.pdf) - read-only consolidation and audit, not a new Bible version.
+- [`reference/PRC_EXPECTED_VALUE_CURVES_2023_2025_v1.csv`](reference/PRC_EXPECTED_VALUE_CURVES_2023_2025_v1.csv) - approved 330-row, full-precision expected-value curve pack.
+- [`reference/RB_Value_Score_Lab_v0.1.html`](reference/RB_Value_Score_Lab_v0.1.html) - preserved local BVM research lab containing the recovered construction algorithm.
+- [`reference/RB_Value_Score_Lab_v0.1_README.txt`](reference/RB_Value_Score_Lab_v0.1_README.txt) - original lab instructions and limitations.
 
 Audit SHA-256:
 
