@@ -150,6 +150,212 @@ a:focus-visible {
   letter-spacing: 0.06em;
 }
 
+.view-switcher {
+  display: inline-flex;
+  gap: 5px;
+  margin-top: 18px;
+  padding: 5px;
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  background: rgba(255, 253, 247, 0.78);
+  box-shadow: 0 8px 24px rgba(16, 38, 43, 0.06);
+}
+
+.view-switcher button {
+  min-width: 126px;
+  min-height: 38px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: 7px;
+  color: var(--muted);
+  background: transparent;
+  font-size: 0.77rem;
+  font-weight: 850;
+}
+
+.view-switcher button.active {
+  color: #fff;
+  background: var(--night);
+  box-shadow: 0 5px 14px rgba(16, 38, 43, 0.2);
+}
+
+.leaderboard-shell {
+  margin: 18px 0 0;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: var(--card);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+.leaderboard-intro {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 30px;
+  padding: 32px 34px;
+  color: #fff;
+  background:
+    linear-gradient(120deg, rgba(8, 125, 121, 0.28), transparent 55%),
+    var(--night);
+}
+
+.leaderboard-intro > div {
+  max-width: 780px;
+}
+
+.leaderboard-intro .state-pill {
+  margin-right: 12px;
+}
+
+.state-pill.preseason {
+  color: #3e310e;
+  background: var(--gold);
+}
+
+.leaderboard-intro .panel-kicker {
+  color: #9fc8c5;
+}
+
+.leaderboard-intro h2 {
+  margin: 13px 0 9px;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(2rem, 4vw, 3.5rem);
+  letter-spacing: -0.045em;
+  line-height: 1;
+}
+
+.leaderboard-intro p {
+  max-width: 700px;
+  margin: 0;
+  color: #cbd8d9;
+  line-height: 1.6;
+}
+
+.leaderboard-intro .button.secondary {
+  flex: none;
+  border-color: rgba(255, 255, 255, 0.3);
+  color: var(--night);
+  background: var(--gold);
+}
+
+.leaderboard-summary {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  border-bottom: 1px solid var(--line);
+  background: #f1eee4;
+}
+
+.leaderboard-summary div {
+  padding: 17px 22px;
+  border-right: 1px solid var(--line);
+}
+
+.leaderboard-summary div:last-child {
+  border-right: 0;
+}
+
+.leaderboard-summary span,
+.leaderboard-summary strong {
+  display: block;
+}
+
+.leaderboard-summary span {
+  color: var(--muted);
+  font-size: 0.64rem;
+  font-weight: 850;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.leaderboard-summary strong {
+  margin-top: 4px;
+  color: var(--night);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.25rem;
+}
+
+.preseason-board-list {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 10px;
+  margin: 0;
+  padding: 24px;
+  list-style: none;
+}
+
+.preseason-board-list li {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  gap: 11px;
+  padding: 14px;
+  border: 1px solid #e2ded3;
+  border-radius: 11px;
+  background: #fbf8ef;
+}
+
+.leaderboard-board-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  flex: none;
+  border-radius: 9px;
+  color: #fff;
+  background: var(--teal);
+  font-size: 0.59rem;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+}
+
+.preseason-board-list li div {
+  min-width: 0;
+}
+
+.preseason-board-list strong,
+.preseason-board-list small {
+  display: block;
+}
+
+.preseason-board-list strong {
+  overflow: hidden;
+  color: var(--night);
+  font-size: 0.82rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.preseason-board-list small {
+  margin-top: 3px;
+  color: var(--muted);
+  font-size: 0.62rem;
+}
+
+.scoring-preview {
+  margin: 0 24px 24px;
+  padding: 20px 22px;
+  border: 1px dashed #bdaf84;
+  border-radius: 12px;
+  background: #fff5d9;
+}
+
+.scoring-preview strong {
+  display: block;
+  margin-top: 5px;
+  color: var(--night);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.35rem;
+}
+
+.scoring-preview p {
+  margin: 6px 0 0;
+  color: #6e654f;
+  font-size: 0.78rem;
+  line-height: 1.55;
+}
+
 .draft-lifecycle {
   display: grid;
   grid-template-columns: minmax(230px, 1fr) auto auto;
@@ -1002,6 +1208,10 @@ footer a {
 }
 
 @media (max-width: 1000px) {
+  .preseason-board-list {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
   .draft-lifecycle {
     grid-template-columns: 1fr;
   }
@@ -1054,6 +1264,54 @@ footer a {
     flex-direction: column;
     gap: 4px;
     padding: 12px 22px;
+  }
+
+  .view-switcher {
+    display: flex;
+  }
+
+  .view-switcher button {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .leaderboard-intro {
+    align-items: flex-start;
+    flex-direction: column;
+    padding: 26px 22px;
+  }
+
+  .leaderboard-intro .button.secondary {
+    width: 100%;
+  }
+
+  .leaderboard-summary {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .leaderboard-summary div:nth-child(2) {
+    border-right: 0;
+  }
+
+  .leaderboard-summary div:nth-child(-n + 2) {
+    border-bottom: 1px solid var(--line);
+  }
+
+  .preseason-board-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    padding: 14px;
+  }
+
+  .preseason-board-list li {
+    padding: 11px;
+  }
+
+  .leaderboard-board-mark {
+    display: none;
+  }
+
+  .scoring-preview {
+    margin: 0 14px 14px;
   }
 
   .draft-lifecycle {
