@@ -608,7 +608,7 @@ export function BoardTester() {
             </button>
           )}
           <button className="button ghost" type="button" onClick={() => openDialog("unlock")}>
-            Open a Board
+            Recover My Board
           </button>
           <button
             className="button secondary"
@@ -973,7 +973,7 @@ export function BoardTester() {
             {dialog === "unlock" && (
               <>
                 <span className="panel-kicker">Return to your draft</span>
-                <h2 id="dialog-title">Open a protected Board</h2>
+                <h2 id="dialog-title">Recover My Board</h2>
                 <p className="dialog-intro">
                   Enter the Board Name and PIN used when the draft was protected.
                 </p>
@@ -998,7 +998,7 @@ export function BoardTester() {
                   </label>
                   {dialogError && <p className="form-error">{dialogError}</p>}
                   <button className="dialog-submit" type="submit" disabled={busy}>
-                    {busy ? "Opening…" : "Open Board"}
+                    {busy ? "Recovering…" : "Recover My Board"}
                   </button>
                   <button
                     className="text-button"
