@@ -81,8 +81,3 @@ export function sessionCookie(request: Request, token: string) {
   const secure = new URL(request.url).protocol === "https:" ? "; Secure" : "";
   return `prc_board_session=${token}; HttpOnly; SameSite=Lax; Path=/; Max-Age=${SESSION_DAYS * 24 * 60 * 60}${secure}`;
 }
-
-export function clearSessionCookie(request: Request) {
-  const secure = new URL(request.url).protocol === "https:" ? "; Secure" : "";
-  return `prc_board_session=; HttpOnly; SameSite=Lax; Path=/; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT${secure}`;
-}

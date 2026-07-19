@@ -33,7 +33,7 @@ type BoardResponse = {
   message?: string;
 };
 
-type DialogName = "protect" | "unlock" | "recovery" | "new" | "entry" | null;
+type DialogName = "protect" | "unlock" | "recovery" | "entry" | null;
 
 const players = (playerData as Player[]).sort(
   (a, b) => a.initialRank - b.initialRank,
@@ -511,64 +511,6 @@ export function BoardTester() {
     }
   }
 
-  async function startNewBoard() {
-    setDialogError("");
-    setBusy(true);
-
-    try {
-      if (protectedBoard) {
-        setSaveState("Saving protected Board…");
-        const saveResponse = await fetch(`/api/boards/${protectedBoard.id}`, {
-          method: "PUT",
-          headers: { "content-type": "application/json" },
-          body: JSON.stringify({ order, personalIds }),
-        });
-        const savePayload = (await saveResponse.json()) as BoardResponse;
-        if (!saveResponse.ok) {
-          throw new Error(
-            savePayload.error ?? "The protected Board could not be saved.",
-          );
-        }
-
-        const closeResponse = await fetch("/api/boards/session", {
-          method: "DELETE",
-        });
-        const closePayload = (await closeResponse.json()) as BoardResponse;
-        if (!closeResponse.ok) {
-          throw new Error(
-            closePayload.error ?? "The protected Board could not be closed safely.",
-          );
-        }
-      }
-
-      window.localStorage.setItem(
-        STORAGE_KEY,
-        JSON.stringify({
-          version: 2,
-          order: initialOrder,
-          personalIds: [],
-          protectedBoard: null,
-        }),
-      );
-      setOrder(initialOrder);
-      setPersonalIds([]);
-      setUndoStack([]);
-      setProtectedBoard(null);
-      setQuery("");
-      setPosition("ALL");
-      setActiveView("board");
-      setSaveState("New browser draft");
-      setDialog(null);
-    } catch (error) {
-      setDialogError(
-        error instanceof Error ? error.message : "A new Board could not be started.",
-      );
-      if (protectedBoard) setSaveState("Protected Board still open");
-    } finally {
-      setBusy(false);
-    }
-  }
-
   return (
     <main className="app-shell">
       <header className="hero">
@@ -667,9 +609,6 @@ export function BoardTester() {
           )}
           <button className="button ghost" type="button" onClick={() => openDialog("unlock")}>
             Recover My Board
-          </button>
-          <button className="button ghost" type="button" onClick={() => openDialog("new")}>
-            Start New Board
           </button>
           <button
             className="button secondary"
@@ -1069,41 +1008,6 @@ export function BoardTester() {
                     Forgot PIN?
                   </button>
                 </form>
-              </>
-            )}
-
-            {dialog === "new" && (
-              <>
-                <span className="panel-kicker">Start fresh</span>
-                <h2 id="dialog-title">Start a new Board?</h2>
-                <p className="dialog-intro">
-                  {protectedBoard
-                    ? `${protectedBoard.name} will stay protected and can be recovered later with its Board Name and PIN.`
-                    : "This browser-only draft has not been protected. Starting a new Board will permanently erase its ranking moves."}
-                </p>
-                <div className="new-board-summary">
-                  <strong>Your new Board will have:</strong>
-                  <span>Original tester order</span>
-                  <span>No Personal Rankings</span>
-                  <span>No Board Name or PIN</span>
-                </div>
-                {dialogError && <p className="form-error">{dialogError}</p>}
-                <button
-                  className="dialog-submit"
-                  type="button"
-                  disabled={busy}
-                  onClick={startNewBoard}
-                >
-                  {busy ? "Starting…" : "Start New Board"}
-                </button>
-                <button
-                  className="text-button"
-                  type="button"
-                  disabled={busy}
-                  onClick={() => setDialog(null)}
-                >
-                  Keep current Board
-                </button>
               </>
             )}
 
