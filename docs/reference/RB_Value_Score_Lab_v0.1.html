@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Redraft Blitz RB Value Score Lab</title>
+<style>
+:root {
+  --bg:#0c0f14; --panel:#151a22; --panel2:#1d2430; --text:#f4f7fb;
+  --muted:#aeb8c7; --accent:#7c4dff; --accent2:#48c78e; --border:#2a3443;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--text)}
+header{padding:24px 28px;border-bottom:1px solid var(--border);background:#10151c}
+h1{margin:0 0 6px;font-size:26px}
+header p{margin:0;color:var(--muted)}
+main{padding:24px;max-width:1500px;margin:auto}
+.grid{display:grid;grid-template-columns:380px 1fr;gap:20px}
+.panel{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:18px}
+h2{font-size:18px;margin:0 0 14px}
+h3{font-size:15px;margin:18px 0 10px;color:#dfe6f2}
+label{display:block;font-size:13px;color:var(--muted);margin-bottom:5px}
+input[type=file],input[type=number],select{
+ width:100%;background:var(--panel2);color:var(--text);border:1px solid var(--border);
+ border-radius:8px;padding:10px;margin-bottom:10px
+}
+input[type=range]{width:100%}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+button{
+ border:0;border-radius:8px;padding:11px 14px;font-weight:700;cursor:pointer;
+ background:var(--accent);color:white;margin-right:8px;margin-top:8px
+}
+button.secondary{background:#293343}
+button.green{background:var(--accent2);color:#09130e}
+.note{font-size:12px;line-height:1.45;color:var(--muted);margin-top:12px}
+.status{margin-top:12px;padding:10px;border-radius:8px;background:#10151c;color:var(--muted);font-size:13px}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
+.kpi{background:var(--panel2);border:1px solid var(--border);border-radius:10px;padding:12px}
+.kpi span{display:block;color:var(--muted);font-size:12px}
+.kpi strong{font-size:20px}
+.controls{display:flex;gap:10px;align-items:end;flex-wrap:wrap;margin-bottom:12px}
+.controls > div{min-width:150px}
+.table-wrap{overflow:auto;max-height:720px;border:1px solid var(--border);border-radius:10px}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th,td{padding:8px 9px;border-bottom:1px solid var(--border);white-space:nowrap;text-align:right}
+th{position:sticky;top:0;background:#222a36;z-index:2}
+th:nth-child(2),td:nth-child(2),th:nth-child(3),td:nth-child(3){text-align:left}
+tr:hover{background:#1b2230}
+.badge{display:inline-block;padding:3px 7px;border-radius:99px;background:#2b3442}
+footer{color:var(--muted);font-size:11px;padding:18px 2px}
+@media(max-width:900px){.grid{grid-template-columns:1fr}.kpis{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+<header>
+  <h1>Redraft Blitz — RB Value Score Lab</h1>
+  <p>Generate a hindsight Top 150 using season value, weekly value, or a blended model.</p>
+</header>
+<main>
+<div class="grid">
+<section class="panel">
+  <h2>1. Load FantasyPros CSV</h2>
+  <input id="fileInput" type="file" accept=".csv" />
+  <div class="note">Expected columns: PLAYER, POS, GP, weeks 1–17, AVG, TTL. The tool also tolerates extra columns.</div>
+
+  <h3>Replacement Levels</h3>
+  <div class="row">
+    <div><label>QB replacement rank</label><input id="qbRep" type="number" min="1" value="13"></div>
+    <div><label>RB replacement rank</label><input id="rbRep" type="number" min="1" value="37"></div>
+    <div><label>WR replacement rank</label><input id="wrRep" type="number" min="1" value="49"></div>
+    <div><label>TE replacement rank</label><input id="teRep" type="number" min="1" value="13"></div>
+  </div>
+
+  <h3>Weekly Value Method</h3>
+  <label><input id="positiveOnly" type="checkbox" checked> Count only positive weekly value above replacement</label>
+  <div class="note">Checked: bad weeks bottom out at zero. Unchecked: poor weeks create negative value.</div>
+
+  <h3>RB Value Score Blend</h3>
+  <label>Season value weight: <strong id="seasonWeightLabel">50%</strong></label>
+  <input id="seasonWeight" type="range" min="0" max="100" value="50">
+  <div class="note">The remainder is weekly value. This blend is only for testing; Season and Weekly ranks remain visible separately.</div>
+
+  <button id="runBtn">Generate Value Board</button>
+  <button id="exportBtn" class="green" disabled>Export Results CSV</button>
+  <button id="sensitivityBtn" class="secondary" disabled>Run Replacement Tests</button>
+  <div id="status" class="status">Choose the CSV to begin.</div>
+
+  <h3>How the scores work</h3>
+  <div class="note">
+    <b>Season RB Value:</b> Weeks 1–17 total minus the season total of the selected replacement-ranked player at that position.<br><br>
+    <b>Weekly RB Value:</b> Each weekly score minus that week's replacement score at the position, summed across Weeks 1–17.<br><br>
+    <b>Volatility:</b> Standard deviation of weekly scores, shown for analysis but not included automatically.
+  </div>
+</section>
+
+<section class="panel">
+  <div class="kpis">
+    <div class="kpi"><span>Players loaded</span><strong id="playerCount">—</strong></div>
+    <div class="kpi"><span>Top player</span><strong id="topPlayer">—</strong></div>
+    <div class="kpi"><span>Top QB rank</span><strong id="topQB">—</strong></div>
+    <div class="kpi"><span>Model</span><strong id="modelLabel">—</strong></div>
+  </div>
+
+  <div class="controls">
+    <div>
+      <label>Show</label>
+      <select id="limitSelect"><option>50</option><option selected>150</option><option>300</option><option>All</option></select>
+    </div>
+    <div>
+      <label>Position</label>
+      <select id="posFilter"><option value="ALL">All</option><option>QB</option><option>RB</option><option>WR</option><option>TE</option></select>
+    </div>
+    <div>
+      <label>Sort by</label>
+      <select id="sortSelect">
+        <option value="blendRank">Blended RB Value Rank</option>
+        <option value="seasonRank">Season RB Value Rank</option>
+        <option value="weeklyRank">Weekly RB Value Rank</option>
+        <option value="ttl">Fantasy points</option>
+        <option value="volatility">Weekly volatility</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Blend Rank</th><th>Player</th><th>Pos</th><th>FP</th><th>GP</th>
+          <th>Season Baseline</th><th>Season Value</th><th>Season Rank</th>
+          <th>Weekly Value</th><th>Weekly Rank</th><th>Volatility</th><th>Blend Score</th>
+        </tr>
+      </thead>
+      <tbody id="resultBody"></tbody>
+    </table>
+  </div>
+</section>
+</div>
+
+<section class="panel" style="margin-top:20px;display:none" id="sensitivityPanel">
+  <h2>Replacement-Level Sensitivity Tests</h2>
+  <div class="note">This runs nearby replacement combinations and shows how much the Top 25 changes. Lower overlap means the model is highly sensitive to replacement assumptions.</div>
+  <div class="table-wrap" style="max-height:420px;margin-top:12px">
+    <table>
+      <thead><tr><th>QB</th><th>RB</th><th>WR</th><th>TE</th><th>Top-25 overlap</th><th>Top player</th><th>Top QB rank</th></tr></thead>
+      <tbody id="sensitivityBody"></tbody>
+    </table>
+  </div>
+</section>
+<footer>
+RB Value Score Lab v0.1 — Internal scoring research tool. Outputs are exploratory until Redraft Blitz finalizes replacement levels and scoring methodology.
+</footer>
+</main>
+
+<script>
+let rawRows = [], scoredRows = [];
+const weeks = Array.from({length:17},(_,i)=>String(i+1));
+
+document.getElementById('seasonWeight').addEventListener('input', e=>{
+ document.getElementById('seasonWeightLabel').textContent=e.target.value+'%';
+ if(rawRows.length) runModel();
+});
+['limitSelect','posFilter','sortSelect'].forEach(id=>document.getElementById(id).addEventListener('change',renderTable));
+document.getElementById('fileInput').addEventListener('change', loadFile);
+document.getElementById('runBtn').addEventListener('click', runModel);
+document.getElementById('exportBtn').addEventListener('click', exportCSV);
+document.getElementById('sensitivityBtn').addEventListener('click', runSensitivity);
+
+function parseCSV(text){
+ const rows=[]; let row=[], cell='', q=false;
+ for(let i=0;i<text.length;i++){
+   const ch=text[i], next=text[i+1];
+   if(ch==='"'){
+     if(q && next==='"'){cell+='"';i++;} else q=!q;
+   } else if(ch===',' && !q){row.push(cell);cell='';}
+   else if((ch==='\n'||ch==='\r') && !q){
+     if(ch==='\r' && next==='\n') i++;
+     row.push(cell); if(row.some(x=>x!=='')) rows.push(row); row=[];cell='';
+   } else cell+=ch;
+ }
+ if(cell.length||row.length){row.push(cell);rows.push(row);}
+ const headers=rows.shift().map(x=>x.trim());
+ return rows.map(r=>{
+   const o={}; headers.forEach((h,i)=>o[h]=(r[i]??'').trim()); return o;
+ });
+}
+
+function num(v){ const n=parseFloat(v); return Number.isFinite(n)?n:0; }
+
+function loadFile(e){
+ const f=e.target.files[0]; if(!f)return;
+ const reader=new FileReader();
+ reader.onload=()=>{
+   try{
+     const parsed=parseCSV(reader.result);
+     rawRows=parsed.filter(r=>['QB','RB','WR','TE'].includes((r.POS||'').toUpperCase())).map(r=>({
+       player:r.PLAYER||r.Player||'Unknown',
+       pos:(r.POS||'').toUpperCase(),
+       gp:num(r.GP),
+       ttl:num(r.TTL),
+       weekly:weeks.map(w=>num(r[w]))
+     }));
+     document.getElementById('status').textContent=`Loaded ${rawRows.length} QB/RB/WR/TE players from ${f.name}.`;
+     document.getElementById('playerCount').textContent=rawRows.length;
+     document.getElementById('exportBtn').disabled=false;
+     document.getElementById('sensitivityBtn').disabled=false;
+     runModel();
+   }catch(err){document.getElementById('status').textContent='Could not read file: '+err.message;}
+ };
+ reader.readAsText(f);
+}
+
+function replacementRanks(){
+ return {QB:+qbRep.value,RB:+rbRep.value,WR:+wrRep.value,TE:+teRep.value};
+}
+
+function scoreWithSettings(rep, seasonWeightPct){
+ const byPos={QB:[],RB:[],WR:[],TE:[]};
+ rawRows.forEach(r=>byPos[r.pos].push(r));
+ Object.values(byPos).forEach(arr=>arr.sort((a,b)=>b.ttl-a.ttl));
+
+ const seasonBase={};
+ Object.keys(byPos).forEach(p=>{
+   const idx=Math.max(0,Math.min(byPos[p].length-1,rep[p]-1));
+   seasonBase[p]=byPos[p][idx]?.ttl||0;
+ });
+
+ const weeklyBase={QB:[],RB:[],WR:[],TE:[]};
+ Object.keys(byPos).forEach(p=>{
+   for(let wi=0;wi<17;wi++){
+     const vals=byPos[p].map(r=>r.weekly[wi]).sort((a,b)=>b-a);
+     const idx=Math.max(0,Math.min(vals.length-1,rep[p]-1));
+     weeklyBase[p][wi]=vals[idx]||0;
+   }
+ });
+
+ const positive=document.getElementById('positiveOnly').checked;
+ let out=rawRows.map(r=>{
+   const seasonValue=r.ttl-seasonBase[r.pos];
+   let weeklyValue=0;
+   for(let wi=0;wi<17;wi++){
+     const diff=r.weekly[wi]-weeklyBase[r.pos][wi];
+     weeklyValue += positive ? Math.max(0,diff) : diff;
+   }
+   const active=r.weekly.filter(x=>x!==0);
+   const mean=active.length?active.reduce((a,b)=>a+b,0)/active.length:0;
+   const variance=active.length?active.reduce((s,x)=>s+(x-mean)**2,0)/active.length:0;
+   return {...r,seasonBase:seasonBase[r.pos],seasonValue,weeklyValue,volatility:Math.sqrt(variance)};
+ });
+
+ assignRank(out,'seasonValue','seasonRank');
+ assignRank(out,'weeklyValue','weeklyRank');
+
+ // Percentile-normalize values so season and weekly scales are comparable.
+ const seasonVals=out.map(x=>x.seasonValue);
+ const weeklyVals=out.map(x=>x.weeklyValue);
+ out.forEach(x=>{
+   x.seasonPct=percentileRank(seasonVals,x.seasonValue);
+   x.weeklyPct=percentileRank(weeklyVals,x.weeklyValue);
+   const sw=seasonWeightPct/100;
+   x.blendScore=sw*x.seasonPct+(1-sw)*x.weeklyPct;
+ });
+ assignRank(out,'blendScore','blendRank');
+ return out;
+}
+
+function percentileRank(vals,v){
+ const below=vals.filter(x=>x<v).length;
+ const equal=vals.filter(x=>x===v).length;
+ return vals.length ? (below + 0.5*equal)/vals.length*100 : 0;
+}
+function assignRank(arr,key,rankKey){
+ [...arr].sort((a,b)=>b[key]-a[key]).forEach((x,i)=>x[rankKey]=i+1);
+}
+
+function runModel(){
+ if(!rawRows.length){status.textContent='Load the CSV first.';return;}
+ scoredRows=scoreWithSettings(replacementRanks(),+seasonWeight.value);
+ renderTable();
+ const top=[...scoredRows].sort((a,b)=>a.blendRank-b.blendRank)[0];
+ const topQ=[...scoredRows].filter(x=>x.pos==='QB').sort((a,b)=>a.blendRank-b.blendRank)[0];
+ topPlayer.textContent=top?top.player:'—';
+ topQB.textContent=topQ?'#'+topQ.blendRank:'—';
+ modelLabel.textContent=`${seasonWeight.value}/${100-seasonWeight.value}`;
+ status.textContent=`Generated RB Value Board using QB${qbRep.value}, RB${rbRep.value}, WR${wrRep.value}, TE${teRep.value} replacement levels.`;
+}
+
+function renderTable(){
+ if(!scoredRows.length)return;
+ const sortKey=sortSelect.value;
+ let rows=[...scoredRows];
+ if(posFilter.value!=='ALL') rows=rows.filter(x=>x.pos===posFilter.value);
+ if(sortKey.endsWith('Rank')) rows.sort((a,b)=>a[sortKey]-b[sortKey]);
+ else rows.sort((a,b)=>b[sortKey]-a[sortKey]);
+ const lim=limitSelect.value==='All'?rows.length:+limitSelect.value;
+ rows=rows.slice(0,lim);
+ resultBody.innerHTML=rows.map(r=>`<tr>
+ <td>${r.blendRank}</td><td>${escapeHtml(r.player)}</td><td><span class="badge">${r.pos}</span></td>
+ <td>${r.ttl.toFixed(1)}</td><td>${r.gp}</td><td>${r.seasonBase.toFixed(1)}</td>
+ <td>${r.seasonValue.toFixed(1)}</td><td>${r.seasonRank}</td>
+ <td>${r.weeklyValue.toFixed(1)}</td><td>${r.weeklyRank}</td>
+ <td>${r.volatility.toFixed(2)}</td><td>${r.blendScore.toFixed(2)}</td></tr>`).join('');
+}
+
+function escapeHtml(s){return s.replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));}
+
+function exportCSV(){
+ const headers=['Blend Rank','Player','Position','Fantasy Points','Games Played','Season Baseline','Season RB Value','Season Rank','Weekly RB Value','Weekly Rank','Weekly Volatility','Blend Score'];
+ const rows=[...scoredRows].sort((a,b)=>a.blendRank-b.blendRank).map(r=>[
+ r.blendRank,r.player,r.pos,r.ttl.toFixed(2),r.gp,r.seasonBase.toFixed(2),r.seasonValue.toFixed(2),
+ r.seasonRank,r.weeklyValue.toFixed(2),r.weeklyRank,r.volatility.toFixed(3),r.blendScore.toFixed(3)
+ ]);
+ const csv=[headers,...rows].map(row=>row.map(v=>`"${String(v).replaceAll('"','""')}"`).join(',')).join('\n');
+ const blob=new Blob([csv],{type:'text/csv'}); const a=document.createElement('a');
+ a.href=URL.createObjectURL(blob); a.download='RB_Value_Score_Results.csv';a.click();URL.revokeObjectURL(a.href);
+}
+
+function runSensitivity(){
+ const base=replacementRanks(), deltas={QB:[-2,0,2],RB:[-6,0,6],WR:[-8,0,8],TE:[-2,0,2]};
+ const baseRows=scoreWithSettings(base,+seasonWeight.value).sort((a,b)=>a.blendRank-b.blendRank);
+ const baseTop=new Set(baseRows.slice(0,25).map(x=>x.player));
+ const tests=[];
+ for(const dq of deltas.QB)for(const dr of deltas.RB)for(const dw of deltas.WR)for(const dt of deltas.TE){
+   const rep={QB:Math.max(1,base.QB+dq),RB:Math.max(1,base.RB+dr),WR:Math.max(1,base.WR+dw),TE:Math.max(1,base.TE+dt)};
+   const result=scoreWithSettings(rep,+seasonWeight.value).sort((a,b)=>a.blendRank-b.blendRank);
+   const overlap=result.slice(0,25).filter(x=>baseTop.has(x.player)).length;
+   const topQB=result.find(x=>x.pos==='QB');
+   tests.push({...rep,overlap,top:result[0]?.player||'',topQB:topQB?.blendRank||''});
+ }
+ tests.sort((a,b)=>b.overlap-a.overlap);
+ sensitivityBody.innerHTML=tests.map(t=>`<tr><td>${t.QB}</td><td>${t.RB}</td><td>${t.WR}</td><td>${t.TE}</td><td>${t.overlap}/25</td><td>${escapeHtml(t.top)}</td><td>#${t.topQB}</td></tr>`).join('');
+ sensitivityPanel.style.display='block';
+ sensitivityPanel.scrollIntoView({behavior:'smooth'});
+}
+</script>
+</body>
+</html>

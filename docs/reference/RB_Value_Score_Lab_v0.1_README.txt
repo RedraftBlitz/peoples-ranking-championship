@@ -1,0 +1,25 @@
+REDRAFT BLITZ — RB VALUE SCORE LAB v0.1
+
+HOW TO USE
+1. Extract the ZIP file.
+2. Double-click RB_Value_Score_Lab.html.
+3. Click the file selector and choose FantasyPros_Fantasy_Football_Points_HALF.csv.
+4. Adjust QB/RB/WR/TE replacement ranks.
+5. Click Generate Value Board.
+6. Compare Season RB Value, Weekly RB Value, and the blended ranking.
+7. Export the full results as a CSV.
+
+NOTES
+- No installation is required.
+- Everything runs locally in your browser; the CSV is not uploaded anywhere.
+- Season RB Value = season fantasy points minus the season total of the selected replacement-ranked player at that position.
+- Weekly RB Value = weekly points above that week's replacement score, summed over Weeks 1–17.
+- Weekly Volatility is displayed separately and is not automatically used in the score.
+- The blend slider percentile-normalizes Season and Weekly value before combining them.
+- The Replacement Tests button checks how sensitive the Top 25 is to nearby replacement-level choices.
+
+CURRENT LIMITATIONS
+- This is an exploratory model, not the finalized PRC scoring system.
+- It assumes FantasyPros columns PLAYER, POS, GP, weeks 1–17, and TTL.
+- D/ST and kickers are ignored.
+- It does not yet score submitted Top 150 Boards.
