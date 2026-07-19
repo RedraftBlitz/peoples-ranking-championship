@@ -1044,6 +1044,36 @@ footer a {
   line-height: 1.55;
 }
 
+.new-board-summary {
+  display: grid;
+  gap: 8px;
+  margin: 0 0 19px;
+  padding: 16px;
+  border: 1px solid #dfd7bd;
+  border-radius: 10px;
+  background: #fff7df;
+}
+
+.new-board-summary strong {
+  color: var(--night);
+  font-size: 0.76rem;
+}
+
+.new-board-summary span {
+  position: relative;
+  padding-left: 17px;
+  color: #6e654f;
+  font-size: 0.72rem;
+}
+
+.new-board-summary span::before {
+  position: absolute;
+  left: 0;
+  color: var(--teal);
+  content: "✓";
+  font-weight: 900;
+}
+
 .dialog-form {
   display: grid;
   gap: 14px;
