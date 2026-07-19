@@ -2,6 +2,11 @@
 
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import playerData from "../data/players.json";
+import {
+  DEMO_SNAPSHOT_LABEL,
+  scoreDemoField,
+  type DemoLeaderboardRow,
+} from "../lib/demo-scoring";
 
 type Position = "QB" | "RB" | "WR" | "TE";
 type AppView = "board" | "leaderboard";
@@ -45,33 +50,6 @@ const LEGACY_STORAGE_KEY = "prc-board-tester-v1";
 const BOARD_SIZE = 200;
 const OFFICIAL_CUTOFF = 150;
 const POSITIONS: Position[] = ["QB", "RB", "WR", "TE"];
-const PRESEASON_BOARD_NAMES = [
-  "Fourth Down Theory",
-  "Sunday Syndicate",
-  "Gridiron Atlas",
-  "Red Zone Rebels",
-  "The Waiver Wire",
-  "Sunday Forecast",
-  "Goal Line Stand",
-  "The Film Room",
-  "Pocket Presence",
-  "Two Minute Drill",
-  "Route Tree Royalty",
-  "The Audible",
-  "Sunday Best",
-  "End Zone Empire",
-  "First Read",
-  "No Punt Intended",
-  "The Depth Chart",
-  "Prime Time Board",
-  "Chain Movers",
-  "Touchdown Census",
-  "The Playbook",
-  "Fantasy Foundry",
-  "Between the Hashes",
-  "Roster Architects",
-  "Victory Formation",
-];
 
 function normalizeSearch(value: string) {
   return value
@@ -106,83 +84,70 @@ function movementLevel(change: number) {
   return "emphasized";
 }
 
-function shuffleBoardNames() {
-  const shuffled = [...PRESEASON_BOARD_NAMES];
-  const randomValues = new Uint32Array(shuffled.length);
-  window.crypto.getRandomValues(randomValues);
-
-  for (let index = shuffled.length - 1; index > 0; index -= 1) {
-    const swapIndex = randomValues[index] % (index + 1);
-    [shuffled[index], shuffled[swapIndex]] = [shuffled[swapIndex], shuffled[index]];
-  }
-
-  return shuffled;
-}
-
-function LeaderboardPreview({
-  boardNames,
-  onShuffle,
-}: {
-  boardNames: string[];
-  onShuffle: () => void;
-}) {
+function DemoLeaderboard({ rows }: { rows: DemoLeaderboardRow[] }) {
   return (
     <section className="leaderboard-shell" aria-labelledby="leaderboard-title">
       <div className="leaderboard-intro">
         <div>
-          <span className="state-pill preseason">Preseason mode</span>
+          <span className="state-pill demo">Demo results · not official</span>
           <span className="panel-kicker">People&apos;s leaderboard</span>
-          <h2 id="leaderboard-title">Every Board starts even.</h2>
+          <h2 id="leaderboard-title">See the scoring engine work.</h2>
           <p>
-            Before Week 1 scoring, Board names appear in a different random
-            order without placement or accuracy. These are demo names only;
-            protected drafts are never displayed here.
+            This table runs the approved scoring math against one fixed,
+            fabricated Week 1 snapshot. Move players on your Board to see its
+            score and placement change.
           </p>
         </div>
-        <button className="button secondary" type="button" onClick={onShuffle}>
-          Shuffle demo Boards
-        </button>
+        <span className="demo-snapshot-label">{DEMO_SNAPSHOT_LABEL}</span>
       </div>
 
-      <div className="leaderboard-summary" aria-label="Preseason leaderboard rules">
+      <div className="leaderboard-summary" aria-label="Demo scoring summary">
         <div>
           <span>Boards shown</span>
-          <strong>{boardNames.length}</strong>
+          <strong>{rows.length}</strong>
         </div>
         <div>
-          <span>Display order</span>
-          <strong>Random</strong>
+          <span>Scoring update</span>
+          <strong>Demo Week 1</strong>
         </div>
         <div>
           <span>Placement</span>
-          <strong>Hidden</strong>
+          <strong>Full precision</strong>
         </div>
         <div>
           <span>Board Accuracy</span>
-          <strong>Not scored</strong>
+          <strong>0–100 index</strong>
         </div>
       </div>
 
-      <ul className="preseason-board-list" aria-label="Randomized demo Board names">
-        {boardNames.map((name) => (
-          <li key={name}>
-            <span className="leaderboard-board-mark" aria-hidden="true">PRC</span>
-            <div>
-              <strong>{name}</strong>
-              <small>Demo Board</small>
-            </div>
-          </li>
+      <div className="demo-leaderboard" role="table" aria-label="Scored demo Boards">
+        <div className="demo-leaderboard-head" role="row">
+          <span role="columnheader">Place</span>
+          <span role="columnheader">Board</span>
+          <span role="columnheader">Accuracy</span>
+          <span role="columnheader">Percentile</span>
+        </div>
+        {rows.map((row) => (
+          <div
+            className={`demo-leaderboard-row ${row.isCurrentBoard ? "is-current" : ""}`}
+            role="row"
+            key={row.boardId}
+          >
+            <strong role="cell">{row.placement}</strong>
+            <span role="cell">
+              <b>{row.boardName}</b>
+              <small>{row.isCurrentBoard ? "Your current Board" : "Demo Board"}</small>
+            </span>
+            <strong role="cell">{row.boardAccuracy}</strong>
+            <span role="cell">{row.percentile}</span>
+          </div>
         ))}
-      </ul>
-
-      <div className="scoring-preview">
-        <span className="panel-kicker">After scoring begins</span>
-        <strong>Placement · Board Name · Board Accuracy</strong>
-        <p>
-          Those are the only leaderboard fields that will appear after the
-          first official scoring update. No preseason accuracy is invented.
-        </p>
       </div>
+
+      <p className="demo-disclaimer">
+        Player results and opponent Boards are fabricated for testing. No demo
+        result can be submitted, published, or treated as an official PRC score.
+      </p>
     </section>
   );
 }
@@ -203,9 +168,6 @@ export function BoardTester() {
   const [dialogMessage, setDialogMessage] = useState("");
   const [busy, setBusy] = useState(false);
   const [activeView, setActiveView] = useState<AppView>("board");
-  const [leaderboardBoards, setLeaderboardBoards] = useState([
-    ...PRESEASON_BOARD_NAMES,
-  ]);
 
   useEffect(() => {
     const timeout = window.setTimeout(() => {
@@ -234,7 +196,6 @@ export function BoardTester() {
       } catch {
         // A bad browser save should never prevent the Board from opening.
       }
-      setLeaderboardBoards(shuffleBoardNames());
       setHydrated(true);
     }, 0);
     return () => window.clearTimeout(timeout);
@@ -290,6 +251,10 @@ export function BoardTester() {
   );
 
   const board = order.slice(0, BOARD_SIZE).map((id) => playerById.get(id)!);
+  const demoField = useMemo(
+    () => scoreDemoField(players, order, protectedBoard?.name ?? "Your Board"),
+    [order, protectedBoard?.name],
+  );
 
   const searchResults = useMemo(() => {
     const needle = normalizeSearch(query);
@@ -524,32 +489,32 @@ export function BoardTester() {
             </p>
           ) : (
             <p>
-              Before scoring begins, every entered Board appears without a rank
-              or accuracy score. The order changes so no Board is presented as leading.
+              Explore scored standings using fabricated results and the real
+              BVM, positional, and Board Accuracy engine.
             </p>
           )}
         </div>
         <div className="hero-status" aria-live="polite">
           <span className="status-dot" />
           <div>
-            <strong>{activeView === "board" ? saveState : "Preseason leaderboard"}</strong>
+            <strong>{activeView === "board" ? saveState : "Demo scoring active"}</strong>
             <small>
               {activeView === "board"
                 ? protectedBoard
                   ? protectedBoard.name
                   : "Browser draft · no account needed"
-                : "Randomized preview · no scores"}
+                : "Fabricated Week 1 · not official"}
             </small>
           </div>
         </div>
       </header>
 
       <section className="notice" aria-label="Tester status">
-        <strong>{activeView === "board" ? "Provisional tester order" : "Leaderboard preview"}</strong>
+        <strong>{activeView === "board" ? "Provisional tester order" : "Demo results · not official"}</strong>
         <span>
           {activeView === "board"
             ? "This is for testing the full Board flow—not the official 2026 Market Value order."
-            : "Demo Board names only—protected drafts and private PINs are never displayed."}
+            : "Real scoring math with fabricated player results and opponent Boards."}
         </span>
       </section>
 
@@ -637,6 +602,42 @@ export function BoardTester() {
         <div>
           <span>Searchable pool</span>
           <strong>{players.length} players</strong>
+        </div>
+      </section>
+
+      <section className="demo-score-panel" aria-labelledby="demo-score-title">
+        <div className="demo-score-heading">
+          <div>
+            <span className="state-pill demo">Demo results · not official</span>
+            <span className="panel-kicker">{DEMO_SNAPSHOT_LABEL}</span>
+            <h2 id="demo-score-title">Your Board score</h2>
+          </div>
+          <p>
+            These numbers recalculate when you move a player. The weekly player
+            results are fabricated; the scoring formulas are the approved engine.
+          </p>
+        </div>
+        <div className="demo-score-grid">
+          <div className="primary">
+            <span>Board Accuracy</span>
+            <strong>{demoField.currentBoard.boardAccuracy}</strong>
+          </div>
+          <div>
+            <span>Positional</span>
+            <strong>{demoField.currentBoard.positionalAccuracy}</strong>
+          </div>
+          <div>
+            <span>BVM</span>
+            <strong>{demoField.currentBoard.bvmAccuracy}</strong>
+          </div>
+          <div>
+            <span>Field percentile</span>
+            <strong>{demoField.currentBoard.percentile}</strong>
+          </div>
+          <div>
+            <span>Performance tier</span>
+            <strong>{demoField.currentBoard.tier}</strong>
+          </div>
         </div>
       </section>
 
@@ -881,14 +882,11 @@ export function BoardTester() {
       </div>
         </>
       ) : (
-        <LeaderboardPreview
-          boardNames={leaderboardBoards}
-          onShuffle={() => setLeaderboardBoards(shuffleBoardNames())}
-        />
+        <DemoLeaderboard rows={demoField.leaderboard} />
       )}
 
       <footer>
-        <span>PRC protected-draft prototype · Official Entry disabled</span>
+        <span>PRC protected-draft prototype · Official Entry disabled · Demo scores are not official</span>
         <span>
           Player data sources: <a href="https://fantasycalc.com/" target="_blank" rel="noreferrer">FantasyCalc</a>
           {" · "}

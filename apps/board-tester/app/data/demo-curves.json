@@ -1,0 +1,1652 @@
+[
+  {
+    "position": "QB",
+    "positionalRank": 1,
+    "expectedPoints": "5858/15"
+  },
+  {
+    "position": "QB",
+    "positionalRank": 2,
+    "expectedPoints": "3663/10"
+  },
+  {
+    "position": "QB",
+    "positionalRank": 3,
+    "expectedPoints": "3459/10"
+  },
+  {
+    "position": "QB",
+    "positionalRank": 4,
+    "expectedPoints": "5066/15"
+  },
+  {
+    "position": "QB",
+    "positionalRank": 5,
+    "expectedPoints": "4969/15"
+  },
+  {
+    "position": "QB",
+    "positionalRank": 6,
+    "expectedPoints": "9379/30"
+  },
+  {
+    "position": "QB",
+    "positionalRank": 7,
+    "expectedPoints": "4598/15"
+  },
+  {
+    "position": "QB",
+    "positionalRank": 8,
+    "expectedPoints": "8977/30"
+  },
+  {
+    "position": "QB",
+    "positionalRank": 9,
+    "expectedPoints": "291/1"
+  },
+  {
+    "position": "QB",
+    "positionalRank": 10,
+    "expectedPoints": "4322/15"
+  },
+  {
+    "position": "QB",
+    "positionalRank": 11,
+    "expectedPoints": "8383/30"
+  },
+  {
+    "position": "QB",
+    "positionalRank": 12,
+    "expectedPoints": "1625/6"
+  },
+  {
+    "position": "QB",
+    "positionalRank": 13,
+    "expectedPoints": "1523/6"
+  },
+  {
+    "position": "QB",
+    "positionalRank": 14,
+    "expectedPoints": "1256/5"
+  },
+  {
+    "position": "QB",
+    "positionalRank": 15,
+    "expectedPoints": "7381/30"
+  },
+  {
+    "position": "QB",
+    "positionalRank": 16,
+    "expectedPoints": "709/3"
+  },
+  {
+    "position": "QB",
+    "positionalRank": 17,
+    "expectedPoints": "691/3"
+  },
+  {
+    "position": "QB",
+    "positionalRank": 18,
+    "expectedPoints": "1107/5"
+  },
+  {
+    "position": "QB",
+    "positionalRank": 19,
+    "expectedPoints": "433/2"
+  },
+  {
+    "position": "QB",
+    "positionalRank": 20,
+    "expectedPoints": "3017/15"
+  },
+  {
+    "position": "QB",
+    "positionalRank": 21,
+    "expectedPoints": "2923/15"
+  },
+  {
+    "position": "QB",
+    "positionalRank": 22,
+    "expectedPoints": "550/3"
+  },
+  {
+    "position": "QB",
+    "positionalRank": 23,
+    "expectedPoints": "2608/15"
+  },
+  {
+    "position": "QB",
+    "positionalRank": 24,
+    "expectedPoints": "1007/6"
+  },
+  {
+    "position": "QB",
+    "positionalRank": 25,
+    "expectedPoints": "2476/15"
+  },
+  {
+    "position": "QB",
+    "positionalRank": 26,
+    "expectedPoints": "446/3"
+  },
+  {
+    "position": "QB",
+    "positionalRank": 27,
+    "expectedPoints": "713/5"
+  },
+  {
+    "position": "QB",
+    "positionalRank": 28,
+    "expectedPoints": "2056/15"
+  },
+  {
+    "position": "QB",
+    "positionalRank": 29,
+    "expectedPoints": "3967/30"
+  },
+  {
+    "position": "QB",
+    "positionalRank": 30,
+    "expectedPoints": "124/1"
+  },
+  {
+    "position": "QB",
+    "positionalRank": 31,
+    "expectedPoints": "3637/30"
+  },
+  {
+    "position": "QB",
+    "positionalRank": 32,
+    "expectedPoints": "587/5"
+  },
+  {
+    "position": "QB",
+    "positionalRank": 33,
+    "expectedPoints": "3379/30"
+  },
+  {
+    "position": "QB",
+    "positionalRank": 34,
+    "expectedPoints": "1598/15"
+  },
+  {
+    "position": "QB",
+    "positionalRank": 35,
+    "expectedPoints": "2959/30"
+  },
+  {
+    "position": "QB",
+    "positionalRank": 36,
+    "expectedPoints": "442/5"
+  },
+  {
+    "position": "QB",
+    "positionalRank": 37,
+    "expectedPoints": "254/3"
+  },
+  {
+    "position": "QB",
+    "positionalRank": 38,
+    "expectedPoints": "235/3"
+  },
+  {
+    "position": "QB",
+    "positionalRank": 39,
+    "expectedPoints": "2281/30"
+  },
+  {
+    "position": "QB",
+    "positionalRank": 40,
+    "expectedPoints": "2201/30"
+  },
+  {
+    "position": "QB",
+    "positionalRank": 41,
+    "expectedPoints": "202/3"
+  },
+  {
+    "position": "QB",
+    "positionalRank": 42,
+    "expectedPoints": "617/10"
+  },
+  {
+    "position": "QB",
+    "positionalRank": 43,
+    "expectedPoints": "169/3"
+  },
+  {
+    "position": "QB",
+    "positionalRank": 44,
+    "expectedPoints": "773/15"
+  },
+  {
+    "position": "QB",
+    "positionalRank": 45,
+    "expectedPoints": "299/6"
+  },
+  {
+    "position": "QB",
+    "positionalRank": 46,
+    "expectedPoints": "1229/30"
+  },
+  {
+    "position": "QB",
+    "positionalRank": 47,
+    "expectedPoints": "319/10"
+  },
+  {
+    "position": "QB",
+    "positionalRank": 48,
+    "expectedPoints": "437/15"
+  },
+  {
+    "position": "QB",
+    "positionalRank": 49,
+    "expectedPoints": "151/6"
+  },
+  {
+    "position": "QB",
+    "positionalRank": 50,
+    "expectedPoints": "145/6"
+  },
+  {
+    "position": "RB",
+    "positionalRank": 1,
+    "expectedPoints": "2107/6"
+  },
+  {
+    "position": "RB",
+    "positionalRank": 2,
+    "expectedPoints": "1479/5"
+  },
+  {
+    "position": "RB",
+    "positionalRank": 3,
+    "expectedPoints": "8611/30"
+  },
+  {
+    "position": "RB",
+    "positionalRank": 4,
+    "expectedPoints": "553/2"
+  },
+  {
+    "position": "RB",
+    "positionalRank": 5,
+    "expectedPoints": "2593/10"
+  },
+  {
+    "position": "RB",
+    "positionalRank": 6,
+    "expectedPoints": "1273/5"
+  },
+  {
+    "position": "RB",
+    "positionalRank": 7,
+    "expectedPoints": "719/3"
+  },
+  {
+    "position": "RB",
+    "positionalRank": 8,
+    "expectedPoints": "689/3"
+  },
+  {
+    "position": "RB",
+    "positionalRank": 9,
+    "expectedPoints": "670/3"
+  },
+  {
+    "position": "RB",
+    "positionalRank": 10,
+    "expectedPoints": "1109/5"
+  },
+  {
+    "position": "RB",
+    "positionalRank": 11,
+    "expectedPoints": "3244/15"
+  },
+  {
+    "position": "RB",
+    "positionalRank": 12,
+    "expectedPoints": "2113/10"
+  },
+  {
+    "position": "RB",
+    "positionalRank": 13,
+    "expectedPoints": "2083/10"
+  },
+  {
+    "position": "RB",
+    "positionalRank": 14,
+    "expectedPoints": "6071/30"
+  },
+  {
+    "position": "RB",
+    "positionalRank": 15,
+    "expectedPoints": "2987/15"
+  },
+  {
+    "position": "RB",
+    "positionalRank": 16,
+    "expectedPoints": "5803/30"
+  },
+  {
+    "position": "RB",
+    "positionalRank": 17,
+    "expectedPoints": "2866/15"
+  },
+  {
+    "position": "RB",
+    "positionalRank": 18,
+    "expectedPoints": "5599/30"
+  },
+  {
+    "position": "RB",
+    "positionalRank": 19,
+    "expectedPoints": "359/2"
+  },
+  {
+    "position": "RB",
+    "positionalRank": 20,
+    "expectedPoints": "2609/15"
+  },
+  {
+    "position": "RB",
+    "positionalRank": 21,
+    "expectedPoints": "1025/6"
+  },
+  {
+    "position": "RB",
+    "positionalRank": 22,
+    "expectedPoints": "1663/10"
+  },
+  {
+    "position": "RB",
+    "positionalRank": 23,
+    "expectedPoints": "327/2"
+  },
+  {
+    "position": "RB",
+    "positionalRank": 24,
+    "expectedPoints": "4801/30"
+  },
+  {
+    "position": "RB",
+    "positionalRank": 25,
+    "expectedPoints": "2366/15"
+  },
+  {
+    "position": "RB",
+    "positionalRank": 26,
+    "expectedPoints": "4663/30"
+  },
+  {
+    "position": "RB",
+    "positionalRank": 27,
+    "expectedPoints": "2216/15"
+  },
+  {
+    "position": "RB",
+    "positionalRank": 28,
+    "expectedPoints": "2207/15"
+  },
+  {
+    "position": "RB",
+    "positionalRank": 29,
+    "expectedPoints": "863/6"
+  },
+  {
+    "position": "RB",
+    "positionalRank": 30,
+    "expectedPoints": "691/5"
+  },
+  {
+    "position": "RB",
+    "positionalRank": 31,
+    "expectedPoints": "1949/15"
+  },
+  {
+    "position": "RB",
+    "positionalRank": 32,
+    "expectedPoints": "1868/15"
+  },
+  {
+    "position": "RB",
+    "positionalRank": 33,
+    "expectedPoints": "1802/15"
+  },
+  {
+    "position": "RB",
+    "positionalRank": 34,
+    "expectedPoints": "3559/30"
+  },
+  {
+    "position": "RB",
+    "positionalRank": 35,
+    "expectedPoints": "1733/15"
+  },
+  {
+    "position": "RB",
+    "positionalRank": 36,
+    "expectedPoints": "3379/30"
+  },
+  {
+    "position": "RB",
+    "positionalRank": 37,
+    "expectedPoints": "3293/30"
+  },
+  {
+    "position": "RB",
+    "positionalRank": 38,
+    "expectedPoints": "1627/15"
+  },
+  {
+    "position": "RB",
+    "positionalRank": 39,
+    "expectedPoints": "1603/15"
+  },
+  {
+    "position": "RB",
+    "positionalRank": 40,
+    "expectedPoints": "3167/30"
+  },
+  {
+    "position": "RB",
+    "positionalRank": 41,
+    "expectedPoints": "3053/30"
+  },
+  {
+    "position": "RB",
+    "positionalRank": 42,
+    "expectedPoints": "1496/15"
+  },
+  {
+    "position": "RB",
+    "positionalRank": 43,
+    "expectedPoints": "961/10"
+  },
+  {
+    "position": "RB",
+    "positionalRank": 44,
+    "expectedPoints": "1333/15"
+  },
+  {
+    "position": "RB",
+    "positionalRank": 45,
+    "expectedPoints": "436/5"
+  },
+  {
+    "position": "RB",
+    "positionalRank": 46,
+    "expectedPoints": "2537/30"
+  },
+  {
+    "position": "RB",
+    "positionalRank": 47,
+    "expectedPoints": "247/3"
+  },
+  {
+    "position": "RB",
+    "positionalRank": 48,
+    "expectedPoints": "813/10"
+  },
+  {
+    "position": "RB",
+    "positionalRank": 49,
+    "expectedPoints": "2407/30"
+  },
+  {
+    "position": "RB",
+    "positionalRank": 50,
+    "expectedPoints": "1174/15"
+  },
+  {
+    "position": "RB",
+    "positionalRank": 51,
+    "expectedPoints": "1132/15"
+  },
+  {
+    "position": "RB",
+    "positionalRank": 52,
+    "expectedPoints": "2219/30"
+  },
+  {
+    "position": "RB",
+    "positionalRank": 53,
+    "expectedPoints": "427/6"
+  },
+  {
+    "position": "RB",
+    "positionalRank": 54,
+    "expectedPoints": "1061/15"
+  },
+  {
+    "position": "RB",
+    "positionalRank": 55,
+    "expectedPoints": "1019/15"
+  },
+  {
+    "position": "RB",
+    "positionalRank": 56,
+    "expectedPoints": "1937/30"
+  },
+  {
+    "position": "RB",
+    "positionalRank": 57,
+    "expectedPoints": "623/10"
+  },
+  {
+    "position": "RB",
+    "positionalRank": 58,
+    "expectedPoints": "908/15"
+  },
+  {
+    "position": "RB",
+    "positionalRank": 59,
+    "expectedPoints": "117/2"
+  },
+  {
+    "position": "RB",
+    "positionalRank": 60,
+    "expectedPoints": "543/10"
+  },
+  {
+    "position": "RB",
+    "positionalRank": 61,
+    "expectedPoints": "752/15"
+  },
+  {
+    "position": "RB",
+    "positionalRank": 62,
+    "expectedPoints": "487/10"
+  },
+  {
+    "position": "RB",
+    "positionalRank": 63,
+    "expectedPoints": "231/5"
+  },
+  {
+    "position": "RB",
+    "positionalRank": 64,
+    "expectedPoints": "449/10"
+  },
+  {
+    "position": "RB",
+    "positionalRank": 65,
+    "expectedPoints": "1303/30"
+  },
+  {
+    "position": "RB",
+    "positionalRank": 66,
+    "expectedPoints": "419/10"
+  },
+  {
+    "position": "RB",
+    "positionalRank": 67,
+    "expectedPoints": "409/10"
+  },
+  {
+    "position": "RB",
+    "positionalRank": 68,
+    "expectedPoints": "604/15"
+  },
+  {
+    "position": "RB",
+    "positionalRank": 69,
+    "expectedPoints": "572/15"
+  },
+  {
+    "position": "RB",
+    "positionalRank": 70,
+    "expectedPoints": "179/5"
+  },
+  {
+    "position": "RB",
+    "positionalRank": 71,
+    "expectedPoints": "351/10"
+  },
+  {
+    "position": "RB",
+    "positionalRank": 72,
+    "expectedPoints": "997/30"
+  },
+  {
+    "position": "RB",
+    "positionalRank": 73,
+    "expectedPoints": "187/6"
+  },
+  {
+    "position": "RB",
+    "positionalRank": 74,
+    "expectedPoints": "153/5"
+  },
+  {
+    "position": "RB",
+    "positionalRank": 75,
+    "expectedPoints": "181/6"
+  },
+  {
+    "position": "RB",
+    "positionalRank": 76,
+    "expectedPoints": "179/6"
+  },
+  {
+    "position": "RB",
+    "positionalRank": 77,
+    "expectedPoints": "887/30"
+  },
+  {
+    "position": "RB",
+    "positionalRank": 78,
+    "expectedPoints": "144/5"
+  },
+  {
+    "position": "RB",
+    "positionalRank": 79,
+    "expectedPoints": "83/3"
+  },
+  {
+    "position": "RB",
+    "positionalRank": 80,
+    "expectedPoints": "799/30"
+  },
+  {
+    "position": "RB",
+    "positionalRank": 81,
+    "expectedPoints": "257/10"
+  },
+  {
+    "position": "RB",
+    "positionalRank": 82,
+    "expectedPoints": "382/15"
+  },
+  {
+    "position": "RB",
+    "positionalRank": 83,
+    "expectedPoints": "374/15"
+  },
+  {
+    "position": "RB",
+    "positionalRank": 84,
+    "expectedPoints": "362/15"
+  },
+  {
+    "position": "RB",
+    "positionalRank": 85,
+    "expectedPoints": "143/6"
+  },
+  {
+    "position": "RB",
+    "positionalRank": 86,
+    "expectedPoints": "109/5"
+  },
+  {
+    "position": "RB",
+    "positionalRank": 87,
+    "expectedPoints": "43/2"
+  },
+  {
+    "position": "RB",
+    "positionalRank": 88,
+    "expectedPoints": "104/5"
+  },
+  {
+    "position": "RB",
+    "positionalRank": 89,
+    "expectedPoints": "301/15"
+  },
+  {
+    "position": "RB",
+    "positionalRank": 90,
+    "expectedPoints": "284/15"
+  },
+  {
+    "position": "RB",
+    "positionalRank": 91,
+    "expectedPoints": "55/3"
+  },
+  {
+    "position": "RB",
+    "positionalRank": 92,
+    "expectedPoints": "169/10"
+  },
+  {
+    "position": "RB",
+    "positionalRank": 93,
+    "expectedPoints": "79/5"
+  },
+  {
+    "position": "RB",
+    "positionalRank": 94,
+    "expectedPoints": "229/15"
+  },
+  {
+    "position": "RB",
+    "positionalRank": 95,
+    "expectedPoints": "427/30"
+  },
+  {
+    "position": "RB",
+    "positionalRank": 96,
+    "expectedPoints": "403/30"
+  },
+  {
+    "position": "RB",
+    "positionalRank": 97,
+    "expectedPoints": "133/10"
+  },
+  {
+    "position": "RB",
+    "positionalRank": 98,
+    "expectedPoints": "391/30"
+  },
+  {
+    "position": "RB",
+    "positionalRank": 99,
+    "expectedPoints": "127/10"
+  },
+  {
+    "position": "RB",
+    "positionalRank": 100,
+    "expectedPoints": "37/3"
+  },
+  {
+    "position": "WR",
+    "positionalRank": 1,
+    "expectedPoints": "9151/30"
+  },
+  {
+    "position": "WR",
+    "positionalRank": 2,
+    "expectedPoints": "8473/30"
+  },
+  {
+    "position": "WR",
+    "positionalRank": 3,
+    "expectedPoints": "1236/5"
+  },
+  {
+    "position": "WR",
+    "positionalRank": 4,
+    "expectedPoints": "710/3"
+  },
+  {
+    "position": "WR",
+    "positionalRank": 5,
+    "expectedPoints": "1136/5"
+  },
+  {
+    "position": "WR",
+    "positionalRank": 6,
+    "expectedPoints": "1327/6"
+  },
+  {
+    "position": "WR",
+    "positionalRank": 7,
+    "expectedPoints": "3136/15"
+  },
+  {
+    "position": "WR",
+    "positionalRank": 8,
+    "expectedPoints": "2051/10"
+  },
+  {
+    "position": "WR",
+    "positionalRank": 9,
+    "expectedPoints": "5863/30"
+  },
+  {
+    "position": "WR",
+    "positionalRank": 10,
+    "expectedPoints": "974/5"
+  },
+  {
+    "position": "WR",
+    "positionalRank": 11,
+    "expectedPoints": "1917/10"
+  },
+  {
+    "position": "WR",
+    "positionalRank": 12,
+    "expectedPoints": "2834/15"
+  },
+  {
+    "position": "WR",
+    "positionalRank": 13,
+    "expectedPoints": "931/5"
+  },
+  {
+    "position": "WR",
+    "positionalRank": 14,
+    "expectedPoints": "5423/30"
+  },
+  {
+    "position": "WR",
+    "positionalRank": 15,
+    "expectedPoints": "898/5"
+  },
+  {
+    "position": "WR",
+    "positionalRank": 16,
+    "expectedPoints": "535/3"
+  },
+  {
+    "position": "WR",
+    "positionalRank": 17,
+    "expectedPoints": "2669/15"
+  },
+  {
+    "position": "WR",
+    "positionalRank": 18,
+    "expectedPoints": "5279/30"
+  },
+  {
+    "position": "WR",
+    "positionalRank": 19,
+    "expectedPoints": "2581/15"
+  },
+  {
+    "position": "WR",
+    "positionalRank": 20,
+    "expectedPoints": "5137/30"
+  },
+  {
+    "position": "WR",
+    "positionalRank": 21,
+    "expectedPoints": "1013/6"
+  },
+  {
+    "position": "WR",
+    "positionalRank": 22,
+    "expectedPoints": "2503/15"
+  },
+  {
+    "position": "WR",
+    "positionalRank": 23,
+    "expectedPoints": "4963/30"
+  },
+  {
+    "position": "WR",
+    "positionalRank": 24,
+    "expectedPoints": "2449/15"
+  },
+  {
+    "position": "WR",
+    "positionalRank": 25,
+    "expectedPoints": "973/6"
+  },
+  {
+    "position": "WR",
+    "positionalRank": 26,
+    "expectedPoints": "807/5"
+  },
+  {
+    "position": "WR",
+    "positionalRank": 27,
+    "expectedPoints": "4769/30"
+  },
+  {
+    "position": "WR",
+    "positionalRank": 28,
+    "expectedPoints": "4693/30"
+  },
+  {
+    "position": "WR",
+    "positionalRank": 29,
+    "expectedPoints": "776/5"
+  },
+  {
+    "position": "WR",
+    "positionalRank": 30,
+    "expectedPoints": "771/5"
+  },
+  {
+    "position": "WR",
+    "positionalRank": 31,
+    "expectedPoints": "4531/30"
+  },
+  {
+    "position": "WR",
+    "positionalRank": 32,
+    "expectedPoints": "2246/15"
+  },
+  {
+    "position": "WR",
+    "positionalRank": 33,
+    "expectedPoints": "889/6"
+  },
+  {
+    "position": "WR",
+    "positionalRank": 34,
+    "expectedPoints": "4273/30"
+  },
+  {
+    "position": "WR",
+    "positionalRank": 35,
+    "expectedPoints": "422/3"
+  },
+  {
+    "position": "WR",
+    "positionalRank": 36,
+    "expectedPoints": "2072/15"
+  },
+  {
+    "position": "WR",
+    "positionalRank": 37,
+    "expectedPoints": "1351/10"
+  },
+  {
+    "position": "WR",
+    "positionalRank": 38,
+    "expectedPoints": "669/5"
+  },
+  {
+    "position": "WR",
+    "positionalRank": 39,
+    "expectedPoints": "1972/15"
+  },
+  {
+    "position": "WR",
+    "positionalRank": 40,
+    "expectedPoints": "3881/30"
+  },
+  {
+    "position": "WR",
+    "positionalRank": 41,
+    "expectedPoints": "3847/30"
+  },
+  {
+    "position": "WR",
+    "positionalRank": 42,
+    "expectedPoints": "364/3"
+  },
+  {
+    "position": "WR",
+    "positionalRank": 43,
+    "expectedPoints": "1189/10"
+  },
+  {
+    "position": "WR",
+    "positionalRank": 44,
+    "expectedPoints": "3481/30"
+  },
+  {
+    "position": "WR",
+    "positionalRank": 45,
+    "expectedPoints": "3431/30"
+  },
+  {
+    "position": "WR",
+    "positionalRank": 46,
+    "expectedPoints": "1688/15"
+  },
+  {
+    "position": "WR",
+    "positionalRank": 47,
+    "expectedPoints": "3347/30"
+  },
+  {
+    "position": "WR",
+    "positionalRank": 48,
+    "expectedPoints": "3257/30"
+  },
+  {
+    "position": "WR",
+    "positionalRank": 49,
+    "expectedPoints": "541/5"
+  },
+  {
+    "position": "WR",
+    "positionalRank": 50,
+    "expectedPoints": "643/6"
+  },
+  {
+    "position": "WR",
+    "positionalRank": 51,
+    "expectedPoints": "533/5"
+  },
+  {
+    "position": "WR",
+    "positionalRank": 52,
+    "expectedPoints": "3049/30"
+  },
+  {
+    "position": "WR",
+    "positionalRank": 53,
+    "expectedPoints": "1507/15"
+  },
+  {
+    "position": "WR",
+    "positionalRank": 54,
+    "expectedPoints": "993/10"
+  },
+  {
+    "position": "WR",
+    "positionalRank": 55,
+    "expectedPoints": "2899/30"
+  },
+  {
+    "position": "WR",
+    "positionalRank": 56,
+    "expectedPoints": "1426/15"
+  },
+  {
+    "position": "WR",
+    "positionalRank": 57,
+    "expectedPoints": "471/5"
+  },
+  {
+    "position": "WR",
+    "positionalRank": 58,
+    "expectedPoints": "463/5"
+  },
+  {
+    "position": "WR",
+    "positionalRank": 59,
+    "expectedPoints": "2741/30"
+  },
+  {
+    "position": "WR",
+    "positionalRank": 60,
+    "expectedPoints": "181/2"
+  },
+  {
+    "position": "WR",
+    "positionalRank": 61,
+    "expectedPoints": "1334/15"
+  },
+  {
+    "position": "WR",
+    "positionalRank": 62,
+    "expectedPoints": "1304/15"
+  },
+  {
+    "position": "WR",
+    "positionalRank": 63,
+    "expectedPoints": "2573/30"
+  },
+  {
+    "position": "WR",
+    "positionalRank": 64,
+    "expectedPoints": "2531/30"
+  },
+  {
+    "position": "WR",
+    "positionalRank": 65,
+    "expectedPoints": "823/10"
+  },
+  {
+    "position": "WR",
+    "positionalRank": 66,
+    "expectedPoints": "819/10"
+  },
+  {
+    "position": "WR",
+    "positionalRank": 67,
+    "expectedPoints": "407/5"
+  },
+  {
+    "position": "WR",
+    "positionalRank": 68,
+    "expectedPoints": "1208/15"
+  },
+  {
+    "position": "WR",
+    "positionalRank": 69,
+    "expectedPoints": "2411/30"
+  },
+  {
+    "position": "WR",
+    "positionalRank": 70,
+    "expectedPoints": "1186/15"
+  },
+  {
+    "position": "WR",
+    "positionalRank": 71,
+    "expectedPoints": "777/10"
+  },
+  {
+    "position": "WR",
+    "positionalRank": 72,
+    "expectedPoints": "767/10"
+  },
+  {
+    "position": "WR",
+    "positionalRank": 73,
+    "expectedPoints": "2273/30"
+  },
+  {
+    "position": "WR",
+    "positionalRank": 74,
+    "expectedPoints": "2249/30"
+  },
+  {
+    "position": "WR",
+    "positionalRank": 75,
+    "expectedPoints": "439/6"
+  },
+  {
+    "position": "WR",
+    "positionalRank": 76,
+    "expectedPoints": "363/5"
+  },
+  {
+    "position": "WR",
+    "positionalRank": 77,
+    "expectedPoints": "359/5"
+  },
+  {
+    "position": "WR",
+    "positionalRank": 78,
+    "expectedPoints": "2147/30"
+  },
+  {
+    "position": "WR",
+    "positionalRank": 79,
+    "expectedPoints": "137/2"
+  },
+  {
+    "position": "WR",
+    "positionalRank": 80,
+    "expectedPoints": "1019/15"
+  },
+  {
+    "position": "WR",
+    "positionalRank": 81,
+    "expectedPoints": "1967/30"
+  },
+  {
+    "position": "WR",
+    "positionalRank": 82,
+    "expectedPoints": "326/5"
+  },
+  {
+    "position": "WR",
+    "positionalRank": 83,
+    "expectedPoints": "637/10"
+  },
+  {
+    "position": "WR",
+    "positionalRank": 84,
+    "expectedPoints": "621/10"
+  },
+  {
+    "position": "WR",
+    "positionalRank": 85,
+    "expectedPoints": "916/15"
+  },
+  {
+    "position": "WR",
+    "positionalRank": 86,
+    "expectedPoints": "599/10"
+  },
+  {
+    "position": "WR",
+    "positionalRank": 87,
+    "expectedPoints": "117/2"
+  },
+  {
+    "position": "WR",
+    "positionalRank": 88,
+    "expectedPoints": "291/5"
+  },
+  {
+    "position": "WR",
+    "positionalRank": 89,
+    "expectedPoints": "341/6"
+  },
+  {
+    "position": "WR",
+    "positionalRank": 90,
+    "expectedPoints": "1691/30"
+  },
+  {
+    "position": "WR",
+    "positionalRank": 91,
+    "expectedPoints": "839/15"
+  },
+  {
+    "position": "WR",
+    "positionalRank": 92,
+    "expectedPoints": "551/10"
+  },
+  {
+    "position": "WR",
+    "positionalRank": 93,
+    "expectedPoints": "325/6"
+  },
+  {
+    "position": "WR",
+    "positionalRank": 94,
+    "expectedPoints": "1579/30"
+  },
+  {
+    "position": "WR",
+    "positionalRank": 95,
+    "expectedPoints": "305/6"
+  },
+  {
+    "position": "WR",
+    "positionalRank": 96,
+    "expectedPoints": "50/1"
+  },
+  {
+    "position": "WR",
+    "positionalRank": 97,
+    "expectedPoints": "49/1"
+  },
+  {
+    "position": "WR",
+    "positionalRank": 98,
+    "expectedPoints": "145/3"
+  },
+  {
+    "position": "WR",
+    "positionalRank": 99,
+    "expectedPoints": "718/15"
+  },
+  {
+    "position": "WR",
+    "positionalRank": 100,
+    "expectedPoints": "283/6"
+  },
+  {
+    "position": "WR",
+    "positionalRank": 101,
+    "expectedPoints": "1397/30"
+  },
+  {
+    "position": "WR",
+    "positionalRank": 102,
+    "expectedPoints": "683/15"
+  },
+  {
+    "position": "WR",
+    "positionalRank": 103,
+    "expectedPoints": "677/15"
+  },
+  {
+    "position": "WR",
+    "positionalRank": 104,
+    "expectedPoints": "1331/30"
+  },
+  {
+    "position": "WR",
+    "positionalRank": 105,
+    "expectedPoints": "131/3"
+  },
+  {
+    "position": "WR",
+    "positionalRank": 106,
+    "expectedPoints": "646/15"
+  },
+  {
+    "position": "WR",
+    "positionalRank": 107,
+    "expectedPoints": "127/3"
+  },
+  {
+    "position": "WR",
+    "positionalRank": 108,
+    "expectedPoints": "417/10"
+  },
+  {
+    "position": "WR",
+    "positionalRank": 109,
+    "expectedPoints": "1231/30"
+  },
+  {
+    "position": "WR",
+    "positionalRank": 110,
+    "expectedPoints": "1223/30"
+  },
+  {
+    "position": "WR",
+    "positionalRank": 111,
+    "expectedPoints": "1159/30"
+  },
+  {
+    "position": "WR",
+    "positionalRank": 112,
+    "expectedPoints": "381/10"
+  },
+  {
+    "position": "WR",
+    "positionalRank": 113,
+    "expectedPoints": "112/3"
+  },
+  {
+    "position": "WR",
+    "positionalRank": 114,
+    "expectedPoints": "542/15"
+  },
+  {
+    "position": "WR",
+    "positionalRank": 115,
+    "expectedPoints": "1079/30"
+  },
+  {
+    "position": "WR",
+    "positionalRank": 116,
+    "expectedPoints": "1051/30"
+  },
+  {
+    "position": "WR",
+    "positionalRank": 117,
+    "expectedPoints": "337/10"
+  },
+  {
+    "position": "WR",
+    "positionalRank": 118,
+    "expectedPoints": "983/30"
+  },
+  {
+    "position": "WR",
+    "positionalRank": 119,
+    "expectedPoints": "961/30"
+  },
+  {
+    "position": "WR",
+    "positionalRank": 120,
+    "expectedPoints": "154/5"
+  },
+  {
+    "position": "TE",
+    "positionalRank": 1,
+    "expectedPoints": "6217/30"
+  },
+  {
+    "position": "TE",
+    "positionalRank": 2,
+    "expectedPoints": "2623/15"
+  },
+  {
+    "position": "TE",
+    "positionalRank": 3,
+    "expectedPoints": "1683/10"
+  },
+  {
+    "position": "TE",
+    "positionalRank": 4,
+    "expectedPoints": "2437/15"
+  },
+  {
+    "position": "TE",
+    "positionalRank": 5,
+    "expectedPoints": "153/1"
+  },
+  {
+    "position": "TE",
+    "positionalRank": 6,
+    "expectedPoints": "2237/15"
+  },
+  {
+    "position": "TE",
+    "positionalRank": 7,
+    "expectedPoints": "2096/15"
+  },
+  {
+    "position": "TE",
+    "positionalRank": 8,
+    "expectedPoints": "681/5"
+  },
+  {
+    "position": "TE",
+    "positionalRank": 9,
+    "expectedPoints": "1341/10"
+  },
+  {
+    "position": "TE",
+    "positionalRank": 10,
+    "expectedPoints": "617/5"
+  },
+  {
+    "position": "TE",
+    "positionalRank": 11,
+    "expectedPoints": "1792/15"
+  },
+  {
+    "position": "TE",
+    "positionalRank": 12,
+    "expectedPoints": "3527/30"
+  },
+  {
+    "position": "TE",
+    "positionalRank": 13,
+    "expectedPoints": "3371/30"
+  },
+  {
+    "position": "TE",
+    "positionalRank": 14,
+    "expectedPoints": "3271/30"
+  },
+  {
+    "position": "TE",
+    "positionalRank": 15,
+    "expectedPoints": "509/5"
+  },
+  {
+    "position": "TE",
+    "positionalRank": 16,
+    "expectedPoints": "1003/10"
+  },
+  {
+    "position": "TE",
+    "positionalRank": 17,
+    "expectedPoints": "2971/30"
+  },
+  {
+    "position": "TE",
+    "positionalRank": 18,
+    "expectedPoints": "569/6"
+  },
+  {
+    "position": "TE",
+    "positionalRank": 19,
+    "expectedPoints": "94/1"
+  },
+  {
+    "position": "TE",
+    "positionalRank": 20,
+    "expectedPoints": "923/10"
+  },
+  {
+    "position": "TE",
+    "positionalRank": 21,
+    "expectedPoints": "1337/15"
+  },
+  {
+    "position": "TE",
+    "positionalRank": 22,
+    "expectedPoints": "2627/30"
+  },
+  {
+    "position": "TE",
+    "positionalRank": 23,
+    "expectedPoints": "853/10"
+  },
+  {
+    "position": "TE",
+    "positionalRank": 24,
+    "expectedPoints": "831/10"
+  },
+  {
+    "position": "TE",
+    "positionalRank": 25,
+    "expectedPoints": "813/10"
+  },
+  {
+    "position": "TE",
+    "positionalRank": 26,
+    "expectedPoints": "389/5"
+  },
+  {
+    "position": "TE",
+    "positionalRank": 27,
+    "expectedPoints": "1052/15"
+  },
+  {
+    "position": "TE",
+    "positionalRank": 28,
+    "expectedPoints": "1037/15"
+  },
+  {
+    "position": "TE",
+    "positionalRank": 29,
+    "expectedPoints": "1033/15"
+  },
+  {
+    "position": "TE",
+    "positionalRank": 30,
+    "expectedPoints": "395/6"
+  },
+  {
+    "position": "TE",
+    "positionalRank": 31,
+    "expectedPoints": "324/5"
+  },
+  {
+    "position": "TE",
+    "positionalRank": 32,
+    "expectedPoints": "127/2"
+  },
+  {
+    "position": "TE",
+    "positionalRank": 33,
+    "expectedPoints": "947/15"
+  },
+  {
+    "position": "TE",
+    "positionalRank": 34,
+    "expectedPoints": "1781/30"
+  },
+  {
+    "position": "TE",
+    "positionalRank": 35,
+    "expectedPoints": "1741/30"
+  },
+  {
+    "position": "TE",
+    "positionalRank": 36,
+    "expectedPoints": "806/15"
+  },
+  {
+    "position": "TE",
+    "positionalRank": 37,
+    "expectedPoints": "1601/30"
+  },
+  {
+    "position": "TE",
+    "positionalRank": 38,
+    "expectedPoints": "782/15"
+  },
+  {
+    "position": "TE",
+    "positionalRank": 39,
+    "expectedPoints": "301/6"
+  },
+  {
+    "position": "TE",
+    "positionalRank": 40,
+    "expectedPoints": "1457/30"
+  },
+  {
+    "position": "TE",
+    "positionalRank": 41,
+    "expectedPoints": "461/10"
+  },
+  {
+    "position": "TE",
+    "positionalRank": 42,
+    "expectedPoints": "127/3"
+  },
+  {
+    "position": "TE",
+    "positionalRank": 43,
+    "expectedPoints": "207/5"
+  },
+  {
+    "position": "TE",
+    "positionalRank": 44,
+    "expectedPoints": "204/5"
+  },
+  {
+    "position": "TE",
+    "positionalRank": 45,
+    "expectedPoints": "1193/30"
+  },
+  {
+    "position": "TE",
+    "positionalRank": 46,
+    "expectedPoints": "118/3"
+  },
+  {
+    "position": "TE",
+    "positionalRank": 47,
+    "expectedPoints": "381/10"
+  },
+  {
+    "position": "TE",
+    "positionalRank": 48,
+    "expectedPoints": "1109/30"
+  },
+  {
+    "position": "TE",
+    "positionalRank": 49,
+    "expectedPoints": "539/15"
+  },
+  {
+    "position": "TE",
+    "positionalRank": 50,
+    "expectedPoints": "172/5"
+  },
+  {
+    "position": "TE",
+    "positionalRank": 51,
+    "expectedPoints": "494/15"
+  },
+  {
+    "position": "TE",
+    "positionalRank": 52,
+    "expectedPoints": "971/30"
+  },
+  {
+    "position": "TE",
+    "positionalRank": 53,
+    "expectedPoints": "959/30"
+  },
+  {
+    "position": "TE",
+    "positionalRank": 54,
+    "expectedPoints": "63/2"
+  },
+  {
+    "position": "TE",
+    "positionalRank": 55,
+    "expectedPoints": "156/5"
+  },
+  {
+    "position": "TE",
+    "positionalRank": 56,
+    "expectedPoints": "881/30"
+  },
+  {
+    "position": "TE",
+    "positionalRank": 57,
+    "expectedPoints": "57/2"
+  },
+  {
+    "position": "TE",
+    "positionalRank": 58,
+    "expectedPoints": "269/10"
+  },
+  {
+    "position": "TE",
+    "positionalRank": 59,
+    "expectedPoints": "398/15"
+  },
+  {
+    "position": "TE",
+    "positionalRank": 60,
+    "expectedPoints": "155/6"
+  }
+]
