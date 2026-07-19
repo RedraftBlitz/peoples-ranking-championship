@@ -4,6 +4,7 @@ import { FormEvent, useEffect, useMemo, useState } from "react";
 import playerData from "../data/players.json";
 
 type Position = "QB" | "RB" | "WR" | "TE";
+type AppView = "board" | "leaderboard";
 
 type Player = {
   id: string;
@@ -44,6 +45,33 @@ const LEGACY_STORAGE_KEY = "prc-board-tester-v1";
 const BOARD_SIZE = 200;
 const OFFICIAL_CUTOFF = 150;
 const POSITIONS: Position[] = ["QB", "RB", "WR", "TE"];
+const PRESEASON_BOARD_NAMES = [
+  "Fourth Down Theory",
+  "Sunday Syndicate",
+  "Gridiron Atlas",
+  "Red Zone Rebels",
+  "The Waiver Wire",
+  "Sunday Forecast",
+  "Goal Line Stand",
+  "The Film Room",
+  "Pocket Presence",
+  "Two Minute Drill",
+  "Route Tree Royalty",
+  "The Audible",
+  "Sunday Best",
+  "End Zone Empire",
+  "First Read",
+  "No Punt Intended",
+  "The Depth Chart",
+  "Prime Time Board",
+  "Chain Movers",
+  "Touchdown Census",
+  "The Playbook",
+  "Fantasy Foundry",
+  "Between the Hashes",
+  "Roster Architects",
+  "Victory Formation",
+];
 
 function normalizeSearch(value: string) {
   return value
@@ -78,6 +106,87 @@ function movementLevel(change: number) {
   return "emphasized";
 }
 
+function shuffleBoardNames() {
+  const shuffled = [...PRESEASON_BOARD_NAMES];
+  const randomValues = new Uint32Array(shuffled.length);
+  window.crypto.getRandomValues(randomValues);
+
+  for (let index = shuffled.length - 1; index > 0; index -= 1) {
+    const swapIndex = randomValues[index] % (index + 1);
+    [shuffled[index], shuffled[swapIndex]] = [shuffled[swapIndex], shuffled[index]];
+  }
+
+  return shuffled;
+}
+
+function LeaderboardPreview({
+  boardNames,
+  onShuffle,
+}: {
+  boardNames: string[];
+  onShuffle: () => void;
+}) {
+  return (
+    <section className="leaderboard-shell" aria-labelledby="leaderboard-title">
+      <div className="leaderboard-intro">
+        <div>
+          <span className="state-pill preseason">Preseason mode</span>
+          <span className="panel-kicker">People&apos;s leaderboard</span>
+          <h2 id="leaderboard-title">Every Board starts even.</h2>
+          <p>
+            Before Week 1 scoring, Board names appear in a different random
+            order without placement or accuracy. These are demo names only;
+            protected drafts are never displayed here.
+          </p>
+        </div>
+        <button className="button secondary" type="button" onClick={onShuffle}>
+          Shuffle demo Boards
+        </button>
+      </div>
+
+      <div className="leaderboard-summary" aria-label="Preseason leaderboard rules">
+        <div>
+          <span>Boards shown</span>
+          <strong>{boardNames.length}</strong>
+        </div>
+        <div>
+          <span>Display order</span>
+          <strong>Random</strong>
+        </div>
+        <div>
+          <span>Placement</span>
+          <strong>Hidden</strong>
+        </div>
+        <div>
+          <span>Board Accuracy</span>
+          <strong>Not scored</strong>
+        </div>
+      </div>
+
+      <ul className="preseason-board-list" aria-label="Randomized demo Board names">
+        {boardNames.map((name) => (
+          <li key={name}>
+            <span className="leaderboard-board-mark" aria-hidden="true">PRC</span>
+            <div>
+              <strong>{name}</strong>
+              <small>Demo Board</small>
+            </div>
+          </li>
+        ))}
+      </ul>
+
+      <div className="scoring-preview">
+        <span className="panel-kicker">After scoring begins</span>
+        <strong>Placement · Board Name · Board Accuracy</strong>
+        <p>
+          Those are the only leaderboard fields that will appear after the
+          first official scoring update. No preseason accuracy is invented.
+        </p>
+      </div>
+    </section>
+  );
+}
+
 export function BoardTester() {
   const [order, setOrder] = useState(initialOrder);
   const [personalIds, setPersonalIds] = useState<string[]>([]);
@@ -93,6 +202,10 @@ export function BoardTester() {
   const [dialogError, setDialogError] = useState("");
   const [dialogMessage, setDialogMessage] = useState("");
   const [busy, setBusy] = useState(false);
+  const [activeView, setActiveView] = useState<AppView>("board");
+  const [leaderboardBoards, setLeaderboardBoards] = useState([
+    ...PRESEASON_BOARD_NAMES,
+  ]);
 
   useEffect(() => {
     const timeout = window.setTimeout(() => {
@@ -121,6 +234,7 @@ export function BoardTester() {
       } catch {
         // A bad browser save should never prevent the Board from opening.
       }
+      setLeaderboardBoards(shuffleBoardNames());
       setHydrated(true);
     }, 0);
     return () => window.clearTimeout(timeout);
@@ -402,31 +516,64 @@ export function BoardTester() {
       <header className="hero">
         <div className="hero-copy">
           <div className="eyebrow">People&apos;s Ranking Championship</div>
-          <h1>Build your board.</h1>
-          <p>
-            Drag a player to a new spot or type any rank from 1–200. Everyone
-            between the two ranks shifts automatically.
-          </p>
+          <h1>{activeView === "board" ? "Build your board." : "Follow every board."}</h1>
+          {activeView === "board" ? (
+            <p>
+              Drag a player to a new spot or type any rank from 1–200. Everyone
+              between the two ranks shifts automatically.
+            </p>
+          ) : (
+            <p>
+              Before scoring begins, every entered Board appears without a rank
+              or accuracy score. The order changes so no Board is presented as leading.
+            </p>
+          )}
         </div>
         <div className="hero-status" aria-live="polite">
           <span className="status-dot" />
           <div>
-            <strong>{saveState}</strong>
+            <strong>{activeView === "board" ? saveState : "Preseason leaderboard"}</strong>
             <small>
-              {protectedBoard ? protectedBoard.name : "Browser draft · no account needed"}
+              {activeView === "board"
+                ? protectedBoard
+                  ? protectedBoard.name
+                  : "Browser draft · no account needed"
+                : "Randomized preview · no scores"}
             </small>
           </div>
         </div>
       </header>
 
       <section className="notice" aria-label="Tester status">
-        <strong>Provisional tester order</strong>
+        <strong>{activeView === "board" ? "Provisional tester order" : "Leaderboard preview"}</strong>
         <span>
-          This is for testing the full Board flow—not the official 2026 Market
-          Value order.
+          {activeView === "board"
+            ? "This is for testing the full Board flow—not the official 2026 Market Value order."
+            : "Demo Board names only—protected drafts and private PINs are never displayed."}
         </span>
       </section>
 
+      <nav className="view-switcher" aria-label="Choose tester view">
+        <button
+          type="button"
+          className={activeView === "board" ? "active" : ""}
+          aria-pressed={activeView === "board"}
+          onClick={() => setActiveView("board")}
+        >
+          Your Board
+        </button>
+        <button
+          type="button"
+          className={activeView === "leaderboard" ? "active" : ""}
+          aria-pressed={activeView === "leaderboard"}
+          onClick={() => setActiveView("leaderboard")}
+        >
+          Leaderboard
+        </button>
+      </nav>
+
+      {activeView === "board" ? (
+        <>
       <section className="draft-lifecycle" aria-label="Draft protection">
         <div className="draft-identity">
           <span className={`state-pill ${protectedBoard ? "protected" : "browser"}`}>
@@ -732,6 +879,13 @@ export function BoardTester() {
           </div>
         </aside>
       </div>
+        </>
+      ) : (
+        <LeaderboardPreview
+          boardNames={leaderboardBoards}
+          onShuffle={() => setLeaderboardBoards(shuffleBoardNames())}
+        />
+      )}
 
       <footer>
         <span>PRC protected-draft prototype · Official Entry disabled</span>
