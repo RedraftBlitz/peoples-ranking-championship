@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 const guideLinks = [
   ["How It Works", "/how-it-works"],
   ["Prizes", "/prizes"],
+  ["Random Draw", "/random-draw"],
   ["Scoring", "/scoring"],
   ["FAQ", "/faq"],
   ["Official Rules", "/official-rules"],
@@ -79,6 +80,7 @@ export function ContestPage({
         <div className="contest-footer-links">
           <Link href="/">Build Your Board</Link>
           <Link href="/official-rules">Official Rules</Link>
+          <Link href="/privacy">Privacy</Link>
           <Link href="/faq">FAQ</Link>
         </div>
         <small>

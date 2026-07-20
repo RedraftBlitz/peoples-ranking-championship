@@ -19,6 +19,11 @@ type SummaryRow = {
   temporarily_pin_locked: number;
 };
 
+type RandomDrawSummaryRow = {
+  random_draw_only_entries: number;
+  total_random_draw_entries: number;
+};
+
 type EntryRow = {
   id: string;
   board_name: string;
@@ -96,6 +101,7 @@ export async function GET(request: Request) {
 
     const [
       summary,
+      randomDraw,
       matching,
       entries,
       market,
@@ -118,6 +124,20 @@ export async function GET(request: Request) {
         )
         .bind(now, SEASON)
         .first<SummaryRow>(),
+      db
+        .prepare(
+          `SELECT
+            (SELECT COUNT(*) FROM random_draw_entries WHERE season = ?1)
+              AS random_draw_only_entries,
+            (SELECT COUNT(*) FROM (
+              SELECT entry_email_key AS email_key FROM board_entries
+                WHERE season = ?1 AND entry_email_key IS NOT NULL
+              UNION
+              SELECT email_key FROM random_draw_entries WHERE season = ?1
+            )) AS total_random_draw_entries`,
+        )
+        .bind(SEASON)
+        .first<RandomDrawSummaryRow>(),
       db
         .prepare(
           `SELECT COUNT(*) AS count
@@ -203,6 +223,8 @@ export async function GET(request: Request) {
           verifiedEmails: summary?.verified_emails ?? 0,
           verifiedFinalEntries: summary?.verified_final_entries ?? 0,
           temporarilyPinLocked: summary?.temporarily_pin_locked ?? 0,
+          randomDrawOnlyEntries: randomDraw?.random_draw_only_entries ?? 0,
+          totalRandomDrawEntries: randomDraw?.total_random_draw_entries ?? 0,
         },
         email: {
           deliveryConfigured: emailDeliveryConfigured(),

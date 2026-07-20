@@ -7,7 +7,10 @@ export const CHAMPIONSHIP_REVEAL_LABEL =
 export const SCORING_START_UTC = "2026-09-10T00:20:00.000Z";
 export const SCORING_START_LABEL =
   "September 9, 2026 at 8:20 PM Eastern · 6:20 PM Mountain";
-export const ENTRY_RULES_VERSION = "PRC-2026-FINAL-ENTRY-v2";
+export const RANDOM_DRAW_UTC = "2027-01-15T17:00:00.000Z";
+export const RANDOM_DRAW_LABEL =
+  "January 15, 2027 at 12:00 PM Eastern / 10:00 AM Mountain";
+export const ENTRY_RULES_VERSION = "PRC-2026-FINAL-ENTRY-v3";
 
 export function entryDeadlinePassed(now = new Date()) {
   return now.getTime() >= new Date(ENTRY_DEADLINE_UTC).getTime();

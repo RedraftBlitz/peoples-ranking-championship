@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ContestPage } from "../components/ContestPage";
+import { RANDOM_DRAW_LABEL } from "../lib/entry-rules";
 
 export const metadata: Metadata = {
   title: "Prizes · People's Ranking Championship",
@@ -57,9 +58,10 @@ export default function PrizesPage() {
           <p className="prize-tagline">A separate winner from the field.</p>
           <strong className="prize-value">$50 Fanatics gift card</strong>
           <p>
-            Randomly selected from eligible final entrants after excluding the
-            Overall Champion and First Round Crown winner. Odds depend on the
-            number of remaining eligible entries.
+            Selected {RANDOM_DRAW_LABEL} from eligible, verified entries after
+            excluding the Overall Champion and First Round Crown winner. A final
+            Board enters automatically, or use the free Random Draw Only form.
+            One chance per verified email across both methods.
           </p>
         </article>
       </section>
@@ -107,8 +109,8 @@ export default function PrizesPage() {
             verified email address.
           </p>
         </div>
-        <Link className="button gold" href="/how-it-works">
-          See How It Works
+        <Link className="button gold" href="/random-draw">
+          Enter the Random Draw Only
         </Link>
       </section>
 
