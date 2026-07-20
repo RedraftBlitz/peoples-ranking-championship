@@ -1,6 +1,7 @@
 import playerData from "../data/players.json";
+import { approvedMarketSnapshotOrBase } from "./market-data";
 
-const eligibleIds = new Set(
+const baseEligibleIds = new Set(
   (playerData as Array<{ id: string }>).map((player) => player.id),
 );
 
@@ -43,7 +44,14 @@ export function validateEmail(value: string) {
     : "Enter a valid recovery email.";
 }
 
-export function validateBoardState(order: unknown, personalIds: unknown) {
+export async function validateBoardState(order: unknown, personalIds: unknown) {
+  let eligibleIds = baseEligibleIds;
+  try {
+    const market = await approvedMarketSnapshotOrBase();
+    eligibleIds = new Set(market.players.map((player) => player.id));
+  } catch {
+    // The static permanent pool remains a safe validation fallback.
+  }
   if (
     !Array.isArray(order) ||
     order.length !== eligibleIds.size ||

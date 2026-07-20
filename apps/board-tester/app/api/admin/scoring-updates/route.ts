@@ -5,6 +5,7 @@ import {
   sha256Hex,
   type ImportReview,
 } from "../../../lib/fantasypros-import";
+import { approvedMarketSnapshotOrBase } from "../../../lib/market-data";
 
 const MAX_UPLOAD_BYTES = 5 * 1024 * 1024;
 const ADMIN_EMAIL_HEADER = "oai-authenticated-user-email";
@@ -143,7 +144,8 @@ export async function POST(request: Request) {
     const existing = await snapshotByHash(sourceFileSha256);
     if (existing) return Response.json({ snapshot: publicSnapshot(existing), duplicate: true });
 
-    const analysis = analyzeFantasyProsCsv(csvText, upload.name);
+    const market = await approvedMarketSnapshotOrBase();
+    const analysis = analyzeFantasyProsCsv(csvText, upload.name, market.players);
     const id = crypto.randomUUID();
     const now = new Date().toISOString();
     const uploadedBy = request.headers.get(ADMIN_EMAIL_HEADER)!.trim().toLowerCase();

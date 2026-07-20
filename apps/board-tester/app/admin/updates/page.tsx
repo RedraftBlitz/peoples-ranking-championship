@@ -6,8 +6,8 @@ import { AdminScoringUpdates } from "../../components/AdminScoringUpdates";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "PRC Weekly Update Review",
-  description: "Private review and approval for PRC weekly scoring data.",
+  title: "PRC Data Update Review",
+  description: "Private review and approval for PRC player-market and weekly scoring data.",
 };
 
 export default async function AdminUpdatesPage() {

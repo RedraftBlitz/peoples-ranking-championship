@@ -20,7 +20,7 @@ export async function PUT(
       order?: unknown;
       personalIds?: unknown;
     };
-    const error = validateBoardState(payload.order, payload.personalIds);
+    const error = await validateBoardState(payload.order, payload.personalIds);
     if (error) return Response.json({ error }, { status: 400 });
 
     const now = new Date().toISOString();

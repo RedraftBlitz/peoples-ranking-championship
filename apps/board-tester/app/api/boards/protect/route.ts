@@ -29,11 +29,12 @@ export async function POST(request: Request) {
     const boardName = normalizeBoardName(payload.boardName ?? "");
     const pin = (payload.pin ?? "").replace(/\D/g, "");
     const recoveryEmail = normalizeEmail(payload.recoveryEmail ?? "");
+    const stateError = await validateBoardState(payload.order, payload.personalIds);
     const error =
       validateBoardName(boardName) ??
       validatePin(pin) ??
       validateEmail(recoveryEmail) ??
-      validateBoardState(payload.order, payload.personalIds);
+      stateError;
     if (error) return Response.json({ error }, { status: 400 });
 
     const id = crypto.randomUUID();

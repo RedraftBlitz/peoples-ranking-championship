@@ -17,7 +17,16 @@ type Player = {
   position: Position;
   team: string;
   initialRank: number;
+  marketRank?: number | null;
   aliases: string[];
+  fantasyCalcId?: string | null;
+};
+
+type MarketResponse = {
+  snapshotId: string;
+  sourceRetrievedAt: string | null;
+  players: Player[];
+  defaultOrder: string[];
 };
 
 type BoardSnapshot = {
@@ -40,11 +49,10 @@ type BoardResponse = {
 
 type DialogName = "protect" | "unlock" | "recovery" | "entry" | null;
 
-const players = (playerData as Player[]).sort(
+const basePlayers = (playerData as Player[]).sort(
   (a, b) => a.initialRank - b.initialRank,
 );
-const playerById = new Map(players.map((player) => [player.id, player]));
-const initialOrder = players.map((player) => player.id);
+const baseInitialOrder = basePlayers.map((player) => player.id);
 const STORAGE_KEY = "prc-board-draft-v2";
 const LEGACY_STORAGE_KEY = "prc-board-tester-v1";
 const BOARD_SIZE = 200;
@@ -60,16 +68,18 @@ function normalizeSearch(value: string) {
     .trim();
 }
 
-function validOrder(value: unknown): value is string[] {
-  return (
-    Array.isArray(value) &&
-    value.length === initialOrder.length &&
-    new Set(value).size === initialOrder.length &&
-    value.every((id) => typeof id === "string" && playerById.has(id))
-  );
+function reconcileOrder(
+  value: unknown,
+  defaultOrder: readonly string[],
+  playerById: ReadonlyMap<string, Player>,
+): string[] | null {
+  if (!Array.isArray(value) || new Set(value).size !== value.length) return null;
+  if (!value.every((id) => typeof id === "string" && playerById.has(id))) return null;
+  const savedIds = new Set(value as string[]);
+  return [...(value as string[]), ...defaultOrder.filter((id) => !savedIds.has(id))];
 }
 
-function validPersonalIds(value: unknown): value is string[] {
+function validPersonalIds(value: unknown, playerById: ReadonlyMap<string, Player>): value is string[] {
   return (
     Array.isArray(value) &&
     new Set(value).size === value.length &&
@@ -153,7 +163,9 @@ function DemoLeaderboard({ rows }: { rows: DemoLeaderboardRow[] }) {
 }
 
 export function BoardTester() {
-  const [order, setOrder] = useState(initialOrder);
+  const [players, setPlayers] = useState(basePlayers);
+  const [defaultOrder, setDefaultOrder] = useState(baseInitialOrder);
+  const [order, setOrder] = useState(baseInitialOrder);
   const [personalIds, setPersonalIds] = useState<string[]>([]);
   const [undoStack, setUndoStack] = useState<BoardSnapshot[]>([]);
   const [protectedBoard, setProtectedBoard] = useState<ProtectedBoard | null>(null);
@@ -169,9 +181,34 @@ export function BoardTester() {
   const [dialogMessage, setDialogMessage] = useState("");
   const [busy, setBusy] = useState(false);
   const [activeView, setActiveView] = useState<AppView>("board");
+  const playerById = useMemo(
+    () => new Map(players.map((player) => [player.id, player])),
+    [players],
+  );
 
   useEffect(() => {
-    const timeout = window.setTimeout(() => {
+    let cancelled = false;
+    const timeout = window.setTimeout(async () => {
+      let market: MarketResponse = {
+        snapshotId: "static-2026-launch-pool",
+        sourceRetrievedAt: null,
+        players: basePlayers,
+        defaultOrder: baseInitialOrder,
+      };
+      try {
+        const response = await fetch("/api/market", { cache: "no-store" });
+        if (response.ok) market = (await response.json()) as MarketResponse;
+      } catch {
+        // The built-in launch pool keeps the Board usable if an update cannot load.
+      }
+      if (cancelled) return;
+      const nextPlayers = [...market.players].sort((a, b) => a.initialRank - b.initialRank);
+      const nextById = new Map(nextPlayers.map((player) => [player.id, player]));
+      const nextDefaultOrder = reconcileOrder(market.defaultOrder, market.defaultOrder, nextById)
+        ?? nextPlayers.map((player) => player.id);
+      let nextOrder = nextDefaultOrder;
+      let nextPersonalIds: string[] = [];
+      let nextProtectedBoard: ProtectedBoard | null = null;
       try {
         const raw = window.localStorage.getItem(STORAGE_KEY);
         if (raw) {
@@ -180,26 +217,32 @@ export function BoardTester() {
             personalIds?: unknown;
             protectedBoard?: ProtectedBoard | null;
           };
-          if (validOrder(saved.order)) setOrder(saved.order);
-          if (validPersonalIds(saved.personalIds)) {
-            setPersonalIds(saved.personalIds);
-          }
+          nextOrder = reconcileOrder(saved.order, nextDefaultOrder, nextById) ?? nextOrder;
+          if (validPersonalIds(saved.personalIds, nextById)) nextPersonalIds = saved.personalIds;
           if (saved.protectedBoard?.id && saved.protectedBoard.name) {
-            setProtectedBoard(saved.protectedBoard);
+            nextProtectedBoard = saved.protectedBoard;
           }
         } else {
           const legacy = window.localStorage.getItem(LEGACY_STORAGE_KEY);
           if (legacy) {
             const savedOrder = JSON.parse(legacy);
-            if (validOrder(savedOrder)) setOrder(savedOrder);
+            nextOrder = reconcileOrder(savedOrder, nextDefaultOrder, nextById) ?? nextOrder;
           }
         }
       } catch {
         // A bad browser save should never prevent the Board from opening.
       }
+      setPlayers(nextPlayers);
+      setDefaultOrder(nextDefaultOrder);
+      setOrder(nextOrder);
+      setPersonalIds(nextPersonalIds);
+      setProtectedBoard(nextProtectedBoard);
       setHydrated(true);
     }, 0);
-    return () => window.clearTimeout(timeout);
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timeout);
+    };
   }, []);
 
   useEffect(() => {
@@ -362,7 +405,7 @@ export function BoardTester() {
 
     if (!window.confirm(resetWarning)) return;
     remember();
-    setOrder(initialOrder);
+    setOrder(defaultOrder);
     setPersonalIds([]);
   }
 
@@ -449,14 +492,17 @@ export function BoardTester() {
       const payload = (await response.json()) as BoardResponse;
       if (
         !response.ok ||
-        !payload.board ||
-        !validOrder(payload.board.order) ||
-        !validPersonalIds(payload.board.personalIds)
+        !payload.board
       ) {
         throw new Error(payload.error ?? "The protected Board could not be opened.");
       }
 
-      setOrder(payload.board.order);
+      const reconciledOrder = reconcileOrder(payload.board.order, defaultOrder, playerById);
+      if (!reconciledOrder || !validPersonalIds(payload.board.personalIds, playerById)) {
+        throw new Error("The protected Board contains an invalid player order.");
+      }
+
+      setOrder(reconciledOrder);
       setPersonalIds(payload.board.personalIds);
       setUndoStack([]);
       setProtectedBoard({

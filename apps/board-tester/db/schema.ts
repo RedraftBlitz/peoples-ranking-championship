@@ -72,3 +72,25 @@ export const scoringSnapshots = sqliteTable(
     index("scoring_snapshots_status_created_idx").on(table.status, table.createdAt),
   ],
 );
+
+export const marketSnapshots = sqliteTable(
+  "market_snapshots",
+  {
+    id: text("id").primaryKey(),
+    season: integer("season").notNull().default(2026),
+    sourceUrl: text("source_url").notNull(),
+    sourceSha256: text("source_sha256").notNull(),
+    status: text("status").notNull().default("pending_review"),
+    reviewJson: text("review_json").notNull(),
+    snapshotJson: text("snapshot_json").notNull(),
+    fetchedBy: text("fetched_by").notNull(),
+    approvedBy: text("approved_by"),
+    sourceRetrievedAt: text("source_retrieved_at").notNull(),
+    createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+    approvedAt: text("approved_at"),
+  },
+  (table) => [
+    uniqueIndex("market_snapshots_source_hash_unique").on(table.sourceSha256),
+    index("market_snapshots_status_created_idx").on(table.status, table.createdAt),
+  ],
+);

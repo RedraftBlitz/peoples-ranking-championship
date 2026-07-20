@@ -5,7 +5,7 @@ import {
   type Position,
 } from "../../../../packages/scoring-engine/src/index";
 
-type IdentityPlayer = {
+export type IdentityPlayer = {
   id: string;
   name: string;
   position: Position;
@@ -51,7 +51,7 @@ export type ImportAnalysis = {
   };
 };
 
-const identities = playerData as IdentityPlayer[];
+const baseIdentities = playerData as IdentityPlayer[];
 const scoringPositions = new Set<Position>(["QB", "RB", "WR", "TE"]);
 const requiredHeaders = [
   "PLAYER",
@@ -85,7 +85,7 @@ function normalizeName(value: string): string {
   return tokens.join(" ");
 }
 
-function identityIndex() {
+function identityIndex(identities: IdentityPlayer[]) {
   const index = new Map<string, IdentityPlayer[]>();
   for (const player of identities) {
     for (const alias of new Set([player.name, ...player.aliases])) {
@@ -152,7 +152,11 @@ function decimal(value: string): string | null {
   return trimmed;
 }
 
-export function analyzeFantasyProsCsv(csvText: string, sourceFileName: string): ImportAnalysis {
+export function analyzeFantasyProsCsv(
+  csvText: string,
+  sourceFileName: string,
+  identities: IdentityPlayer[] = baseIdentities,
+): ImportAnalysis {
   const rows = parseCsv(csvText.replace(/^\uFEFF/, ""));
   if (rows.length < 2) throw new Error("The FantasyPros file has no player rows.");
   const headers = rows[0].map((header) => header.toUpperCase());
@@ -176,7 +180,7 @@ export function analyzeFantasyProsCsv(csvText: string, sourceFileName: string): 
     throw new Error("Weekly columns are not contiguous from Week 1.");
   }
 
-  const aliases = identityIndex();
+  const aliases = identityIndex(identities);
   const parsed: ParsedSourcePlayer[] = [];
   const invalid: ImportReview["invalid"] = [];
   let excludedRows = 0;

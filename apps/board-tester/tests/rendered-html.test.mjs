@@ -83,3 +83,37 @@ test("adds a private manual weekly scoring approval workflow", async () => {
   assert.match(migration, /CREATE TABLE `scoring_snapshots`/);
   assert.match(fixture, /RK,PLAYER,POS,GP,1,2,3/);
 });
+
+test("adds manual FantasyCalc review without rearranging saved Boards", async () => {
+  const [
+    component,
+    importer,
+    reviewRoute,
+    approvalRoute,
+    marketRoute,
+    board,
+    migration,
+  ] = await Promise.all([
+    readFile(new URL("app/components/AdminMarketUpdates.tsx", projectRoot), "utf8"),
+    readFile(new URL("app/lib/fantasycalc-import.ts", projectRoot), "utf8"),
+    readFile(new URL("app/api/admin/market-updates/route.ts", projectRoot), "utf8"),
+    readFile(new URL("app/api/admin/market-updates/[id]/approve/route.ts", projectRoot), "utf8"),
+    readFile(new URL("app/api/market/route.ts", projectRoot), "utf8"),
+    readFile(new URL("app/components/BoardTester.tsx", projectRoot), "utf8"),
+    readFile(new URL("drizzle/0002_loud_martin_li.sql", projectRoot), "utf8"),
+  ]);
+
+  assert.match(component, /Check FantasyCalc Now/);
+  assert.match(component, /Saved Boards rearranged/);
+  assert.match(component, /Existing saved Boards keep their exact order/);
+  assert.match(importer, /savedBoardsRearranged:\s*0/);
+  assert.match(importer, /\["jr", "sr", "ii", "iii", "iv", "v"\]/);
+  assert.match(importer, /`FC-\$\{row\.externalId\}`/);
+  assert.match(reviewRoute, /FANTASYCALC_SOURCE_URL/);
+  assert.match(approvalRoute, /UPDATE market_snapshots/);
+  assert.doesNotMatch(approvalRoute, /UPDATE boards/);
+  assert.match(marketRoute, /approvedMarketSnapshotOrBase/);
+  assert.match(board, /fetch\("\/api\/market"/);
+  assert.match(board, /reconcileOrder\(saved\.order/);
+  assert.match(migration, /CREATE TABLE `market_snapshots`/);
+});

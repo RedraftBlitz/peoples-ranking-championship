@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useCallback, useEffect, useState } from "react";
+import { AdminMarketUpdates } from "./AdminMarketUpdates";
 
 type Review = {
   ready: boolean;
@@ -122,8 +123,8 @@ export function AdminScoringUpdates({ displayName }: { displayName: string }) {
       <header className="admin-hero">
         <div>
           <span className="eyebrow">People&apos;s Ranking Championship · Admin</span>
-          <h1>Weekly scoring update</h1>
-          <p>Upload, inspect, and explicitly approve every FantasyPros half-PPR snapshot.</p>
+          <h1>Data update center</h1>
+          <p>Manually review the preseason player market and every weekly scoring snapshot.</p>
         </div>
         <div className="admin-user">
           <span>Signed in as</span>
@@ -131,6 +132,8 @@ export function AdminScoringUpdates({ displayName }: { displayName: string }) {
           <a href="/">Board tester</a>
         </div>
       </header>
+
+      <AdminMarketUpdates />
 
       <section className="publication-banner">
         <div>
