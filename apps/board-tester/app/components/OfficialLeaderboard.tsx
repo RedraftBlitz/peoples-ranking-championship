@@ -57,7 +57,8 @@ export function OfficialLeaderboard({ currentBoardName }: { currentBoardName: st
   }, []);
 
   useEffect(() => {
-    void load();
+    const timeout = window.setTimeout(() => void load(), 0);
+    return () => window.clearTimeout(timeout);
   }, [load]);
 
   const scored = data?.mode === "scored";

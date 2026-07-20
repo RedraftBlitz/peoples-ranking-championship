@@ -6,6 +6,7 @@ import {
   validateEmailCode,
 } from "../../../lib/board-validation";
 import { entryDeadlinePassed } from "../../../lib/entry-rules";
+import { enforceRateLimit, RATE_LIMITS } from "../../../lib/rate-limit";
 
 const SEASON = 2026;
 
@@ -19,6 +20,8 @@ type VerificationRow = {
 
 export async function POST(request: Request) {
   try {
+    const limited = await enforceRateLimit(request, RATE_LIMITS.verifyRandomDraw);
+    if (limited) return limited;
     if (entryDeadlinePassed()) {
       return Response.json(
         { error: "Random Draw entry is closed." },

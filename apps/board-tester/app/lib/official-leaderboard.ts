@@ -15,6 +15,7 @@ export const PRESEASON_RANDOM_SEED = "prc-2026-official-preseason-v1";
 export type EntryForLeaderboard = {
   boardId: string;
   boardName: string;
+  publicBoardName?: string;
   playerIds: string[];
 };
 
@@ -82,9 +83,15 @@ export function scoreOfficialLeaderboard(
     boardName: entry.boardName,
     playerIds: entry.playerIds,
   }));
+  const publicNames = new Map(
+    entries.map((entry) => [
+      entry.boardId,
+      entry.publicBoardName ?? entry.boardName,
+    ]),
+  );
   return scoreField(boards, snapshot, curveData as CurveRowInput[]).leaderboard.map((row) => ({
     boardId: row.boardId,
-    boardName: row.boardName,
+    boardName: publicNames.get(row.boardId) ?? row.boardName,
     placement: row.placement,
     boardAccuracy: row.boardAccuracy.toFraction(),
     fieldPercentile: row.fieldPercentile.toFraction(),

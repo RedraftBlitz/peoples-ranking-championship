@@ -23,6 +23,7 @@ type EntryRow = {
   board_id: string;
   board_name: string;
   final_top_150_json: string;
+  moderation_status: string;
 };
 
 export async function POST(
@@ -55,14 +56,20 @@ export async function POST(
   const approvedBy = request.headers.get(ADMIN_EMAIL_HEADER)!.trim().toLowerCase();
   const entryResult = await db
     .prepare(
-      `SELECT board_id, board_name, final_top_150_json
-       FROM board_entries WHERE season = ?1 ORDER BY submitted_at ASC, id ASC`,
+      `SELECT e.board_id, e.board_name, e.final_top_150_json, b.moderation_status
+       FROM board_entries e
+       JOIN boards b ON b.id = e.board_id
+       WHERE e.season = ?1 AND b.moderation_status <> 'disqualified'
+       ORDER BY e.submitted_at ASC, e.id ASC`,
     )
     .bind(LEADERBOARD_SEASON)
     .all<EntryRow>();
   const entries: EntryForLeaderboard[] = entryResult.results.map((entry) => ({
     boardId: entry.board_id,
     boardName: entry.board_name,
+    publicBoardName: entry.moderation_status === "name_hidden"
+      ? `Board under review · ${entry.board_id.slice(0, 6).toUpperCase()}`
+      : entry.board_name,
     playerIds: JSON.parse(entry.final_top_150_json) as string[],
   }));
   let publication: ReturnType<typeof leaderboardPublicationPayload>;

@@ -16,6 +16,7 @@ import {
   entryDeadlinePassed,
 } from "../../../../lib/entry-rules";
 import { submissionEmailVerificationRequired } from "../../../../lib/email-delivery";
+import { enforceRateLimit, RATE_LIMITS } from "../../../../lib/rate-limit";
 
 type PinRow = {
   pin_salt: string;
@@ -29,6 +30,8 @@ export async function POST(
   context: { params: Promise<{ id: string }> },
 ) {
   try {
+    const limited = await enforceRateLimit(request, RATE_LIMITS.submit);
+    if (limited) return limited;
     const { id } = await context.params;
     const board = await boardForSession(request, id);
     if (!board) {

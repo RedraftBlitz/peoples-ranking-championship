@@ -9,6 +9,7 @@ import {
   emailDeliveryConfigured,
   sendSubmissionVerificationEmail,
 } from "../../../../../lib/email-delivery";
+import { enforceRateLimit, RATE_LIMITS } from "../../../../../lib/rate-limit";
 
 const RESEND_WAIT_MS = 60_000;
 
@@ -17,6 +18,8 @@ export async function POST(
   context: { params: Promise<{ id: string }> },
 ) {
   try {
+    const limited = await enforceRateLimit(request, RATE_LIMITS.sendEmailCode);
+    if (limited) return limited;
     if (!emailDeliveryConfigured()) {
       return Response.json(
         { error: "Email verification is still being connected. Try again once it is ready." },

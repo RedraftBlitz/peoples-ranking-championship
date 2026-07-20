@@ -6,6 +6,7 @@ import {
   validateEmail,
   validateEmailCode,
 } from "../../../../../lib/board-validation";
+import { enforceRateLimit, RATE_LIMITS } from "../../../../../lib/rate-limit";
 
 type VerificationRow = {
   id: string;
@@ -19,6 +20,8 @@ export async function POST(
   context: { params: Promise<{ id: string }> },
 ) {
   try {
+    const limited = await enforceRateLimit(request, RATE_LIMITS.verifyEmail);
+    if (limited) return limited;
     const { id } = await context.params;
     const board = await boardForSession(request, id);
     if (!board) {

@@ -2621,7 +2621,7 @@ footer a {
 .admin-entry-table-head,
 .admin-entry-table article {
   display: grid;
-  grid-template-columns: minmax(180px, 1.25fr) 120px minmax(170px, 0.9fr) 170px;
+  grid-template-columns: minmax(170px, 1.1fr) 105px minmax(150px, 0.8fr) minmax(190px, 1fr) 150px;
   align-items: center;
   gap: 14px;
 }
@@ -2648,7 +2648,8 @@ footer a {
 }
 
 .admin-entry-table article > div:first-child,
-.entry-email-state {
+.entry-email-state,
+.entry-moderation-state {
   display: grid;
   min-width: 0;
   gap: 3px;
@@ -2696,6 +2697,52 @@ footer a {
 .entry-email-state small.waiting {
   color: #9a7330;
   font-weight: 850;
+}
+
+.entry-moderation-state > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.entry-moderation-state button {
+  padding: 4px 7px;
+  border: 1px solid #b8c0bd;
+  border-radius: 6px;
+  color: var(--night);
+  background: #fff;
+  font-size: 0.52rem;
+  font-weight: 850;
+  cursor: pointer;
+}
+
+.entry-moderation-state button.danger {
+  color: #8a2f20;
+  border-color: #d6a59d;
+  background: #fbe9e5;
+}
+
+.entry-moderation-state button:disabled {
+  opacity: 0.5;
+  cursor: wait;
+}
+
+.moderation-label {
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.moderation-label.active {
+  color: #087057;
+}
+
+.moderation-label.name_hidden {
+  color: #8a6521;
+}
+
+.moderation-label.disqualified {
+  color: #9a2f20;
 }
 
 .entry-empty {
@@ -2775,7 +2822,7 @@ footer a {
 
   .admin-entry-table-head,
   .admin-entry-table article {
-    grid-template-columns: minmax(160px, 1.2fr) 110px minmax(150px, 0.9fr) 145px;
+    grid-template-columns: minmax(145px, 1fr) 95px minmax(135px, 0.8fr) minmax(170px, 1fr) 130px;
     gap: 10px;
   }
 }
@@ -2845,8 +2892,13 @@ footer a {
   }
 
   .admin-entry-table article > div:first-child,
-  .entry-email-state {
+  .entry-email-state,
+  .entry-moderation-state {
     min-width: 0;
+  }
+
+  .entry-moderation-state {
+    grid-column: 1 / -1;
   }
 
   .admin-entry-table time {

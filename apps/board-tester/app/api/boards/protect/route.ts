@@ -16,10 +16,13 @@ import {
   validateEmail,
   validatePin,
 } from "../../../lib/board-validation";
+import { enforceRateLimit, RATE_LIMITS } from "../../../lib/rate-limit";
 
 export async function POST(request: Request) {
   let failureStage = "parse_request";
   try {
+    const limited = await enforceRateLimit(request, RATE_LIMITS.protect);
+    if (limited) return limited;
     const payload = (await request.json()) as {
       boardName?: string;
       pin?: string;

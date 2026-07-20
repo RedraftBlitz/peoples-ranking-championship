@@ -16,6 +16,10 @@ export const boards = sqliteTable(
     orderJson: text("order_json").notNull(),
     personalRankingsJson: text("personal_rankings_json").notNull().default("[]"),
     status: text("status").notNull().default("protected_draft"),
+    moderationStatus: text("moderation_status").notNull().default("active"),
+    moderationNote: text("moderation_note"),
+    moderatedAt: text("moderated_at"),
+    moderatedBy: text("moderated_by"),
     failedPinAttempts: integer("failed_pin_attempts").notNull().default(0),
     lockedUntil: text("locked_until"),
     createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
@@ -219,5 +223,59 @@ export const marketSnapshots = sqliteTable(
   (table) => [
     uniqueIndex("market_snapshots_source_hash_unique").on(table.sourceSha256),
     index("market_snapshots_status_created_idx").on(table.status, table.createdAt),
+  ],
+);
+
+export const boardModerationActions = sqliteTable(
+  "board_moderation_actions",
+  {
+    id: text("id").primaryKey(),
+    boardId: text("board_id")
+      .notNull()
+      .references(() => boards.id, { onDelete: "cascade" }),
+    action: text("action").notNull(),
+    reason: text("reason").notNull(),
+    previousStatus: text("previous_status").notNull(),
+    nextStatus: text("next_status").notNull(),
+    actedBy: text("acted_by").notNull(),
+    createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+  },
+  (table) => [
+    index("board_moderation_actions_board_created_idx").on(
+      table.boardId,
+      table.createdAt,
+    ),
+  ],
+);
+
+export const requestRateLimits = sqliteTable(
+  "request_rate_limits",
+  {
+    rateKey: text("rate_key").primaryKey(),
+    action: text("action").notNull(),
+    subjectHash: text("subject_hash").notNull(),
+    windowStart: integer("window_start").notNull(),
+    requestCount: integer("request_count").notNull().default(1),
+    expiresAt: text("expires_at").notNull(),
+    updatedAt: text("updated_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+  },
+  (table) => [
+    index("request_rate_limits_expires_idx").on(table.expiresAt),
+    index("request_rate_limits_action_idx").on(table.action),
+  ],
+);
+
+export const securityEvents = sqliteTable(
+  "security_events",
+  {
+    id: text("id").primaryKey(),
+    eventType: text("event_type").notNull(),
+    subjectHash: text("subject_hash"),
+    action: text("action").notNull(),
+    detail: text("detail"),
+    createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+  },
+  (table) => [
+    index("security_events_type_created_idx").on(table.eventType, table.createdAt),
   ],
 );

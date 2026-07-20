@@ -72,9 +72,12 @@ export function AdminScoringUpdates({ displayName }: { displayName: string }) {
   }, []);
 
   useEffect(() => {
-    loadHistory().catch((loadError) => {
-      setError(loadError instanceof Error ? loadError.message : "Update history could not be loaded.");
-    });
+    const timeout = window.setTimeout(() => {
+      loadHistory().catch((loadError) => {
+        setError(loadError instanceof Error ? loadError.message : "Update history could not be loaded.");
+      });
+    }, 0);
+    return () => window.clearTimeout(timeout);
   }, [loadHistory]);
 
   async function uploadForReview(event: FormEvent<HTMLFormElement>) {
