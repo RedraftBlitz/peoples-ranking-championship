@@ -42,7 +42,7 @@ test("emits a deployable build without starter-preview remnants", async () => {
     readFile(new URL("package.json", projectRoot), "utf8"),
   ]);
   assert.match(page, /<BoardTester \/>/);
-  assert.match(layout, /title:\s*"PRC Board Tester"/);
+  assert.match(layout, /title:\s*"People's Ranking Championship"/);
   assert.doesNotMatch(page, /codex-preview|_sites-preview/i);
   assert.doesNotMatch(layout, /codex-preview|_sites-preview/i);
   assert.doesNotMatch(packageJson, /react-loading-skeleton/);
@@ -237,4 +237,49 @@ test("adds a private contest control room with safe final-entry exports", async 
   assert.match(exportRoute, /excludesCredentials: true/);
   assert.doesNotMatch(exportRoute, /pin_hash|pin_salt|token_hash|token_salt/);
   assert.match(updateCenter, /href="\/admin"/);
+});
+
+test("publishes the contest guide and approved 2026 prize lineup", async () => {
+  const [howItWorks, prizes, scoring, faq, officialRules, contestPage, board] = await Promise.all([
+    readFile(new URL("app/how-it-works/page.tsx", projectRoot), "utf8"),
+    readFile(new URL("app/prizes/page.tsx", projectRoot), "utf8"),
+    readFile(new URL("app/scoring/page.tsx", projectRoot), "utf8"),
+    readFile(new URL("app/faq/page.tsx", projectRoot), "utf8"),
+    readFile(new URL("app/official-rules/page.tsx", projectRoot), "utf8"),
+    readFile(new URL("app/components/ContestPage.tsx", projectRoot), "utf8"),
+    readFile(new URL("app/components/BoardTester.tsx", projectRoot), "utf8"),
+  ]);
+
+  assert.match(howItWorks, /Weeks 1–17 count; Week 18 does not/);
+  assert.match(prizes, /LaDainian “Greatest Fantasy Football Player of All Time”/);
+  assert.match(prizes, /\$200 Fanatics gift card/);
+  assert.match(prizes, /First Round Crown/);
+  assert.match(prizes, /\$100 Fanatics gift card/);
+  assert.match(prizes, /\$50 Fanatics gift card/);
+  assert.match(scoring, /80%/);
+  assert.match(scoring, /70% Season Value/);
+  assert.match(scoring, /QB13 · RB37 · WR49 · TE13/);
+  assert.match(faq, /30 days to respond/);
+  assert.match(contestPage, /Owner review draft/);
+  assert.match(officialRules, /one final Board per[\s\S]*verified email address/);
+  assert.match(board, /href="\/how-it-works"/);
+  assert.match(board, /name="acceptedEligibility"/);
+  assert.match(board, /name="acceptedOfficialRules"/);
+});
+
+test("enforces one final 2026 Board per verified email", async () => {
+  const [submitRoute, schema, migration, rules] = await Promise.all([
+    readFile(new URL("app/api/boards/[id]/submit/route.ts", projectRoot), "utf8"),
+    readFile(new URL("db/schema.ts", projectRoot), "utf8"),
+    readFile(new URL("drizzle/0006_majestic_ben_grimm.sql", projectRoot), "utf8"),
+    readFile(new URL("app/lib/entry-rules.ts", projectRoot), "utf8"),
+  ]);
+
+  assert.match(submitRoute, /acceptedEligibility !== true/);
+  assert.match(submitRoute, /acceptedOfficialRules !== true/);
+  assert.match(submitRoute, /WHERE season = 2026 AND entry_email_key = \?1/);
+  assert.match(submitRoute, /board\.recovery_email_key/);
+  assert.match(schema, /board_entries_season_email_unique/);
+  assert.match(migration, /CREATE UNIQUE INDEX `board_entries_season_email_unique`/);
+  assert.match(rules, /PRC-2026-FINAL-ENTRY-v2/);
 });

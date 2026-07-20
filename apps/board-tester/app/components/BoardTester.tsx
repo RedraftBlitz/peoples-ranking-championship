@@ -750,6 +750,8 @@ export function BoardTester() {
           reviewedTop150: true,
           acceptedPermanentLock: true,
           acceptedDeadline: true,
+          acceptedEligibility: data.get("acceptedEligibility") === "on",
+          acceptedOfficialRules: data.get("acceptedOfficialRules") === "on",
           order,
           personalIds,
         }),
@@ -867,6 +869,14 @@ export function BoardTester() {
         >
           Leaderboard
         </button>
+      </nav>
+
+      <nav className="board-contest-links" aria-label="Contest information">
+        <a href="/how-it-works">How It Works</a>
+        <a href="/prizes">Prizes</a>
+        <a href="/scoring">Scoring</a>
+        <a href="/faq">FAQ</a>
+        <a href="/official-rules">Official Rules</a>
       </nav>
 
       {activeView === "board" ? (
@@ -1645,6 +1655,20 @@ export function BoardTester() {
                 {dialogError && <p className="form-error">{dialogError}</p>}
                 {dialogMessage && <p className="form-success">{dialogMessage}</p>}
                 <form className="dialog-form" onSubmit={finallySubmitBoard}>
+                  <label className="confirmation-check final-rule-check">
+                    <input name="acceptedEligibility" type="checkbox" required />
+                    <span>
+                      I confirm I am at least 18 and a legal resident of the 50
+                      United States or District of Columbia.
+                    </span>
+                  </label>
+                  <label className="confirmation-check final-rule-check">
+                    <input name="acceptedOfficialRules" type="checkbox" required />
+                    <span>
+                      I agree to the Official Rules and understand only one final
+                      Board is allowed per verified email address.
+                    </span>
+                  </label>
                   <label>
                     Type your exact Board Name
                     <input

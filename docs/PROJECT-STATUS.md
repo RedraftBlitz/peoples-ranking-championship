@@ -37,8 +37,8 @@ These items may be represented in non-production UI and state-flow prototypes. P
 | UR-003 | Final opening eligibility rules, Board/search pool treatment, and curated fallback; the permanent ID crosswalk is complete |
 | UR-004 | Current-MV source terms, attribution, access, limits, archival rights, and tested fallback |
 | UR-005 | Weekly scoring-data rights, export availability, correction handling, and reproducible backup |
-| UR-006 | Final Official Rules, including eligibility, one-person enforcement, failures, disputes, taxes, sponsor language, and public wording |
-| UR-007 | Final prizes and fulfillment |
+| UR-006 | Partially approved 2026-07-20: 18+, legal residents of the 50 United States and D.C., one final Board per verified email, no purchase, and a 30-day winner-response window. Final Sponsor identity/address, opening date, jurisdictional review, disputes, privacy, taxes, failures, and full public wording remain. |
+| UR-007 | Partially approved 2026-07-20: Champion receives a LaDainian Tomlinson full-size signed helmet, $200 Fanatics gift card, People's Cup, and permanent recognition; First Round Crown receives $100 Fanatics; Random Draw receives $50 Fanatics. ARVs, helmet authentication/model, exact true-tie fulfillment, and the historical 5,000-entry second/third-place unlock remain. |
 | UR-008 | Privacy, Terms, retention, deletion, security-token, analytics, vendor, public-permanence, correction, contact, and request-handling rules |
 | UR-009 | Board Name moderation policy, enforcement, notice, appeal, and audit trail |
 

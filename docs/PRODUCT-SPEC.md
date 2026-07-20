@@ -187,10 +187,12 @@ This section locks presentation only. It does not authorize scoring implementati
 - The primary title is `People's Ranking Champion`.
 - The champion is determined by final Board Accuracy and the objective tiebreaker ladder.
 - The champion receives the People's Cup and permanent recognition.
-- The `First Round Crown` recognizes the highest Top-12 Board Accuracy, but its exact calculation is not present in the supplied sources and must not be inferred.
+- The `First Round Crown` recognizes the highest Top-12 Board Accuracy. Its exact calculation is controlled by the approved Scoring Specification.
 - `Random Draw` is selected from remaining eligible participants after excluding the Overall Champion and First Round Crown winner.
 - At 5,000 official Boards, second- and third-place overall prizes unlock.
-- Exact prizes and fulfillment remain unresolved under UR-007.
+- The 2026-07-20 owner approval sets the announced prizes as follows: the People's Ranking Champion receives a LaDainian Tomlinson full-size signed helmet, a $200 Fanatics gift card, the physical People's Cup, and permanent recognition; the First Round Crown winner receives a $100 Fanatics gift card; and the Random Draw winner receives a $50 Fanatics gift card.
+- The People's Cup may be kept permanently by the champion or voluntarily returned to continue the passing-trophy tradition.
+- Approximate retail values, helmet authentication/model details, irreducible-tie fulfillment, and whether the historical 5,000-Board second/third-place unlock remains are still unresolved under UR-007.
 - Weeks 1-17 Half-PPR count.
 - Week 18 is excluded.
 - All real-world outcomes after Official Entry count.

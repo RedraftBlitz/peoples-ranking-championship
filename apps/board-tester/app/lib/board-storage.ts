@@ -5,6 +5,7 @@ export type StoredBoard = {
   id: string;
   board_name: string;
   recovery_email: string | null;
+  recovery_email_key?: string | null;
   recovery_email_verified_at: string | null;
   order_json: string;
   personal_rankings_json: string;
@@ -47,7 +48,8 @@ export async function boardForSession(request: Request, boardId: string) {
   const db = getD1();
   const board = await db
     .prepare(
-      `SELECT b.id, b.board_name, b.recovery_email, b.recovery_email_verified_at,
+      `SELECT b.id, b.board_name, b.recovery_email, b.recovery_email_key,
+        b.recovery_email_verified_at,
         b.order_json,
         b.personal_rankings_json, b.status, b.updated_at, e.submitted_at
        FROM boards b

@@ -1,0 +1,102 @@
+import type { Metadata } from "next";
+import { ContestPage } from "../components/ContestPage";
+
+export const metadata: Metadata = {
+  title: "Scoring · People's Ranking Championship",
+  description: "A plain-language guide to PRC Board Accuracy, BVM, and championship tiebreakers.",
+};
+
+export default function ScoringPage() {
+  return (
+    <ContestPage
+      current="/scoring"
+      kicker="Transparent scoring"
+      title="One Board Accuracy score. Two exact components."
+      intro="PRC measures how well your complete player hierarchy matches actual Half-PPR value across Weeks 1–17—not how closely you copied a preseason list."
+    >
+      <section className="scoring-formula" aria-label="Board Accuracy formula">
+        <div>
+          <span>80%</span>
+          <strong>Positional Accuracy</strong>
+          <p>How closely you ordered players against others at the same position.</p>
+        </div>
+        <b aria-hidden="true">+</b>
+        <div>
+          <span>20%</span>
+          <strong>BVM Accuracy</strong>
+          <p>How closely your overall Top 150 matches the final blended value model.</p>
+        </div>
+        <b aria-hidden="true">=</b>
+        <div className="formula-total">
+          <span>100%</span>
+          <strong>Board Accuracy</strong>
+          <p>The official 0–100 championship score.</p>
+        </div>
+      </section>
+
+      <section className="contest-section-heading">
+        <span className="panel-kicker">The reference Board</span>
+        <h2>How BVM measures season value</h2>
+        <p>
+          The Blended Value Model converts Half-PPR production into exact
+          position-adjusted value over replacement, then combines two views of
+          the season.
+        </p>
+      </section>
+
+      <section className="scoring-detail-grid">
+        <article>
+          <strong>70% Season Value</strong>
+          <p>Full Weeks 1–17 production above the season replacement player.</p>
+        </article>
+        <article>
+          <strong>30% Weekly Value</strong>
+          <p>Every week above or below that week&apos;s positional replacement score.</p>
+        </article>
+        <article>
+          <strong>Replacement Levels</strong>
+          <p>QB13 · RB37 · WR49 · TE13.</p>
+        </article>
+        <article>
+          <strong>Full Precision</strong>
+          <p>All calculations and official comparisons keep their complete stored precision.</p>
+        </article>
+      </section>
+
+      <section className="contest-split-section scoring-rules">
+        <article>
+          <span className="panel-kicker">Your official artifact</span>
+          <h2>Top 150</h2>
+          <p>
+            Your submitted ranks 1–150 are scored. When an evaluated player is
+            missing from your Top 150, that player receives rank 151 for the
+            applicable calculation.
+          </p>
+        </article>
+        <article>
+          <span className="panel-kicker">First Round Crown</span>
+          <h2>Top-12 Accuracy</h2>
+          <p>
+            The Crown uses the players who finish in the final BVM Top 12 and
+            measures how closely your Board placed them. It is a separate award,
+            not a second definition of overall Board Accuracy.
+          </p>
+        </article>
+      </section>
+
+      <section className="contest-callout precision-callout">
+        <div>
+          <span className="panel-kicker">No rounding winners</span>
+          <h2>The leaderboard shows 2 decimals. The engine keeps everything.</h2>
+          <p>
+            Display rounding never creates a tie. The objective Top-12, Top-24,
+            Top-50, Top-100, BVM, and Positional ladder is used only to resolve a
+            tie for first place. Exact ties below first share the same placement
+            number and display alphabetically by Board Name.
+          </p>
+        </div>
+      </section>
+    </ContestPage>
+  );
+}
+

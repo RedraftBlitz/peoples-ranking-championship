@@ -87,6 +87,7 @@ export const boardEntries = sqliteTable(
       .references(() => boards.id, { onDelete: "cascade" }),
     season: integer("season").notNull().default(2026),
     boardName: text("board_name").notNull(),
+    entryEmailKey: text("entry_email_key"),
     finalOrderJson: text("final_order_json").notNull(),
     finalTop150Json: text("final_top_150_json").notNull(),
     personalRankingsJson: text("personal_rankings_json").notNull(),
@@ -97,6 +98,10 @@ export const boardEntries = sqliteTable(
   },
   (table) => [
     uniqueIndex("board_entries_board_unique").on(table.boardId),
+    uniqueIndex("board_entries_season_email_unique").on(
+      table.season,
+      table.entryEmailKey,
+    ),
     index("board_entries_season_submitted_idx").on(table.season, table.submittedAt),
   ],
 );

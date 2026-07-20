@@ -65,6 +65,8 @@ export async function POST(
       reviewedTop150?: boolean;
       acceptedPermanentLock?: boolean;
       acceptedDeadline?: boolean;
+      acceptedEligibility?: boolean;
+      acceptedOfficialRules?: boolean;
       order?: unknown;
       personalIds?: unknown;
     };
@@ -81,10 +83,12 @@ export async function POST(
     if (
       payload.reviewedTop150 !== true ||
       payload.acceptedPermanentLock !== true ||
-      payload.acceptedDeadline !== true
+      payload.acceptedDeadline !== true ||
+      payload.acceptedEligibility !== true ||
+      payload.acceptedOfficialRules !== true
     ) {
       return Response.json(
-        { error: "Complete both final-verification steps before submitting." },
+        { error: "Confirm the final Board, eligibility, and Official Rules before submitting." },
         { status: 400 },
       );
     }
@@ -139,11 +143,31 @@ export async function POST(
       );
     }
 
+    if (board.recovery_email_key) {
+      const existingEntry = await db
+        .prepare(
+          `SELECT board_id FROM board_entries
+           WHERE season = 2026 AND entry_email_key = ?1 AND board_id <> ?2
+           LIMIT 1`,
+        )
+        .bind(board.recovery_email_key, board.id)
+        .first<{ board_id: string }>();
+      if (existingEntry) {
+        return Response.json(
+          { error: "This verified email already has a final Board in the 2026 championship." },
+          { status: 409 },
+        );
+      }
+    }
+
     const submittedAt = now.toISOString();
     const confirmation = {
       reviewedTop150: true,
       acceptedPermanentLock: true,
       acceptedDeadline: true,
+      acceptedEligibility: true,
+      acceptedOfficialRules: true,
+      oneFinalBoardPerVerifiedEmail: true,
       confirmedBoardName: true,
       confirmedPin: true,
       verifiedContactEmail: Boolean(board.recovery_email_verified_at),
@@ -152,15 +176,16 @@ export async function POST(
       db
         .prepare(
           `INSERT INTO board_entries (
-            id, board_id, season, board_name, final_order_json,
+            id, board_id, season, board_name, entry_email_key, final_order_json,
             final_top_150_json, personal_rankings_json, rules_version,
             entry_deadline_utc, confirmation_json, submitted_at
-          ) VALUES (?1, ?2, 2026, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10)`,
+          ) VALUES (?1, ?2, 2026, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11)`,
         )
         .bind(
           crypto.randomUUID(),
           board.id,
           board.board_name,
+          board.recovery_email_key,
           JSON.stringify(finalOrder),
           JSON.stringify(finalTop150),
           JSON.stringify(personalIds),
@@ -204,7 +229,7 @@ export async function POST(
     const message = error instanceof Error ? error.message : "";
     if (message.includes("UNIQUE constraint failed")) {
       return Response.json(
-        { error: "This Board has already been finally submitted." },
+        { error: "This Board or verified email already has a 2026 final entry." },
         { status: 409 },
       );
     }

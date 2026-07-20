@@ -2,11 +2,11 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "PRC Board Tester",
-  description: "A private movable-board tester for the People's Ranking Championship.",
+  title: "People's Ranking Championship",
+  description: "Build your 2026 fantasy football Top 150 and compete for the People's Cup.",
   openGraph: {
-    title: "PRC Board Tester",
-    description: "Drag, search, and rearrange a 200-player fantasy football board.",
+    title: "People's Ranking Championship",
+    description: "Build your Top 150. Follow every Board. Crown the people's champion.",
     images: [
       {
         url: "/prc-official-leaderboard-preview.png",
@@ -18,8 +18,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "PRC Board Tester",
-    description: "Drag, search, and rearrange a 200-player fantasy football board.",
+    title: "People's Ranking Championship",
+    description: "Build your Top 150. Follow every Board. Crown the people's champion.",
     images: ["/prc-official-leaderboard-preview.png"],
   },
   icons: {
