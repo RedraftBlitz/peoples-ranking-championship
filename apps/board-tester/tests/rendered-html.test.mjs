@@ -253,15 +253,21 @@ test("publishes the contest guide and approved 2026 prize lineup", async () => {
   assert.match(howItWorks, /Weeks 1–17 count; Week 18 does not/);
   assert.match(prizes, /LaDainian “Greatest Fantasy Football Player of All Time”/);
   assert.match(prizes, /\$200 Fanatics gift card/);
+  assert.match(prizes, /Approximate package value: \$450/);
+  assert.match(prizes, /approximately \$200/);
   assert.match(prizes, /First Round Crown/);
   assert.match(prizes, /\$100 Fanatics gift card/);
   assert.match(prizes, /\$50 Fanatics gift card/);
+  assert.match(prizes, /Second- and third-place prizes unlock at 5,000 official Boards/);
+  assert.match(prizes, /each tied eligible winner receives the full/);
   assert.match(scoring, /80%/);
   assert.match(scoring, /70% Season Value/);
   assert.match(scoring, /QB13 · RB37 · WR49 · TE13/);
   assert.match(faq, /30 days to respond/);
   assert.match(contestPage, /Owner review draft/);
   assert.match(officialRules, /one final Board per[\s\S]*verified email address/);
+  assert.match(officialRules, /independently operated[\s\S]*personally prize-funded/);
+  assert.match(officialRules, /duplicate physical prizes when required/);
   assert.match(board, /href="\/how-it-works"/);
   assert.match(board, /name="acceptedEligibility"/);
   assert.match(board, /name="acceptedOfficialRules"/);
@@ -282,4 +288,6 @@ test("enforces one final 2026 Board per verified email", async () => {
   assert.match(schema, /board_entries_season_email_unique/);
   assert.match(migration, /CREATE UNIQUE INDEX `board_entries_season_email_unique`/);
   assert.match(rules, /PRC-2026-FINAL-ENTRY-v2/);
+  assert.match(rules, /2026-09-09T22:00:00\.000Z/);
+  assert.match(rules, /2026-09-10T00:20:00\.000Z/);
 });

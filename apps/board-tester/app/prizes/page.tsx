@@ -24,13 +24,15 @@ export default function PrizesPage() {
           <ul>
             <li>
               LaDainian “Greatest Fantasy Football Player of All Time”
-              Tomlinson full-size signed helmet
+              Tomlinson full-size signed helmet, authenticated by PSA/DNA or JSA
             </li>
             <li>$200 Fanatics gift card</li>
             <li>The physical People&apos;s Cup trophy</li>
             <li>Permanent champion recognition</li>
           </ul>
           <p className="prize-fineprint">
+            Approximate package value: $450. The authenticated helmet represents
+            approximately $200 of that value. {" "}
             The champion may keep the People&apos;s Cup forever or voluntarily
             return it so the trophy can be passed to the next champion.
           </p>
@@ -62,6 +64,37 @@ export default function PrizesPage() {
         </article>
       </section>
 
+      <section className="contest-callout precision-callout">
+        <div>
+          <span className="panel-kicker">5,000-Board Boost</span>
+          <h2>Second- and third-place prizes unlock at 5,000 official Boards.</h2>
+          <p>
+            The additional prize components will be published in the final
+            Official Rules before public entry opens.
+          </p>
+        </div>
+      </section>
+
+      <section className="contest-split-section">
+        <article>
+          <span className="panel-kicker">True ties</span>
+          <h2>Full prizes for every winner</h2>
+          <p>
+            If every approved tiebreaker remains identical for first place or
+            the First Round Crown, each tied eligible winner receives the full
+            applicable prize package. Prizes are never divided.
+          </p>
+        </article>
+        <article>
+          <span className="panel-kicker">People&apos;s Cup tradition</span>
+          <h2>The winner decides</h2>
+          <p>
+            The champion may keep the Cup forever or voluntarily return it so
+            it can be passed to a future champion. There is no return obligation.
+          </p>
+        </article>
+      </section>
+
       <section className="contest-callout prize-callout">
         <div>
           <span className="panel-kicker">Free to enter</span>
@@ -84,4 +117,3 @@ export default function PrizesPage() {
     </ContestPage>
   );
 }
-

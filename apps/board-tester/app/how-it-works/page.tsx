@@ -1,7 +1,14 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ContestPage } from "../components/ContestPage";
-import { ENTRY_DEADLINE_LABEL, ENTRY_DEADLINE_UTC } from "../lib/entry-rules";
+import {
+  CHAMPIONSHIP_REVEAL_LABEL,
+  CHAMPIONSHIP_REVEAL_UTC,
+  ENTRY_DEADLINE_LABEL,
+  ENTRY_DEADLINE_UTC,
+  SCORING_START_LABEL,
+  SCORING_START_UTC,
+} from "../lib/entry-rules";
 
 export const metadata: Metadata = {
   title: "How It Works · People's Ranking Championship",
@@ -71,6 +78,16 @@ export default function HowItWorksPage() {
 
       <section className="contest-split-section">
         <article>
+          <span className="panel-kicker">Board Reveal</span>
+          <h2>Every final Board becomes public.</h2>
+          <p>
+            The championship field opens at{" "}
+            <time dateTime={CHAMPIONSHIP_REVEAL_UTC}>{CHAMPIONSHIP_REVEAL_LABEL}</time>.
+            Scoring begins with the official NFL opener at{" "}
+            <time dateTime={SCORING_START_UTC}>{SCORING_START_LABEL}</time>.
+          </p>
+        </article>
+        <article>
           <span className="panel-kicker">During the season</span>
           <h2>Approved weekly updates</h2>
           <p>
@@ -78,17 +95,7 @@ export default function HowItWorksPage() {
             AM Mountain / 12:00 PM Eastern. Weeks 1–17 count; Week 18 does not.
           </p>
         </article>
-        <article>
-          <span className="panel-kicker">At the finish</span>
-          <h2>Accuracy decides the title</h2>
-          <p>
-            Full-precision Board Accuracy determines the People&apos;s Ranking
-            Champion. The First Round Crown rewards the strongest Top-12 call,
-            and a separate eligible entrant wins the Random Draw.
-          </p>
-        </article>
       </section>
     </ContestPage>
   );
 }
-

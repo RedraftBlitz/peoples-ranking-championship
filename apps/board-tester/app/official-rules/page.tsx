@@ -1,6 +1,13 @@
 import type { Metadata } from "next";
 import { ContestPage } from "../components/ContestPage";
-import { ENTRY_DEADLINE_LABEL, ENTRY_DEADLINE_UTC } from "../lib/entry-rules";
+import {
+  CHAMPIONSHIP_REVEAL_LABEL,
+  CHAMPIONSHIP_REVEAL_UTC,
+  ENTRY_DEADLINE_LABEL,
+  ENTRY_DEADLINE_UTC,
+  SCORING_START_LABEL,
+  SCORING_START_UTC,
+} from "../lib/entry-rules";
 
 export const metadata: Metadata = {
   title: "Official Rules Draft · People's Ranking Championship",
@@ -22,22 +29,23 @@ export default function OfficialRulesPage() {
           <p>
             Open to legal residents of the 50 United States and District of
             Columbia who are at least 18 years old at the time of entry. Void
-            where prohibited by law. Additional Sponsor, employee, household,
+            where prohibited by law. Additional Operator, household,
             and conflict-of-interest exclusions will be stated before entries open.
           </p>
         </section>
 
         <section>
-          <h2>2. Sponsor and contest period</h2>
+          <h2>2. Independent Operator and contest period</h2>
           <p>
-            The 2026 People&apos;s Ranking Championship is presented by Redraft
-            Blitz. Final entries close <time dateTime={ENTRY_DEADLINE_UTC}>{ENTRY_DEADLINE_LABEL}</time>.
-            The exact opening date, Sponsor&apos;s legal name, mailing address, and
-            contact email must be added before these Rules become effective.
+            The 2026 People&apos;s Ranking Championship is independently operated
+            and personally prize-funded by the owner of Redraft Blitz (the
+            “Operator”). There is no outside contest or prize sponsor. Final
+            entries close <time dateTime={ENTRY_DEADLINE_UTC}>{ENTRY_DEADLINE_LABEL}</time>.
+            Final Boards are revealed at{" "}
+            <time dateTime={CHAMPIONSHIP_REVEAL_UTC}>{CHAMPIONSHIP_REVEAL_LABEL}</time>,
+            and scoring begins with the official NFL opener at{" "}
+            <time dateTime={SCORING_START_UTC}>{SCORING_START_LABEL}</time>.
           </p>
-          <div className="rules-needed">
-            Needed: legal Sponsor identity and address · contest opening date/time · support email
-          </div>
         </section>
 
         <section>
@@ -64,12 +72,10 @@ export default function OfficialRulesPage() {
           </p>
           <p>
             If every approved objective tiebreaker remains identical, the result
-            is an official tie. The final Rules must state how a unique physical
-            prize is handled if an official award tie occurs.
+            is an official tie. Each tied eligible winner receives the full
+            applicable prize package. No prize is divided, and the Operator will
+            provide duplicate physical prizes when required.
           </p>
-          <div className="rules-needed">
-            Needed: exact prize treatment for an irreducible official tie
-          </div>
         </section>
 
         <section>
@@ -91,8 +97,10 @@ export default function OfficialRulesPage() {
           <ul>
             <li>
               <strong>People&apos;s Ranking Champion:</strong> one LaDainian
-              Tomlinson full-size signed helmet, one $200 Fanatics gift card,
-              the physical People&apos;s Cup, and permanent champion recognition.
+              Tomlinson full-size signed helmet authenticated by PSA/DNA or JSA,
+              one $200 Fanatics gift card, the physical People&apos;s Cup, and
+              permanent champion recognition. Approximate retail value: $450,
+              including an authenticated helmet valued at approximately $200.
             </li>
             <li>
               <strong>First Round Crown:</strong> one $100 Fanatics gift card.
@@ -102,14 +110,17 @@ export default function OfficialRulesPage() {
             </li>
           </ul>
           <p>
-            No cash equivalent unless Sponsor determines otherwise. Prizes are
+            No cash equivalent unless the Operator determines otherwise. Prizes are
             nontransferable before award and subject to availability. Any lawful
             substitution will be of equal or greater approximate retail value.
+            The champion may keep the People&apos;s Cup permanently or voluntarily
+            return it so the passing-trophy tradition can continue; return is
+            never required.
           </p>
           <div className="rules-needed">
-            Needed: approximate retail values · helmet model/authentication ·
-            exact People&apos;s Cup keep/return terms · confirm whether the historical
-            5,000-entry second/third-place unlock remains
+            At 5,000 official Boards, additional second- and third-place overall
+            prizes unlock. Their exact components and approximate retail values
+            must be published before public entry opens.
           </div>
         </section>
 
@@ -142,7 +153,7 @@ export default function OfficialRulesPage() {
           <h2>9. Scoring, corrections, and administration</h2>
           <p>
             Weeks 1–17 Half-PPR results count and Week 18 is excluded. Weekly
-            results are provisional until the final post-Week-17 review. Sponsor
+            results are provisional until the final post-Week-17 review. The Operator
             may correct verified data, identity, or calculation errors under a
             documented and consistently applied procedure, but may not change a
             submitted Board or the published scoring formula after entries close.
@@ -167,7 +178,7 @@ export default function OfficialRulesPage() {
             The final version must add governing law, dispute resolution,
             limitation-of-liability, privacy, data retention, force majeure,
             cancellation/modification, winners-list, publicity, severability,
-            and complete Sponsor provisions reviewed for the jurisdictions in
+            and complete Operator provisions reviewed for the jurisdictions in
             which the contest is offered.
           </p>
           <div className="rules-needed">
@@ -179,4 +190,3 @@ export default function OfficialRulesPage() {
     </ContestPage>
   );
 }
-
