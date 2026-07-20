@@ -148,6 +148,7 @@ export function BoardTester() {
   const [dialogMessage, setDialogMessage] = useState("");
   const [busy, setBusy] = useState(false);
   const [activeView, setActiveView] = useState<AppView>("board");
+  const [mobileScoresOpen, setMobileScoresOpen] = useState(false);
   const [entryClosed, setEntryClosed] = useState(false);
   const [emailVerificationRequired, setEmailVerificationRequired] = useState(false);
   const [verificationCodeSent, setVerificationCodeSent] = useState(false);
@@ -432,6 +433,14 @@ export function BoardTester() {
     document
       .getElementById(`rank-${rank}`)
       ?.scrollIntoView({ behavior: "smooth", block: "center" });
+  }
+
+  function focusPlayerSearch() {
+    const search = document.getElementById("player-search");
+    search?.scrollIntoView({ behavior: "smooth", block: "center" });
+    if (search instanceof HTMLInputElement) {
+      window.setTimeout(() => search.focus({ preventScroll: true }), 350);
+    }
   }
 
   function viewPlayer(id: string) {
@@ -853,7 +862,7 @@ export function BoardTester() {
                 : "Entry deadline · September 9"
             : "Official leaderboard"}
         </strong>
-        <span>
+        <span className="notice-detail">
           {activeView === "board"
             ? isEntered
               ? `Submitted ${formatSubmittedAt(protectedBoard?.submittedAt ?? null)} · no further edits are allowed.`
@@ -861,6 +870,15 @@ export function BoardTester() {
                 ? "Final entry is closed. Draft Boards can no longer be submitted."
                 : `Final submission closes ${ENTRY_DEADLINE_LABEL}. Submitting early locks the Board immediately.`
             : "Preseason order is stable and randomized. Accuracy and percentile appear after the first published Week 1 update."}
+        </span>
+        <span className="notice-compact">
+          {activeView === "board"
+            ? isEntered
+              ? "Permanently locked"
+              : entryClosed
+                ? "Submissions closed"
+                : "Closes Sep 9 · 4 PM ET"
+            : "Updates after weekly approval"}
         </span>
       </section>
 
@@ -990,8 +1008,20 @@ export function BoardTester() {
             These numbers recalculate when you move a player. The weekly player
             results are fabricated; the scoring formulas are the approved engine.
           </p>
+          <button
+            className="mobile-score-toggle"
+            type="button"
+            aria-expanded={mobileScoresOpen}
+            aria-controls="demo-score-grid"
+            onClick={() => setMobileScoresOpen((open) => !open)}
+          >
+            {mobileScoresOpen ? "Hide scores" : "View scores"}
+          </button>
         </div>
-        <div className="demo-score-grid">
+        <div
+          id="demo-score-grid"
+          className={`demo-score-grid ${mobileScoresOpen ? "is-mobile-open" : ""}`}
+        >
           <div className="primary">
             <span>Board Accuracy</span>
             <strong>{demoField.currentBoard.boardAccuracy}</strong>
@@ -1173,6 +1203,7 @@ export function BoardTester() {
             <span aria-hidden="true">⌕</span>
             <span className="sr-only">Search player pool</span>
             <input
+              id="player-search"
               type="search"
               value={query}
               onChange={(event) => setQuery(event.target.value)}
@@ -1202,7 +1233,7 @@ export function BoardTester() {
 
           <div className="search-results" aria-live="polite">
             {!query && position === "ALL" ? (
-              <div className="search-empty">
+              <div className="search-empty search-prompt">
                 <strong>Try “Hollywood” or “Marquise.”</strong>
                 <span>Both find the same permanent player record.</span>
               </div>
@@ -1279,6 +1310,25 @@ export function BoardTester() {
           ↶ Undo last move
         </button>
       )}
+      <nav className="mobile-board-controls" aria-label="Quick Board controls">
+        <button type="button" onClick={() => jumpTo(1)}>
+          Top
+        </button>
+        <button type="button" onClick={focusPlayerSearch}>
+          Search
+        </button>
+        <button type="button" onClick={undo} disabled={!undoStack.length || isEntered}>
+          Undo
+        </button>
+        <button
+          className="primary"
+          type="button"
+          disabled={isEntered || (Boolean(protectedBoard) && !entryPreviewReady)}
+          onClick={() => openDialog(protectedBoard ? "entry" : "protect")}
+        >
+          {isEntered ? "Final" : protectedBoard ? "Submit" : "Protect"}
+        </button>
+      </nav>
         </>
       ) : (
         <OfficialLeaderboard currentBoardName={protectedBoard?.name ?? null} />

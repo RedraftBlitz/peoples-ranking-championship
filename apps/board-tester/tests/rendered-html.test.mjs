@@ -55,11 +55,19 @@ test("keeps ranking controls with the user", async () => {
   ]);
 
   assert.match(component, /className="floating-undo"/);
+  assert.match(component, /className="mobile-board-controls"/);
+  assert.match(component, /id="player-search"/);
+  assert.match(component, /className="mobile-score-toggle"/);
+  assert.match(component, /className="search-empty search-prompt"/);
   assert.match(component, /setFollowedPlayerId\(id\)/);
   assert.match(component, /scrollIntoView/);
   assert.match(component, /autoScrollWhileDragging\(event\.clientY\)/);
   assert.match(component, /Build Your Board/);
   assert.match(styles, /\.floating-undo\s*\{[\s\S]*position:\s*fixed/);
+  assert.match(styles, /\.mobile-board-controls\s*\{[\s\S]*position:\s*fixed/);
+  assert.match(styles, /\.hero-copy > p\s*\{\s*display:\s*none/);
+  assert.match(styles, /\.score-strip\s*\{\s*display:\s*none/);
+  assert.match(styles, /\.demo-score-grid\.is-mobile-open\s*\{[\s\S]*display:\s*grid/);
 });
 
 test("adds a private manual weekly scoring approval workflow", async () => {
