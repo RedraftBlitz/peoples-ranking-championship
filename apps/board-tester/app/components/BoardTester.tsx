@@ -152,6 +152,7 @@ export function BoardTester() {
   const [emailVerificationRequired, setEmailVerificationRequired] = useState(false);
   const [verificationCodeSent, setVerificationCodeSent] = useState(false);
   const [verificationEmail, setVerificationEmail] = useState("");
+  const [verificationCode, setVerificationCode] = useState("");
   const [pinRecoveryDetails, setPinRecoveryDetails] = useState<{
     boardName: string;
     recoveryEmail: string;
@@ -444,6 +445,11 @@ export function BoardTester() {
       setPinRecoveryDetails(null);
       setPinRecoveryComplete(false);
     }
+    if (next === "entry") {
+      setVerificationCodeSent(false);
+      setVerificationEmail("");
+      setVerificationCode("");
+    }
     setDialog(next);
   }
 
@@ -669,6 +675,7 @@ export function BoardTester() {
         return;
       }
       setVerificationEmail(email);
+      setVerificationCode("");
       setVerificationCodeSent(true);
       setDialogMessage(payload.message ?? "Verification code sent.");
     } catch (error) {
@@ -688,7 +695,6 @@ export function BoardTester() {
     setDialogError("");
     setDialogMessage("");
     setBusy(true);
-    const data = new FormData(event.currentTarget);
     try {
       const response = await fetch(
         `/api/boards/${protectedBoard.id}/email/verify`,
@@ -697,7 +703,7 @@ export function BoardTester() {
           headers: { "content-type": "application/json" },
           body: JSON.stringify({
             email: verificationEmail,
-            code: data.get("code"),
+            code: verificationCode,
           }),
         },
       );
@@ -715,6 +721,7 @@ export function BoardTester() {
         submittedAt: payload.board.submittedAt,
       });
       setVerificationCodeSent(false);
+      setVerificationCode("");
       setDialogMessage(payload.message ?? "Email verified.");
     } catch (error) {
       setDialogError(
@@ -731,6 +738,7 @@ export function BoardTester() {
     setDialogMessage("");
     setVerificationCodeSent(false);
     setVerificationEmail("");
+    setVerificationCode("");
     setDialog("entryConfirm");
   }
 
@@ -1614,12 +1622,21 @@ export function BoardTester() {
                           Code sent to {verificationEmail}
                           <input
                             className="pin-input"
-                            name="code"
+                            name="emailVerificationCode"
                             inputMode="numeric"
                             pattern="[0-9]{6}"
                             minLength={6}
                             maxLength={6}
                             autoComplete="one-time-code"
+                            value={verificationCode}
+                            onChange={(event) => {
+                              const candidate = event.target.value;
+                              setVerificationCode(
+                                /[^\d\s-]/.test(candidate)
+                                  ? ""
+                                  : candidate.replace(/\D/g, "").slice(0, 6),
+                              );
+                            }}
                             required
                             autoFocus
                           />
@@ -1632,6 +1649,8 @@ export function BoardTester() {
                           type="button"
                           onClick={() => {
                             setVerificationCodeSent(false);
+                            setVerificationEmail("");
+                            setVerificationCode("");
                             setDialogError("");
                             setDialogMessage("");
                           }}
