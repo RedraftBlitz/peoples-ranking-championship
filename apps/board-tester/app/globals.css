@@ -498,6 +498,11 @@ a:focus-visible {
   background: #d9f0e6;
 }
 
+.state-pill.entered {
+  color: #fff;
+  background: var(--night);
+}
+
 .state-pill.demo {
   min-width: 152px;
   margin-right: 12px;
@@ -778,6 +783,13 @@ a:focus-visible {
   background: transparent;
 }
 
+.button.locked {
+  border-color: var(--night);
+  color: #fff;
+  background: var(--night);
+  opacity: 1;
+}
+
 .button:disabled {
   cursor: not-allowed;
   opacity: 0.4;
@@ -1003,6 +1015,19 @@ a:focus-visible {
   background: var(--night);
   font-size: 0.66rem;
   font-weight: 850;
+}
+
+.locked-rank {
+  justify-self: end;
+  padding: 6px 9px;
+  border: 1px solid #b9c3c1;
+  border-radius: 999px;
+  color: #4d5d60;
+  background: #eef1ef;
+  font-size: 0.61rem;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
 }
 
 .cut-line {
@@ -1408,6 +1433,176 @@ footer a {
 .entry-checks .blocked span {
   color: #fff;
   background: #b69542;
+}
+
+.final-top-150 {
+  display: grid;
+  max-height: 265px;
+  margin: 16px 0;
+  overflow-y: auto;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #fffdf8;
+}
+
+.final-top-150 > span {
+  display: grid;
+  grid-template-columns: 36px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  min-height: 38px;
+  padding: 6px 11px;
+  border-bottom: 1px solid #ece7d9;
+}
+
+.final-top-150 > span:last-child {
+  border-bottom: 0;
+}
+
+.final-top-150 b {
+  color: var(--teal);
+  font-family: Georgia, "Times New Roman", serif;
+  text-align: right;
+}
+
+.final-top-150 strong {
+  overflow: hidden;
+  color: var(--night);
+  font-size: 0.7rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.final-top-150 small {
+  color: var(--muted);
+  font-size: 0.58rem;
+}
+
+.final-entry-review {
+  display: grid;
+  gap: 9px;
+}
+
+.confirmation-check {
+  display: grid;
+  grid-template-columns: 20px minmax(0, 1fr);
+  align-items: start;
+  gap: 10px;
+  padding: 11px 12px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  color: var(--night);
+  background: #f8f6ef;
+  font-size: 0.69rem;
+  font-weight: 750;
+  line-height: 1.45;
+}
+
+.confirmation-check input {
+  width: 18px;
+  height: 18px;
+  margin: 1px 0 0;
+  accent-color: var(--teal);
+}
+
+.permanent-lock-warning {
+  margin: 15px 0 18px;
+  padding: 15px 16px;
+  border: 1px solid #d69d91;
+  border-radius: 10px;
+  color: #842f24;
+  background: #fde9e5;
+}
+
+.permanent-lock-warning strong {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.05rem;
+}
+
+.permanent-lock-warning p {
+  margin: 5px 0 0;
+  font-size: 0.7rem;
+  line-height: 1.5;
+}
+
+.final-confirmation-actions {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 9px;
+}
+
+.dialog-submit.danger {
+  border-color: #8e3026;
+  background: #a53b30;
+}
+
+.entry-complete {
+  display: grid;
+  justify-items: center;
+  text-align: center;
+}
+
+.entry-complete-mark {
+  display: grid;
+  width: 64px;
+  height: 64px;
+  margin-bottom: 15px;
+  place-items: center;
+  border-radius: 50%;
+  color: #fff;
+  background: var(--teal);
+  box-shadow: 0 10px 25px rgba(8, 125, 121, 0.25);
+  font-size: 1.8rem;
+  font-weight: 900;
+}
+
+.entry-complete h2 {
+  margin-right: 0;
+}
+
+.entry-complete > p {
+  max-width: 410px;
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.76rem;
+  line-height: 1.55;
+}
+
+.entry-complete-summary {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  width: 100%;
+  margin: 20px 0;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+}
+
+.entry-complete-summary span {
+  display: grid;
+  gap: 4px;
+  padding: 12px 8px;
+  border-right: 1px solid var(--line);
+}
+
+.entry-complete-summary span:last-child {
+  border-right: 0;
+}
+
+.entry-complete-summary small {
+  color: var(--muted);
+  font-size: 0.55rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.entry-complete-summary strong {
+  color: var(--night);
+  font-size: 0.72rem;
+}
+
+.entry-complete .dialog-submit {
+  width: 100%;
 }
 
 .sr-only {
@@ -2054,6 +2249,23 @@ footer a {
   .market-history,
   .market-movers {
     grid-template-columns: 1fr;
+  }
+
+  .final-confirmation-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .entry-complete-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .entry-complete-summary span {
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .entry-complete-summary span:last-child {
+    border-bottom: 0;
   }
 }
 

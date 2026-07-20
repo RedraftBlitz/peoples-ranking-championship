@@ -50,6 +50,29 @@ export const pinRecoveryRequests = sqliteTable("pin_recovery_requests", {
   createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
 });
 
+export const boardEntries = sqliteTable(
+  "board_entries",
+  {
+    id: text("id").primaryKey(),
+    boardId: text("board_id")
+      .notNull()
+      .references(() => boards.id, { onDelete: "cascade" }),
+    season: integer("season").notNull().default(2026),
+    boardName: text("board_name").notNull(),
+    finalOrderJson: text("final_order_json").notNull(),
+    finalTop150Json: text("final_top_150_json").notNull(),
+    personalRankingsJson: text("personal_rankings_json").notNull(),
+    rulesVersion: text("rules_version").notNull(),
+    entryDeadlineUtc: text("entry_deadline_utc").notNull(),
+    confirmationJson: text("confirmation_json").notNull(),
+    submittedAt: text("submitted_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+  },
+  (table) => [
+    uniqueIndex("board_entries_board_unique").on(table.boardId),
+    index("board_entries_season_submitted_idx").on(table.season, table.submittedAt),
+  ],
+);
+
 export const scoringSnapshots = sqliteTable(
   "scoring_snapshots",
   {

@@ -117,3 +117,29 @@ test("adds manual FantasyCalc review without rearranging saved Boards", async ()
   assert.match(board, /reconcileOrder\(saved\.order/);
   assert.match(migration, /CREATE TABLE `market_snapshots`/);
 });
+
+test("permanently locks final entries after two-step verification", async () => {
+  const [component, submitRoute, saveRoute, rules, marketApproval, migration] = await Promise.all([
+    readFile(new URL("app/components/BoardTester.tsx", projectRoot), "utf8"),
+    readFile(new URL("app/api/boards/[id]/submit/route.ts", projectRoot), "utf8"),
+    readFile(new URL("app/api/boards/[id]/route.ts", projectRoot), "utf8"),
+    readFile(new URL("app/lib/entry-rules.ts", projectRoot), "utf8"),
+    readFile(new URL("app/api/admin/market-updates/[id]/approve/route.ts", projectRoot), "utf8"),
+    readFile(new URL("drizzle/0003_mushy_shen.sql", projectRoot), "utf8"),
+  ]);
+
+  assert.match(component, /Final verification · Step 1 of 2/);
+  assert.match(component, /Final verification · Step 2 of 2/);
+  assert.match(component, /Permanently Submit My Board/);
+  assert.match(component, /draggable=\{!isEntered\}/);
+  assert.match(component, /Final Board permanently locked/);
+  assert.match(submitRoute, /hashPin\(pin, pinRow\.pin_salt\)/);
+  assert.match(submitRoute, /secureEqual\(candidate, pinRow\.pin_hash\)/);
+  assert.match(submitRoute, /status = 'entered'/);
+  assert.match(submitRoute, /final_top_150_json/);
+  assert.match(saveRoute, /board\.status === "entered"/);
+  assert.match(rules, /2026-09-09T20:00:00\.000Z/);
+  assert.match(marketApproval, /entryDeadlinePassed\(\)/);
+  assert.match(migration, /CREATE TABLE `board_entries`/);
+  assert.match(migration, /CREATE UNIQUE INDEX `board_entries_board_unique`/);
+});

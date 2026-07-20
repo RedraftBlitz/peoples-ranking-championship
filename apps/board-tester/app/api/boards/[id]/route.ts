@@ -15,6 +15,12 @@ export async function PUT(
         { status: 401 },
       );
     }
+    if (board.status === "entered") {
+      return Response.json(
+        { error: "This Board was finally submitted and is permanently locked." },
+        { status: 409 },
+      );
+    }
 
     const payload = (await request.json()) as {
       order?: unknown;

@@ -7,6 +7,11 @@ import {
   scoreDemoField,
   type DemoLeaderboardRow,
 } from "../lib/demo-scoring";
+import {
+  ENTRY_DEADLINE_LABEL,
+  ENTRY_DEADLINE_UTC,
+  entryDeadlinePassed,
+} from "../lib/entry-rules";
 
 type Position = "QB" | "RB" | "WR" | "TE";
 type AppView = "board" | "leaderboard";
@@ -38,7 +43,8 @@ type ProtectedBoard = {
   id: string;
   name: string;
   hasRecoveryEmail: boolean;
-  status: "protected_draft";
+  status: "protected_draft" | "entered";
+  submittedAt: string | null;
 };
 
 type BoardResponse = {
@@ -47,7 +53,14 @@ type BoardResponse = {
   message?: string;
 };
 
-type DialogName = "protect" | "unlock" | "recovery" | "entry" | null;
+type DialogName =
+  | "protect"
+  | "unlock"
+  | "recovery"
+  | "entry"
+  | "entryConfirm"
+  | "entryComplete"
+  | null;
 
 const basePlayers = (playerData as Player[]).sort(
   (a, b) => a.initialRank - b.initialRank,
@@ -92,6 +105,19 @@ function movementLevel(change: number) {
   if (distance <= 6) return "neutral";
   if (distance <= 11) return "subtle";
   return "emphasized";
+}
+
+function formatSubmittedAt(value: string | null) {
+  if (!value) return "Final entry submitted";
+  return new Intl.DateTimeFormat("en-US", {
+    timeZone: "America/New_York",
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+    timeZoneName: "short",
+  }).format(new Date(value));
 }
 
 function DemoLeaderboard({ rows }: { rows: DemoLeaderboardRow[] }) {
@@ -181,10 +207,19 @@ export function BoardTester() {
   const [dialogMessage, setDialogMessage] = useState("");
   const [busy, setBusy] = useState(false);
   const [activeView, setActiveView] = useState<AppView>("board");
+  const [entryClosed, setEntryClosed] = useState(false);
   const playerById = useMemo(
     () => new Map(players.map((player) => [player.id, player])),
     [players],
   );
+  const isEntered = protectedBoard?.status === "entered";
+
+  useEffect(() => {
+    const updateDeadline = () => setEntryClosed(entryDeadlinePassed());
+    updateDeadline();
+    const interval = window.setInterval(updateDeadline, 30_000);
+    return () => window.clearInterval(interval);
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -259,6 +294,11 @@ export function BoardTester() {
         }),
       );
 
+      if (isEntered) {
+        setSaveState("Final Board permanently locked");
+        return;
+      }
+
       if (!protectedBoard) {
         setSaveState("Saved on this device");
         return;
@@ -285,7 +325,7 @@ export function BoardTester() {
       window.clearTimeout(timeout);
       controller.abort();
     };
-  }, [hydrated, order, personalIds, protectedBoard]);
+  }, [hydrated, isEntered, order, personalIds, protectedBoard]);
 
   useEffect(() => {
     if (!followedPlayerId) return;
@@ -338,7 +378,7 @@ export function BoardTester() {
     new Set(order.slice(0, OFFICIAL_CUTOFF)).size === OFFICIAL_CUTOFF;
   const hasPersonalRanking = personalIds.length > 0;
   const entryPreviewReady =
-    completeTop150 && hasPersonalRanking && Boolean(protectedBoard);
+    completeTop150 && hasPersonalRanking && Boolean(protectedBoard) && !isEntered && !entryClosed;
 
   function remember() {
     setUndoStack((stack) => [
@@ -348,6 +388,7 @@ export function BoardTester() {
   }
 
   function movePlayer(id: string, requestedRank: number) {
+    if (isEntered) return;
     if (!Number.isFinite(requestedRank)) return;
     const targetRank = Math.min(
       BOARD_SIZE,
@@ -388,6 +429,7 @@ export function BoardTester() {
   }
 
   function undo() {
+    if (isEntered) return;
     setUndoStack((stack) => {
       const previous = stack.at(-1);
       if (previous) {
@@ -399,6 +441,7 @@ export function BoardTester() {
   }
 
   function resetBoard() {
+    if (isEntered) return;
     const resetWarning = protectedBoard
       ? `Reset ${protectedBoard.name}?\n\nThis will erase every ranking move on this Board and replace its protected saved rankings with the original tester order.\n\nYou can use Undo right away if this was a mistake.`
       : "Reset this browser draft?\n\nThis will erase every ranking move and return to the original tester order.";
@@ -463,6 +506,7 @@ export function BoardTester() {
         name: payload.board.name,
         hasRecoveryEmail: payload.board.hasRecoveryEmail,
         status: "protected_draft",
+        submittedAt: null,
       });
       setSaveState("Protected Board saved");
       setDialog(null);
@@ -509,9 +553,14 @@ export function BoardTester() {
         id: payload.board.id,
         name: payload.board.name,
         hasRecoveryEmail: payload.board.hasRecoveryEmail,
-        status: "protected_draft",
+        status: payload.board.status,
+        submittedAt: payload.board.submittedAt,
       });
-      setSaveState("Protected Board opened");
+      setSaveState(
+        payload.board.status === "entered"
+          ? "Final Board permanently locked"
+          : "Protected Board opened",
+      );
       setDialog(null);
     } catch (error) {
       setDialogError(
@@ -552,16 +601,74 @@ export function BoardTester() {
     }
   }
 
+  function continueToFinalConfirmation(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setDialogError("");
+    setDialog("entryConfirm");
+  }
+
+  async function finallySubmitBoard(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!protectedBoard || protectedBoard.status === "entered") return;
+    setDialogError("");
+    setBusy(true);
+    const data = new FormData(event.currentTarget);
+    try {
+      const response = await fetch(`/api/boards/${protectedBoard.id}/submit`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          boardNameConfirmation: data.get("boardNameConfirmation"),
+          pin: data.get("pin"),
+          reviewedTop150: true,
+          acceptedPermanentLock: true,
+          acceptedDeadline: true,
+          order,
+          personalIds,
+        }),
+      });
+      const payload = (await response.json()) as BoardResponse;
+      if (!response.ok || !payload.board) {
+        throw new Error(payload.error ?? "The final submission could not be completed.");
+      }
+      setProtectedBoard({
+        id: payload.board.id,
+        name: payload.board.name,
+        hasRecoveryEmail: payload.board.hasRecoveryEmail,
+        status: "entered",
+        submittedAt: payload.board.submittedAt,
+      });
+      setUndoStack([]);
+      setSaveState("Final Board permanently locked");
+      setDialog("entryComplete");
+    } catch (error) {
+      setDialogError(
+        error instanceof Error
+          ? error.message
+          : "The final submission could not be completed.",
+      );
+    } finally {
+      setBusy(false);
+    }
+  }
+
   return (
     <main className="app-shell">
       <header className="hero">
         <div className="hero-copy">
           <div className="eyebrow">People&apos;s Ranking Championship</div>
-          <h1>{activeView === "board" ? "Build your Board." : "Follow every Board."}</h1>
+          <h1>
+            {activeView === "board"
+              ? isEntered
+                ? "Your Board is final."
+                : "Build your Board."
+              : "Follow every Board."}
+          </h1>
           {activeView === "board" ? (
             <p>
-              Drag a player to a new spot or type any rank from 1–200. Everyone
-              between the two ranks shifts automatically.
+              {isEntered
+                ? "Your official Top 150 is permanently locked and can no longer be edited."
+                : "Drag a player to a new spot or type any rank from 1–200. Everyone between the two ranks shifts automatically."}
             </p>
           ) : (
             <p>
@@ -577,7 +684,9 @@ export function BoardTester() {
             <small>
               {activeView === "board"
                 ? protectedBoard
-                  ? protectedBoard.name
+                  ? isEntered
+                    ? `${protectedBoard.name} · final entry`
+                    : protectedBoard.name
                   : "Browser draft · no account needed"
                 : "Fabricated Week 1 · not official"}
             </small>
@@ -586,10 +695,22 @@ export function BoardTester() {
       </header>
 
       <section className="notice" aria-label="Tester status">
-        <strong>{activeView === "board" ? "Provisional tester order" : "Demo results · not official"}</strong>
+        <strong>
+          {activeView === "board"
+            ? isEntered
+              ? "Final entry locked"
+              : entryClosed
+                ? "Final entry closed"
+                : "Entry deadline · September 9"
+            : "Demo results · not official"}
+        </strong>
         <span>
           {activeView === "board"
-            ? "This is for testing the full Board flow—not the official 2026 Market Value order."
+            ? isEntered
+              ? `Submitted ${formatSubmittedAt(protectedBoard?.submittedAt ?? null)} · no further edits are allowed.`
+              : entryClosed
+                ? "Final entry is closed. Draft Boards can no longer be submitted."
+                : `Final submission closes ${ENTRY_DEADLINE_LABEL}. Submitting early locks the Board immediately.`
             : "Real scoring math with fabricated player results and opponent Boards."}
         </span>
       </section>
@@ -617,13 +738,15 @@ export function BoardTester() {
         <>
       <section className="draft-lifecycle" aria-label="Draft protection">
         <div className="draft-identity">
-          <span className={`state-pill ${protectedBoard ? "protected" : "browser"}`}>
-            {protectedBoard ? "Protected draft" : "Browser draft"}
+          <span className={`state-pill ${isEntered ? "entered" : protectedBoard ? "protected" : "browser"}`}>
+            {isEntered ? "Final entry" : protectedBoard ? "Protected draft" : "Browser draft"}
           </span>
           <div>
             <h2>{protectedBoard?.name ?? "Your unnamed Board"}</h2>
             <p>
-              {protectedBoard
+              {isEntered
+                ? `Permanently locked · ${formatSubmittedAt(protectedBoard?.submittedAt ?? null)}`
+                : protectedBoard
                 ? protectedBoard.hasRecoveryEmail
                   ? "PIN protected · recovery email added"
                   : "PIN protected · no recovery email"
@@ -638,7 +761,7 @@ export function BoardTester() {
             {personalIds.length} Personal Ranking{personalIds.length === 1 ? "" : "s"}
           </span>
           <span className={protectedBoard ? "ready" : "waiting"}>
-            {protectedBoard ? "Protected" : "Protection needed"}
+            {isEntered ? "Final & locked" : protectedBoard ? "Protected" : "Protection needed"}
           </span>
         </div>
 
@@ -652,12 +775,12 @@ export function BoardTester() {
             Recover My Board
           </button>
           <button
-            className="button secondary"
+            className={isEntered ? "button locked" : "button secondary"}
             type="button"
             disabled={!entryPreviewReady}
             onClick={() => openDialog("entry")}
           >
-            Entry preview
+            {isEntered ? "Board Submitted" : entryClosed ? "Entries Closed" : "Submit Final Board"}
           </button>
         </div>
       </section>
@@ -729,11 +852,11 @@ export function BoardTester() {
                 className="button secondary"
                 type="button"
                 onClick={undo}
-                disabled={!undoStack.length}
+                disabled={!undoStack.length || isEntered}
               >
                 ↶ Undo
               </button>
-              <button className="button ghost" type="button" onClick={resetBoard}>
+              <button className="button ghost" type="button" onClick={resetBoard} disabled={isEntered}>
                 Reset Rankings
               </button>
             </div>
@@ -763,8 +886,12 @@ export function BoardTester() {
                   <article
                     id={`rank-${rank}`}
                     className={`player-row ${isPersonal ? "is-personal" : ""} ${draggedId === player.id ? "is-dragging" : ""} ${dropId === player.id ? "is-drop-target" : ""}`}
-                    draggable
+                    draggable={!isEntered}
                     onDragStart={(event) => {
+                      if (isEntered) {
+                        event.preventDefault();
+                        return;
+                      }
                       setDraggedId(player.id);
                       event.dataTransfer.effectAllowed = "move";
                       event.dataTransfer.setData("text/plain", player.id);
@@ -774,6 +901,7 @@ export function BoardTester() {
                       setDropId(null);
                     }}
                     onDragOver={(event) => {
+                      if (isEntered) return;
                       event.preventDefault();
                       event.dataTransfer.dropEffect = "move";
                       autoScrollWhileDragging(event.clientY);
@@ -781,6 +909,7 @@ export function BoardTester() {
                     }}
                     onDragLeave={() => setDropId(null)}
                     onDrop={(event) => {
+                      if (isEntered) return;
                       event.preventDefault();
                       const sourceId = event.dataTransfer.getData("text/plain");
                       setDraggedId(null);
@@ -815,26 +944,32 @@ export function BoardTester() {
                       )}
                     </div>
 
-                    <form
-                      className="rank-form"
-                      onSubmit={(event) => submitRank(event, player.id)}
-                    >
-                      <label className="sr-only" htmlFor={`move-${player.id}`}>
-                        Move {player.name} to rank
-                      </label>
-                      <input
-                        key={`${player.id}-${rank}`}
-                        id={`move-${player.id}`}
-                        name="rank"
-                        type="number"
-                        min="1"
-                        max={BOARD_SIZE}
-                        defaultValue={rank}
-                      />
-                      <button type="submit" aria-label={`Move ${player.name}`}>
-                        Go
-                      </button>
-                    </form>
+                    {isEntered ? (
+                      <span className="locked-rank" aria-label={`${player.name} is locked at rank ${rank}`}>
+                        Locked
+                      </span>
+                    ) : (
+                      <form
+                        className="rank-form"
+                        onSubmit={(event) => submitRank(event, player.id)}
+                      >
+                        <label className="sr-only" htmlFor={`move-${player.id}`}>
+                          Move {player.name} to rank
+                        </label>
+                        <input
+                          key={`${player.id}-${rank}`}
+                          id={`move-${player.id}`}
+                          name="rank"
+                          type="number"
+                          min="1"
+                          max={BOARD_SIZE}
+                          defaultValue={rank}
+                        />
+                        <button type="submit" aria-label={`Move ${player.name}`}>
+                          Go
+                        </button>
+                      </form>
+                    )}
                   </article>
 
                   {rank === OFFICIAL_CUTOFF && (
@@ -917,6 +1052,8 @@ export function BoardTester() {
                       <button type="button" onClick={() => viewPlayer(player.id)}>
                         View
                       </button>
+                    ) : isEntered ? (
+                      <span className="unranked-label">UR</span>
                     ) : (
                       <div className="unranked-action">
                         <span className="unranked-label">UR</span>
@@ -957,7 +1094,7 @@ export function BoardTester() {
           </div>
         </aside>
       </div>
-      {undoStack.length > 0 && (
+      {undoStack.length > 0 && !isEntered && (
         <button
           className="floating-undo"
           type="button"
@@ -973,7 +1110,9 @@ export function BoardTester() {
       )}
 
       <footer>
-        <span>PRC protected-draft prototype · Official Entry disabled · Demo scores are not official</span>
+        <span>
+          PRC 2026 · Final entry deadline {ENTRY_DEADLINE_LABEL} · Demo scores are not official
+        </span>
         <span>
           Player data sources: <a href="https://fantasycalc.com/" target="_blank" rel="noreferrer">FantasyCalc</a>
           {" · "}
@@ -1127,26 +1266,124 @@ export function BoardTester() {
 
             {dialog === "entry" && (
               <>
-                <span className="panel-kicker">Entry readiness</span>
-                <h2 id="dialog-title">Official Entry preview</h2>
+                <span className="panel-kicker">Final verification · Step 1 of 2</span>
+                <h2 id="dialog-title">Review your official Top 150</h2>
                 <p className="dialog-intro">
-                  This is what will be checked before the final one-time submission.
+                  This exact order will be scored. Once you complete Step 2,
+                  the Board can never be edited or reopened as a draft.
                 </p>
                 <div className="entry-checks">
                   <div className="complete"><span>✓</span><strong>Top 150 complete</strong></div>
                   <div className="complete"><span>✓</span><strong>No duplicate players or ranks</strong></div>
                   <div className="complete"><span>✓</span><strong>{personalIds.length} direct Personal Ranking{personalIds.length === 1 ? "" : "s"}</strong></div>
                   <div className="complete"><span>✓</span><strong>Protected as {protectedBoard?.name}</strong></div>
-                  <div className="blocked"><span>—</span><strong>Verified entry email pending</strong></div>
-                  <div className="blocked"><span>—</span><strong>Official Rules and deadline pending</strong></div>
+                  <div className="complete"><span>✓</span><strong>Deadline: September 9 at 4:00 PM Eastern</strong></div>
                 </div>
-                <button className="dialog-submit" type="button" disabled>
-                  Officially Enter My Board
-                </button>
-                <p className="prototype-note">
-                  Final submission stays disabled until the launch requirements are approved.
-                </p>
+                <div className="final-top-150" aria-label="Final Top 150 review">
+                  {order.slice(0, OFFICIAL_CUTOFF).map((id, index) => {
+                    const player = playerById.get(id)!;
+                    return (
+                      <span key={id}>
+                        <b>{index + 1}</b>
+                        <strong>{player.name}</strong>
+                        <small>{player.position} · {player.team}</small>
+                      </span>
+                    );
+                  })}
+                </div>
+                <form className="final-entry-review" onSubmit={continueToFinalConfirmation}>
+                  <label className="confirmation-check">
+                    <input name="reviewedTop150" type="checkbox" required />
+                    <span>I reviewed this Top 150 and confirm the player order is final.</span>
+                  </label>
+                  <label className="confirmation-check">
+                    <input name="acceptedLock" type="checkbox" required />
+                    <span>I understand submitting permanently locks this Board immediately.</span>
+                  </label>
+                  <label className="confirmation-check">
+                    <input name="acceptedDeadline" type="checkbox" required />
+                    <span>
+                      I accept the final-entry deadline of{" "}
+                      <time dateTime={ENTRY_DEADLINE_UTC}>{ENTRY_DEADLINE_LABEL}</time>.
+                    </span>
+                  </label>
+                  <button className="dialog-submit" type="submit">
+                    Continue to Final Confirmation
+                  </button>
+                </form>
               </>
+            )}
+
+            {dialog === "entryConfirm" && (
+              <>
+                <span className="panel-kicker">Final verification · Step 2 of 2</span>
+                <h2 id="dialog-title">Permanently submit {protectedBoard?.name}</h2>
+                <div className="permanent-lock-warning">
+                  <strong>This cannot be undone.</strong>
+                  <p>
+                    Submitting now locks all 150 official rankings immediately.
+                    The September 9 deadline does not provide an editing window after submission.
+                  </p>
+                </div>
+                <form className="dialog-form" onSubmit={finallySubmitBoard}>
+                  <label>
+                    Type your exact Board Name
+                    <input
+                      name="boardNameConfirmation"
+                      autoComplete="off"
+                      placeholder={protectedBoard?.name}
+                      required
+                      autoFocus
+                    />
+                    <small>This confirms which Board will be permanently locked.</small>
+                  </label>
+                  <label>
+                    Re-enter your six-digit PIN
+                    <input
+                      className="pin-input"
+                      name="pin"
+                      type="password"
+                      inputMode="numeric"
+                      pattern="[0-9]{6}"
+                      minLength={6}
+                      maxLength={6}
+                      autoComplete="current-password"
+                      required
+                    />
+                    <small>Your PIN is verified securely and is never stored in readable form.</small>
+                  </label>
+                  {dialogError && <p className="form-error">{dialogError}</p>}
+                  <div className="final-confirmation-actions">
+                    <button className="button ghost" type="button" onClick={() => setDialog("entry")} disabled={busy}>
+                      Go Back
+                    </button>
+                    <button className="dialog-submit danger" type="submit" disabled={busy}>
+                      {busy ? "Permanently submitting…" : "Permanently Submit My Board"}
+                    </button>
+                  </div>
+                </form>
+              </>
+            )}
+
+            {dialog === "entryComplete" && (
+              <div className="entry-complete">
+                <span className="entry-complete-mark" aria-hidden="true">✓</span>
+                <span className="panel-kicker">Official entry complete</span>
+                <h2 id="dialog-title">{protectedBoard?.name} is locked.</h2>
+                <p>
+                  Your official Top 150 was submitted{" "}
+                  {formatSubmittedAt(protectedBoard?.submittedAt ?? null)}.
+                  It is now permanent and ready for contest scoring.
+                </p>
+                <div className="entry-complete-summary">
+                  <span><small>Status</small><strong>Final entry</strong></span>
+                  <span><small>Official rankings</small><strong>150</strong></span>
+                  <span><small>Editing</small><strong>Closed</strong></span>
+                </div>
+                <button className="dialog-submit" type="button" onClick={() => setDialog(null)}>
+                  View My Locked Board
+                </button>
+              </div>
             )}
           </section>
         </div>

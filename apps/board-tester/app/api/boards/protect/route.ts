@@ -87,6 +87,7 @@ export async function POST(request: Request) {
           order: payload.order,
           personalIds: payload.personalIds,
           updatedAt: now,
+          submittedAt: null,
         },
       },
       { status: 201 },

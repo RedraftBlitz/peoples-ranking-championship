@@ -36,10 +36,12 @@ export async function POST(request: Request) {
     const db = getD1();
     const board = await db
       .prepare(
-        `SELECT id, board_name, recovery_email, order_json,
-          personal_rankings_json, status, updated_at, pin_salt, pin_hash,
-          failed_pin_attempts, locked_until
-         FROM boards WHERE season = ?1 AND board_name_key = ?2`,
+        `SELECT b.id, b.board_name, b.recovery_email, b.order_json,
+          b.personal_rankings_json, b.status, b.updated_at, b.pin_salt, b.pin_hash,
+          b.failed_pin_attempts, b.locked_until, e.submitted_at
+         FROM boards b
+         LEFT JOIN board_entries e ON e.board_id = b.id
+         WHERE b.season = ?1 AND b.board_name_key = ?2`,
       )
       .bind(BOARD_SEASON, boardNameKey(boardName))
       .first<UnlockRow>();

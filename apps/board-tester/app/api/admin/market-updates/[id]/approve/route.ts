@@ -1,6 +1,7 @@
 import { getD1 } from "../../../../../../db/d1";
 import { isAdminRequest } from "../../../../../lib/admin-auth";
 import type { MarketReview } from "../../../../../lib/fantasycalc-import";
+import { entryDeadlinePassed } from "../../../../../lib/entry-rules";
 
 const ADMIN_EMAIL_HEADER = "oai-authenticated-user-email";
 
@@ -16,6 +17,12 @@ export async function POST(
 ) {
   if (!isAdminRequest(request)) {
     return Response.json({ error: "Administrator access is required." }, { status: 403 });
+  }
+  if (entryDeadlinePassed()) {
+    return Response.json(
+      { error: "FantasyCalc updates froze at the September 9, 2026 entry deadline." },
+      { status: 409 },
+    );
   }
   const { id } = await context.params;
   const db = getD1();
@@ -52,4 +59,3 @@ export async function POST(
     savedBoardsRearranged: 0,
   });
 }
-

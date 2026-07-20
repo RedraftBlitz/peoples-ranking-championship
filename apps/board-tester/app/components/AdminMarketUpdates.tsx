@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { entryDeadlinePassed } from "../lib/entry-rules";
 
 type MarketReview = {
   ready: boolean;
@@ -62,6 +63,7 @@ export function AdminMarketUpdates() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
+  const [marketFrozen, setMarketFrozen] = useState(false);
 
   const loadHistory = useCallback(async () => {
     const response = await fetch("/api/admin/market-updates", { cache: "no-store" });
@@ -75,6 +77,13 @@ export function AdminMarketUpdates() {
       setError(loadError instanceof Error ? loadError.message : "FantasyCalc history could not be loaded.");
     });
   }, [loadHistory]);
+
+  useEffect(() => {
+    const updateFreeze = () => setMarketFrozen(entryDeadlinePassed());
+    updateFreeze();
+    const interval = window.setInterval(updateFreeze, 30_000);
+    return () => window.clearInterval(interval);
+  }, []);
 
   async function checkFantasyCalc() {
     setBusy(true);
@@ -138,6 +147,11 @@ export function AdminMarketUpdates() {
           <p>Approval can update new Boards and the searchable pool. It never changes the order on an existing saved Board.</p>
         </div>
       </div>
+      {marketFrozen && (
+        <p className="admin-alert error">
+          The player market is frozen. No FantasyCalc update can be approved after the final entry deadline.
+        </p>
+      )}
 
       {error && <p className="admin-alert error">{error}</p>}
       {message && <p className="admin-alert success">{message}</p>}
@@ -236,10 +250,14 @@ export function AdminMarketUpdates() {
             <button
               className="button gold"
               type="button"
-              disabled={busy || !active.review.ready || active.status !== "pending_review"}
+              disabled={busy || marketFrozen || !active.review.ready || active.status !== "pending_review"}
               onClick={approveSnapshot}
             >
-              {active.status === "approved" ? "Approved" : "Approve FantasyCalc Update"}
+              {marketFrozen
+                ? "Market Frozen"
+                : active.status === "approved"
+                  ? "Approved"
+                  : "Approve FantasyCalc Update"}
             </button>
           </div>
         </div>

@@ -9,6 +9,7 @@ export type StoredBoard = {
   personal_rankings_json: string;
   status: string;
   updated_at: string;
+  submitted_at: string | null;
 };
 
 export function publicBoard(row: StoredBoard) {
@@ -20,6 +21,7 @@ export function publicBoard(row: StoredBoard) {
     personalIds: JSON.parse(row.personal_rankings_json) as string[],
     status: row.status,
     updatedAt: row.updated_at,
+    submittedAt: row.submitted_at,
   };
 }
 
@@ -39,9 +41,10 @@ export async function boardForSession(request: Request, boardId: string) {
   const board = await db
     .prepare(
       `SELECT b.id, b.board_name, b.recovery_email, b.order_json,
-        b.personal_rankings_json, b.status, b.updated_at
+        b.personal_rankings_json, b.status, b.updated_at, e.submitted_at
        FROM boards b
        JOIN board_sessions s ON s.board_id = b.id
+       LEFT JOIN board_entries e ON e.board_id = b.id
        WHERE b.id = ?1 AND s.token_hash = ?2 AND s.expires_at > ?3`,
     )
     .bind(boardId, tokenHash, now)
