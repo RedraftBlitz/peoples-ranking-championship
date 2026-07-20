@@ -200,6 +200,9 @@ test("keeps draft recovery optional and requires verified email at submission", 
   assert.match(component, /Recovery email <em>optional<\/em>/);
   assert.match(component, /A verified email is required for final submission/);
   assert.match(component, /Send Verification Code/);
+  assert.match(component, /name="emailVerificationCode"/);
+  assert.match(component, /value=\{verificationCode\}/);
+  assert.match(component, /code: verificationCode/);
   assert.match(component, /Send PIN Reset Code/);
   assert.match(component, /Verify your email above to unlock permanent submission/);
   assert.match(emailSender, /https:\/\/api\.resend\.com\/emails/);
