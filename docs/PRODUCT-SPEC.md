@@ -189,12 +189,12 @@ This section locks presentation only. It does not authorize scoring implementati
 - The champion receives the People's Cup and permanent recognition.
 - The `First Round Crown` recognizes the highest Top-12 Board Accuracy. Its exact calculation is controlled by the approved Scoring Specification.
 - `Random Draw` is selected from remaining eligible participants after excluding the Overall Champion and First Round Crown winner.
-- At 5,000 official Boards, second- and third-place overall prizes unlock.
+- At 5,000 valid official Boards, the Champion's Fanatics gift card increases from $200 to $400, second place receives a $200 Fanatics gift card, and third place receives a $100 Fanatics gift card. The helmet, People's Cup, First Round Crown, and Random Draw prizes remain unchanged.
 - The 2026-07-20 owner approval sets the announced prizes as follows: the People's Ranking Champion receives a LaDainian Tomlinson full-size signed helmet, a $200 Fanatics gift card, the physical People's Cup, and permanent recognition; the First Round Crown winner receives a $100 Fanatics gift card; and the Random Draw winner receives a $50 Fanatics gift card.
 - The People's Cup may be kept permanently by the champion or voluntarily returned to continue the passing-trophy tradition.
 - The full Champion package has an approximate retail value of $450, including an approximately $200 full-size signed helmet authenticated by PSA/DNA or JSA.
 - If an irreducible official tie remains for the Champion or First Round Crown, every tied eligible winner receives the full applicable prize package; prizes are not divided.
-- The 5,000-Board second/third-place unlock remains approved. Its exact prize components and approximate retail values remain unresolved under UR-007.
+- The 5,000-Board prize boost is fully approved. The boosted Champion package has an approximate retail value of $650; second- and third-place gift cards have exact face values of $200 and $100.
 - Weeks 1-17 Half-PPR count.
 - Week 18 is excluded.
 - All real-world outcomes after Official Entry count.

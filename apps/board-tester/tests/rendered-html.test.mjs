@@ -258,7 +258,10 @@ test("publishes the contest guide and approved 2026 prize lineup", async () => {
   assert.match(prizes, /First Round Crown/);
   assert.match(prizes, /\$100 Fanatics gift card/);
   assert.match(prizes, /\$50 Fanatics gift card/);
-  assert.match(prizes, /Second- and third-place prizes unlock at 5,000 official Boards/);
+  assert.match(prizes, /prize pool levels up at 5,000 official Boards/);
+  assert.match(prizes, /gift card doubles from \$200 to \$400/);
+  assert.match(prizes, /Second place receives a \$200 Fanatics gift card/);
+  assert.match(prizes, /third place[\s\S]*\$100 Fanatics gift card/);
   assert.match(prizes, /each tied eligible winner receives the full/);
   assert.match(scoring, /80%/);
   assert.match(scoring, /70% Season Value/);

@@ -67,10 +67,12 @@ export default function PrizesPage() {
       <section className="contest-callout precision-callout">
         <div>
           <span className="panel-kicker">5,000-Board Boost</span>
-          <h2>Second- and third-place prizes unlock at 5,000 official Boards.</h2>
+          <h2>The championship prize pool levels up at 5,000 official Boards.</h2>
           <p>
-            The additional prize components will be published in the final
-            Official Rules before public entry opens.
+            The Champion&apos;s Fanatics gift card doubles from $200 to $400.
+            Second place receives a $200 Fanatics gift card, and third place
+            receives a $100 Fanatics gift card. The signed helmet, People&apos;s Cup,
+            First Round Crown, and Random Draw prizes remain unchanged.
           </p>
         </div>
       </section>

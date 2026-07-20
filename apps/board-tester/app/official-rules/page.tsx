@@ -117,11 +117,14 @@ export default function OfficialRulesPage() {
             return it so the passing-trophy tradition can continue; return is
             never required.
           </p>
-          <div className="rules-needed">
-            At 5,000 official Boards, additional second- and third-place overall
-            prizes unlock. Their exact components and approximate retail values
-            must be published before public entry opens.
-          </div>
+          <p>
+            <strong>5,000-Board Prize Boost:</strong> If at least 5,000 valid
+            official Boards are submitted, the Champion&apos;s Fanatics gift card
+            increases from $200 to $400, second place receives a $200 Fanatics
+            gift card, and third place receives a $100 Fanatics gift card. All
+            other prize components remain unchanged. Under the boost, the
+            Champion package has an approximate retail value of $650.
+          </p>
         </section>
 
         <section>

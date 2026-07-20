@@ -46,6 +46,10 @@ const questions = [
     "One eligible final entrant is selected at random after excluding the Overall Champion and First Round Crown winner. The exact odds depend on the number of remaining eligible entries.",
   ],
   [
+    "What happens if PRC reaches 5,000 official Boards?",
+    "The Champion's Fanatics gift card doubles to $400, second place receives a $200 Fanatics gift card, and third place receives a $100 Fanatics gift card. The helmet, People's Cup, First Round Crown, and Random Draw prizes stay unchanged.",
+  ],
+  [
     "How will winners be contacted?",
     "By the verified email attached to the final Board. A potential winner has 30 days to respond and complete verification before the prize may be forfeited and an alternate selected.",
   ],
