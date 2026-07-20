@@ -23,8 +23,8 @@ export default function PrizesPage() {
           <p className="prize-tagline">The best full-season Board.</p>
           <ul>
             <li>
-              LaDainian “Greatest Fantasy Football Player of All Time”
-              Tomlinson full-size signed helmet, authenticated by PSA/DNA or JSA
+              LaDainian Tomlinson full-size signed helmet, authenticated by
+              PSA/DNA or JSA
             </li>
             <li>$200 Fanatics gift card</li>
             <li>The physical People&apos;s Cup trophy</li>

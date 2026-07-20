@@ -204,6 +204,9 @@ test("keeps draft recovery optional and requires verified email at submission", 
   assert.match(component, /value=\{verificationCode\}/);
   assert.match(component, /code: verificationCode/);
   assert.match(component, /Send PIN Reset Code/);
+  assert.match(component, /name="pinRecoveryCode"/);
+  assert.match(component, /value=\{pinRecoveryCode\}/);
+  assert.match(component, /code: pinRecoveryCode/);
   assert.match(component, /Verify your email above to unlock permanent submission/);
   assert.match(emailSender, /https:\/\/api\.resend\.com\/emails/);
   assert.match(emailSender, /no-reply@updates\.redraftblitz\.com/);
@@ -258,7 +261,8 @@ test("publishes the contest guide and approved 2026 prize lineup", async () => {
   ]);
 
   assert.match(howItWorks, /Weeks 1–17 count; Week 18 does not/);
-  assert.match(prizes, /LaDainian “Greatest Fantasy Football Player of All Time”/);
+  assert.match(prizes, /LaDainian Tomlinson full-size signed helmet/);
+  assert.doesNotMatch(prizes, /Greatest Fantasy Football Player of All Time/);
   assert.match(prizes, /\$200 Fanatics gift card/);
   assert.match(prizes, /Approximate package value: \$450/);
   assert.match(prizes, /approximately \$200/);

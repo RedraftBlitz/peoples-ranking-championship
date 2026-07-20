@@ -153,6 +153,7 @@ export function BoardTester() {
   const [verificationCodeSent, setVerificationCodeSent] = useState(false);
   const [verificationEmail, setVerificationEmail] = useState("");
   const [verificationCode, setVerificationCode] = useState("");
+  const [pinRecoveryCode, setPinRecoveryCode] = useState("");
   const [pinRecoveryDetails, setPinRecoveryDetails] = useState<{
     boardName: string;
     recoveryEmail: string;
@@ -444,6 +445,7 @@ export function BoardTester() {
     if (next === "recovery") {
       setPinRecoveryDetails(null);
       setPinRecoveryComplete(false);
+      setPinRecoveryCode("");
     }
     if (next === "entry") {
       setVerificationCodeSent(false);
@@ -584,6 +586,7 @@ export function BoardTester() {
         boardName: String(data.get("boardName") ?? "").trim(),
         recoveryEmail: String(data.get("recoveryEmail") ?? "").trim(),
       });
+      setPinRecoveryCode("");
     } catch (error) {
       setDialogError(
         error instanceof Error ? error.message : "The request could not be completed.",
@@ -617,7 +620,7 @@ export function BoardTester() {
         headers: { "content-type": "application/json" },
         body: JSON.stringify({
           ...pinRecoveryDetails,
-          code: data.get("code"),
+          code: pinRecoveryCode,
           newPin,
         }),
       });
@@ -626,6 +629,7 @@ export function BoardTester() {
         throw new Error(payload.error ?? "The PIN could not be reset.");
       }
       setPinRecoveryComplete(true);
+      setPinRecoveryCode("");
       setDialogMessage(
         payload.message ?? "PIN reset complete. Recover your Board with the new PIN.",
       );
@@ -1441,12 +1445,21 @@ export function BoardTester() {
                         Six-digit reset code
                         <input
                           className="pin-input"
-                          name="code"
+                          name="pinRecoveryCode"
                           inputMode="numeric"
                           pattern="[0-9]{6}"
                           minLength={6}
                           maxLength={6}
                           autoComplete="one-time-code"
+                          value={pinRecoveryCode}
+                          onChange={(event) => {
+                            const candidate = event.target.value;
+                            setPinRecoveryCode(
+                              /[^\d\s-]/.test(candidate)
+                                ? ""
+                                : candidate.replace(/\D/g, "").slice(0, 6),
+                            );
+                          }}
                           required
                           autoFocus
                         />
@@ -1491,6 +1504,7 @@ export function BoardTester() {
                         type="button"
                         onClick={() => {
                           setPinRecoveryDetails(null);
+                          setPinRecoveryCode("");
                           setDialogError("");
                           setDialogMessage("");
                         }}
