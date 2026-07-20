@@ -213,3 +213,28 @@ test("keeps draft recovery optional and requires verified email at submission", 
   assert.match(migration, /CREATE TABLE `email_verification_requests`/);
   assert.match(migration, /ALTER TABLE `boards` ADD `recovery_email_verified_at`/);
 });
+
+test("adds a private contest control room with safe final-entry exports", async () => {
+  const [page, component, dashboardRoute, exportRoute, updateCenter] = await Promise.all([
+    readFile(new URL("app/admin/page.tsx", projectRoot), "utf8"),
+    readFile(new URL("app/components/AdminDashboard.tsx", projectRoot), "utf8"),
+    readFile(new URL("app/api/admin/dashboard/route.ts", projectRoot), "utf8"),
+    readFile(new URL("app/api/admin/entries/export/route.ts", projectRoot), "utf8"),
+    readFile(new URL("app/components/AdminScoringUpdates.tsx", projectRoot), "utf8"),
+  ]);
+
+  assert.match(page, /requireChatGPTUser\("\/admin"\)/);
+  assert.match(page, /isAdminEmail\(user\.email\)/);
+  assert.match(component, /Contest control room/);
+  assert.match(component, /Search every Board/);
+  assert.match(component, /Resend domain pending/);
+  assert.match(component, /Download Exact Backup/);
+  assert.match(dashboardRoute, /isAdminRequest\(request\)/);
+  assert.match(dashboardRoute, /verified_final_entries/);
+  assert.match(dashboardRoute, /temporarily_pin_locked/);
+  assert.match(dashboardRoute, /leaderboard_publications/);
+  assert.match(exportRoute, /containsPrivateContactInformation: true/);
+  assert.match(exportRoute, /excludesCredentials: true/);
+  assert.doesNotMatch(exportRoute, /pin_hash|pin_salt|token_hash|token_salt/);
+  assert.match(updateCenter, /href="\/admin"/);
+});

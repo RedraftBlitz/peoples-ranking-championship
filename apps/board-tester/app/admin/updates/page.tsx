@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { requireChatGPTUser } from "../../chatgpt-auth";
 import { isAdminEmail } from "../../lib/admin-auth";
 import { AdminScoringUpdates } from "../../components/AdminScoringUpdates";
@@ -19,7 +20,7 @@ export default async function AdminUpdatesPage() {
           <span className="panel-kicker">PRC administration</span>
           <h1>Administrator access required</h1>
           <p>This scoring-review page is restricted to the contest owner.</p>
-          <a className="button secondary" href="/">Return to the Board tester</a>
+          <Link className="button secondary" href="/">Return to the Board tester</Link>
         </section>
       </main>
     );

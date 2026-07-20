@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { FormEvent, useCallback, useEffect, useState } from "react";
 import { AdminMarketUpdates } from "./AdminMarketUpdates";
 
@@ -129,7 +130,10 @@ export function AdminScoringUpdates({ displayName }: { displayName: string }) {
         <div className="admin-user">
           <span>Signed in as</span>
           <strong>{displayName}</strong>
-          <a href="/">Board tester</a>
+          <nav aria-label="Admin navigation">
+            <Link href="/admin">Contest dashboard</Link>
+            <Link href="/">Board tester</Link>
+          </nav>
         </div>
       </header>
 
