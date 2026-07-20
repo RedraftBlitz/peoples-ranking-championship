@@ -58,7 +58,6 @@ test("keeps ranking controls with the user", async () => {
   assert.match(component, /setFollowedPlayerId\(id\)/);
   assert.match(component, /scrollIntoView/);
   assert.match(component, /autoScrollWhileDragging\(event\.clientY\)/);
-  assert.match(component, /Build your Board\./);
   assert.match(component, /Build Your Board/);
   assert.match(styles, /\.floating-undo\s*\{[\s\S]*position:\s*fixed/);
 });

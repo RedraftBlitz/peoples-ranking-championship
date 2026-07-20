@@ -593,7 +593,7 @@ export function BoardTester() {
             {activeView === "board"
               ? isEntered
                 ? "Your Board is final."
-                : "Build your Board."
+                : "Build Your Board"
               : "Follow every Board."}
           </h1>
           {activeView === "board" ? (
