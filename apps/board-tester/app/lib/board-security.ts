@@ -62,10 +62,17 @@ export function createSession() {
   return { token, expiresAt };
 }
 
-export function createRecoveryToken() {
-  const token = randomToken();
-  const expiresAt = new Date(Date.now() + 30 * 60 * 1000).toISOString();
-  return { token, expiresAt };
+export function createEmailCode() {
+  const range = 900_000;
+  const limit = Math.floor(0x1_0000_0000 / range) * range;
+  const random = new Uint32Array(1);
+  do {
+    crypto.getRandomValues(random);
+  } while (random[0] >= limit);
+
+  const code = String(100_000 + (random[0] % range));
+  const expiresAt = new Date(Date.now() + 10 * 60 * 1000).toISOString();
+  return { code, expiresAt };
 }
 
 export function readSessionToken(request: Request) {

@@ -15,6 +15,7 @@ import {
   ENTRY_RULES_VERSION,
   entryDeadlinePassed,
 } from "../../../../lib/entry-rules";
+import { submissionEmailVerificationRequired } from "../../../../lib/email-delivery";
 
 type PinRow = {
   pin_salt: string;
@@ -46,6 +47,15 @@ export async function POST(
       return Response.json(
         { error: "The September 9, 2026 entry deadline has passed." },
         { status: 409 },
+      );
+    }
+    if (
+      submissionEmailVerificationRequired() &&
+      (!board.recovery_email || !board.recovery_email_verified_at)
+    ) {
+      return Response.json(
+        { error: "Verify a contact email before permanently submitting this Board." },
+        { status: 400 },
       );
     }
 
@@ -136,6 +146,7 @@ export async function POST(
       acceptedDeadline: true,
       confirmedBoardName: true,
       confirmedPin: true,
+      verifiedContactEmail: Boolean(board.recovery_email_verified_at),
     };
     await db.batch([
       db
@@ -203,4 +214,3 @@ export async function POST(
     );
   }
 }
-

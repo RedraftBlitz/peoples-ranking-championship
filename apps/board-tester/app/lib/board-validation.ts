@@ -37,11 +37,18 @@ export function normalizeEmail(value: string) {
   return value.trim().toLocaleLowerCase("en-US");
 }
 
-export function validateEmail(value: string) {
+export function validateEmail(value: string, required = false) {
+  if (required && !value) return "Email is required.";
   if (!value) return null;
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
     ? null
-    : "Enter a valid recovery email.";
+    : "Enter a valid email address.";
+}
+
+export function validateEmailCode(value: string) {
+  return /^\d{6}$/.test(value)
+    ? null
+    : "Verification code must contain exactly six digits.";
 }
 
 export async function validateBoardState(order: unknown, personalIds: unknown) {

@@ -36,7 +36,8 @@ export async function POST(request: Request) {
     const db = getD1();
     const board = await db
       .prepare(
-        `SELECT b.id, b.board_name, b.recovery_email, b.order_json,
+        `SELECT b.id, b.board_name, b.recovery_email, b.recovery_email_verified_at,
+          b.order_json,
           b.personal_rankings_json, b.status, b.updated_at, b.pin_salt, b.pin_hash,
           b.failed_pin_attempts, b.locked_until, e.submitted_at
          FROM boards b

@@ -171,3 +171,45 @@ test("publishes a stable preseason leaderboard and exact approved scoring", asyn
   assert.match(migration, /CREATE TABLE `leaderboard_publications`/);
   assert.match(migration, /scoring_spec_version/);
 });
+
+test("keeps draft recovery optional and requires verified email at submission", async () => {
+  const [
+    component,
+    emailSender,
+    emailStatus,
+    verificationSend,
+    verificationCheck,
+    recoveryRequest,
+    recoveryReset,
+    submitRoute,
+    migration,
+  ] = await Promise.all([
+    readFile(new URL("app/components/BoardTester.tsx", projectRoot), "utf8"),
+    readFile(new URL("app/lib/email-delivery.ts", projectRoot), "utf8"),
+    readFile(new URL("app/api/email/status/route.ts", projectRoot), "utf8"),
+    readFile(new URL("app/api/boards/[id]/email/send-code/route.ts", projectRoot), "utf8"),
+    readFile(new URL("app/api/boards/[id]/email/verify/route.ts", projectRoot), "utf8"),
+    readFile(new URL("app/api/boards/recovery/route.ts", projectRoot), "utf8"),
+    readFile(new URL("app/api/boards/recovery/reset/route.ts", projectRoot), "utf8"),
+    readFile(new URL("app/api/boards/[id]/submit/route.ts", projectRoot), "utf8"),
+    readFile(new URL("drizzle/0005_fluffy_bromley.sql", projectRoot), "utf8"),
+  ]);
+
+  assert.match(component, /Recovery email <em>optional<\/em>/);
+  assert.match(component, /A verified email is required for final submission/);
+  assert.match(component, /Send Verification Code/);
+  assert.match(component, /Send PIN Reset Code/);
+  assert.match(component, /Verify your email above to unlock permanent submission/);
+  assert.match(emailSender, /https:\/\/api\.resend\.com\/emails/);
+  assert.match(emailSender, /no-reply@updates\.redraftblitz\.com/);
+  assert.match(emailStatus, /submissionEmailVerificationRequired\(\)/);
+  assert.match(verificationSend, /Please wait one minute/);
+  assert.match(verificationCheck, /failedAttempts|failed_attempts/);
+  assert.match(recoveryRequest, /GENERIC_MESSAGE/);
+  assert.match(recoveryReset, /DELETE FROM board_sessions/);
+  assert.match(recoveryReset, /recovery_email_verified_at/);
+  assert.match(submitRoute, /submissionEmailVerificationRequired\(\)/);
+  assert.match(submitRoute, /Verify a contact email before permanently submitting/);
+  assert.match(migration, /CREATE TABLE `email_verification_requests`/);
+  assert.match(migration, /ALTER TABLE `boards` ADD `recovery_email_verified_at`/);
+});

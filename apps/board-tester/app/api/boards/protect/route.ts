@@ -83,6 +83,10 @@ export async function POST(request: Request) {
           id,
           name: boardName,
           hasRecoveryEmail: Boolean(recoveryEmail),
+          recoveryEmailMasked: recoveryEmail
+            ? `${recoveryEmail.slice(0, 1)}***@${recoveryEmail.split("@")[1]}`
+            : null,
+          isRecoveryEmailVerified: false,
           status: "protected_draft",
           order: payload.order,
           personalIds: payload.personalIds,

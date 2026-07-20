@@ -43,6 +43,8 @@ type ProtectedBoard = {
   id: string;
   name: string;
   hasRecoveryEmail: boolean;
+  recoveryEmailMasked: string | null;
+  isRecoveryEmailVerified: boolean;
   status: "protected_draft" | "entered";
   submittedAt: string | null;
 };
@@ -51,6 +53,13 @@ type BoardResponse = {
   board?: ProtectedBoard & BoardSnapshot;
   error?: string;
   message?: string;
+  next?: "enter_code";
+  alreadyVerified?: boolean;
+};
+
+type EmailStatusResponse = {
+  configured: boolean;
+  submissionVerificationRequired: boolean;
 };
 
 type DialogName =
@@ -140,6 +149,14 @@ export function BoardTester() {
   const [busy, setBusy] = useState(false);
   const [activeView, setActiveView] = useState<AppView>("board");
   const [entryClosed, setEntryClosed] = useState(false);
+  const [emailVerificationRequired, setEmailVerificationRequired] = useState(false);
+  const [verificationCodeSent, setVerificationCodeSent] = useState(false);
+  const [verificationEmail, setVerificationEmail] = useState("");
+  const [pinRecoveryDetails, setPinRecoveryDetails] = useState<{
+    boardName: string;
+    recoveryEmail: string;
+  } | null>(null);
+  const [pinRecoveryComplete, setPinRecoveryComplete] = useState(false);
   const playerById = useMemo(
     () => new Map(players.map((player) => [player.id, player])),
     [players],
@@ -151,6 +168,26 @@ export function BoardTester() {
     updateDeadline();
     const interval = window.setInterval(updateDeadline, 30_000);
     return () => window.clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    const loadEmailStatus = async () => {
+      try {
+        const response = await fetch("/api/email/status", { cache: "no-store" });
+        if (!response.ok) return;
+        const status = (await response.json()) as EmailStatusResponse;
+        if (!cancelled) {
+          setEmailVerificationRequired(status.submissionVerificationRequired);
+        }
+      } catch {
+        // Email remains non-blocking while delivery is being connected.
+      }
+    };
+    void loadEmailStatus();
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   useEffect(() => {
@@ -187,7 +224,12 @@ export function BoardTester() {
           nextOrder = reconcileOrder(saved.order, nextDefaultOrder, nextById) ?? nextOrder;
           if (validPersonalIds(saved.personalIds, nextById)) nextPersonalIds = saved.personalIds;
           if (saved.protectedBoard?.id && saved.protectedBoard.name) {
-            nextProtectedBoard = saved.protectedBoard;
+            nextProtectedBoard = {
+              ...saved.protectedBoard,
+              recoveryEmailMasked: saved.protectedBoard.recoveryEmailMasked ?? null,
+              isRecoveryEmailVerified:
+                saved.protectedBoard.isRecoveryEmailVerified ?? false,
+            };
           }
         } else {
           const legacy = window.localStorage.getItem(LEGACY_STORAGE_KEY);
@@ -398,6 +440,10 @@ export function BoardTester() {
   function openDialog(next: DialogName) {
     setDialogError("");
     setDialogMessage("");
+    if (next === "recovery") {
+      setPinRecoveryDetails(null);
+      setPinRecoveryComplete(false);
+    }
     setDialog(next);
   }
 
@@ -437,6 +483,8 @@ export function BoardTester() {
         id: payload.board.id,
         name: payload.board.name,
         hasRecoveryEmail: payload.board.hasRecoveryEmail,
+        recoveryEmailMasked: payload.board.recoveryEmailMasked,
+        isRecoveryEmailVerified: payload.board.isRecoveryEmailVerified,
         status: "protected_draft",
         submittedAt: null,
       });
@@ -485,6 +533,8 @@ export function BoardTester() {
         id: payload.board.id,
         name: payload.board.name,
         hasRecoveryEmail: payload.board.hasRecoveryEmail,
+        recoveryEmailMasked: payload.board.recoveryEmailMasked,
+        isRecoveryEmailVerified: payload.board.isRecoveryEmailVerified,
         status: payload.board.status,
         submittedAt: payload.board.submittedAt,
       });
@@ -522,8 +572,12 @@ export function BoardTester() {
       if (!response.ok) throw new Error(payload.error ?? "Check those details.");
       setDialogMessage(
         payload.message ??
-          "If the details match, PIN reset instructions will be sent.",
+          "If the details match, a six-digit PIN reset code has been sent.",
       );
+      setPinRecoveryDetails({
+        boardName: String(data.get("boardName") ?? "").trim(),
+        recoveryEmail: String(data.get("recoveryEmail") ?? "").trim(),
+      });
     } catch (error) {
       setDialogError(
         error instanceof Error ? error.message : "The request could not be completed.",
@@ -533,9 +587,150 @@ export function BoardTester() {
     }
   }
 
+  async function resetRecoveredPin(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!pinRecoveryDetails) return;
+    setDialogError("");
+    setDialogMessage("");
+    setBusy(true);
+    const data = new FormData(event.currentTarget);
+    const newPin = String(data.get("newPin") ?? "").replace(/\D/g, "");
+    const confirmation = String(data.get("newPinConfirmation") ?? "").replace(
+      /\D/g,
+      "",
+    );
+    if (newPin !== confirmation) {
+      setDialogError("The two new PIN entries do not match.");
+      setBusy(false);
+      return;
+    }
+
+    try {
+      const response = await fetch("/api/boards/recovery/reset", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          ...pinRecoveryDetails,
+          code: data.get("code"),
+          newPin,
+        }),
+      });
+      const payload = (await response.json()) as BoardResponse;
+      if (!response.ok) {
+        throw new Error(payload.error ?? "The PIN could not be reset.");
+      }
+      setPinRecoveryComplete(true);
+      setDialogMessage(
+        payload.message ?? "PIN reset complete. Recover your Board with the new PIN.",
+      );
+    } catch (error) {
+      setDialogError(
+        error instanceof Error ? error.message : "The PIN could not be reset.",
+      );
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function sendSubmissionVerification(
+    event: FormEvent<HTMLFormElement>,
+  ) {
+    event.preventDefault();
+    if (!protectedBoard || protectedBoard.status === "entered") return;
+    setDialogError("");
+    setDialogMessage("");
+    setBusy(true);
+    const data = new FormData(event.currentTarget);
+    const email = String(data.get("email") ?? "").trim();
+    try {
+      const response = await fetch(
+        `/api/boards/${protectedBoard.id}/email/send-code`,
+        {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ email }),
+        },
+      );
+      const payload = (await response.json()) as BoardResponse;
+      if (!response.ok) {
+        throw new Error(payload.error ?? "The verification code could not be sent.");
+      }
+      if (payload.board?.isRecoveryEmailVerified) {
+        setProtectedBoard({
+          id: payload.board.id,
+          name: payload.board.name,
+          hasRecoveryEmail: payload.board.hasRecoveryEmail,
+          recoveryEmailMasked: payload.board.recoveryEmailMasked,
+          isRecoveryEmailVerified: true,
+          status: payload.board.status,
+          submittedAt: payload.board.submittedAt,
+        });
+        setDialogMessage("That email is already verified.");
+        return;
+      }
+      setVerificationEmail(email);
+      setVerificationCodeSent(true);
+      setDialogMessage(payload.message ?? "Verification code sent.");
+    } catch (error) {
+      setDialogError(
+        error instanceof Error
+          ? error.message
+          : "The verification code could not be sent.",
+      );
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function verifySubmissionEmail(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!protectedBoard || !verificationEmail) return;
+    setDialogError("");
+    setDialogMessage("");
+    setBusy(true);
+    const data = new FormData(event.currentTarget);
+    try {
+      const response = await fetch(
+        `/api/boards/${protectedBoard.id}/email/verify`,
+        {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({
+            email: verificationEmail,
+            code: data.get("code"),
+          }),
+        },
+      );
+      const payload = (await response.json()) as BoardResponse;
+      if (!response.ok || !payload.board) {
+        throw new Error(payload.error ?? "The email could not be verified.");
+      }
+      setProtectedBoard({
+        id: payload.board.id,
+        name: payload.board.name,
+        hasRecoveryEmail: payload.board.hasRecoveryEmail,
+        recoveryEmailMasked: payload.board.recoveryEmailMasked,
+        isRecoveryEmailVerified: payload.board.isRecoveryEmailVerified,
+        status: payload.board.status,
+        submittedAt: payload.board.submittedAt,
+      });
+      setVerificationCodeSent(false);
+      setDialogMessage(payload.message ?? "Email verified.");
+    } catch (error) {
+      setDialogError(
+        error instanceof Error ? error.message : "The email could not be verified.",
+      );
+    } finally {
+      setBusy(false);
+    }
+  }
+
   function continueToFinalConfirmation(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setDialogError("");
+    setDialogMessage("");
+    setVerificationCodeSent(false);
+    setVerificationEmail("");
     setDialog("entryConfirm");
   }
 
@@ -567,6 +762,8 @@ export function BoardTester() {
         id: payload.board.id,
         name: payload.board.name,
         hasRecoveryEmail: payload.board.hasRecoveryEmail,
+        recoveryEmailMasked: payload.board.recoveryEmailMasked,
+        isRecoveryEmailVerified: payload.board.isRecoveryEmailVerified,
         status: "entered",
         submittedAt: payload.board.submittedAt,
       });
@@ -574,6 +771,12 @@ export function BoardTester() {
       setSaveState("Final Board permanently locked");
       setDialog("entryComplete");
     } catch (error) {
+      if (
+        error instanceof Error &&
+        error.message.includes("Verify a contact email")
+      ) {
+        setEmailVerificationRequired(true);
+      }
       setDialogError(
         error instanceof Error
           ? error.message
@@ -679,9 +882,11 @@ export function BoardTester() {
               {isEntered
                 ? `Permanently locked · ${formatSubmittedAt(protectedBoard?.submittedAt ?? null)}`
                 : protectedBoard
-                ? protectedBoard.hasRecoveryEmail
-                  ? "PIN protected · recovery email added"
-                  : "PIN protected · no recovery email"
+                ? protectedBoard.isRecoveryEmailVerified
+                  ? "PIN protected · contact email verified"
+                  : protectedBoard.hasRecoveryEmail
+                    ? "PIN protected · recovery email added"
+                    : "PIN protected · no recovery email"
                 : "Saved on this device until you protect it."}
             </p>
           </div>
@@ -697,6 +902,13 @@ export function BoardTester() {
           <span className={protectedBoard ? "ready" : "waiting"}>
             {isEntered ? "Final & locked" : protectedBoard ? "Protected" : "Protection needed"}
           </span>
+          {protectedBoard && !isEntered && (
+            <span className={protectedBoard.isRecoveryEmailVerified ? "ready" : "waiting"}>
+              {protectedBoard.isRecoveryEmailVerified
+                ? "Email verified"
+                : "Email verified at submission"}
+            </span>
+          )}
         </div>
 
         <div className="draft-actions">
@@ -1129,7 +1341,9 @@ export function BoardTester() {
                   <label>
                     Recovery email <em>optional</em>
                     <input name="recoveryEmail" type="email" autoComplete="email" />
-                    <small>Without it, a forgotten PIN cannot be reset.</small>
+                    <small>
+                      Optional while drafting. A verified email is required for final submission.
+                    </small>
                   </label>
                   {dialogError && <p className="form-error">{dialogError}</p>}
                   <button className="dialog-submit" type="submit" disabled={busy}>
@@ -1184,28 +1398,112 @@ export function BoardTester() {
               <>
                 <span className="panel-kicker">PIN recovery</span>
                 <h2 id="dialog-title">Reset a forgotten PIN</h2>
-                <p className="dialog-intro">
-                  Enter the Board Name and recovery email added during protection.
-                  The original PIN is never stored in readable form.
-                </p>
-                <form className="dialog-form" onSubmit={requestPinRecovery}>
-                  <label>
-                    Board Name
-                    <input name="boardName" required autoFocus />
-                  </label>
-                  <label>
-                    Recovery email
-                    <input name="recoveryEmail" type="email" required />
-                  </label>
-                  {dialogError && <p className="form-error">{dialogError}</p>}
-                  {dialogMessage && <p className="form-success">{dialogMessage}</p>}
-                  <button className="dialog-submit" type="submit" disabled={busy}>
-                    {busy ? "Checking…" : "Send PIN reset link"}
-                  </button>
-                  <p className="prototype-note">
-                    Email delivery is not active in this private prototype yet.
-                  </p>
-                </form>
+                {pinRecoveryComplete ? (
+                  <div className="recovery-complete">
+                    <p className="form-success">{dialogMessage}</p>
+                    <p className="dialog-intro">
+                      The old PIN no longer works. Your Board itself was not changed.
+                    </p>
+                    <button
+                      className="dialog-submit"
+                      type="button"
+                      onClick={() => openDialog("unlock")}
+                    >
+                      Recover My Board
+                    </button>
+                  </div>
+                ) : pinRecoveryDetails ? (
+                  <>
+                    <p className="dialog-intro">
+                      Enter the six-digit code from the email, then choose a new PIN.
+                      The code expires after 10 minutes.
+                    </p>
+                    <form className="dialog-form" onSubmit={resetRecoveredPin}>
+                      <label>
+                        Six-digit reset code
+                        <input
+                          className="pin-input"
+                          name="code"
+                          inputMode="numeric"
+                          pattern="[0-9]{6}"
+                          minLength={6}
+                          maxLength={6}
+                          autoComplete="one-time-code"
+                          required
+                          autoFocus
+                        />
+                      </label>
+                      <div className="pin-grid">
+                        <label>
+                          New six-digit PIN
+                          <input
+                            className="pin-input"
+                            name="newPin"
+                            type="password"
+                            inputMode="numeric"
+                            pattern="[0-9]{6}"
+                            minLength={6}
+                            maxLength={6}
+                            autoComplete="new-password"
+                            required
+                          />
+                        </label>
+                        <label>
+                          Confirm new PIN
+                          <input
+                            className="pin-input"
+                            name="newPinConfirmation"
+                            type="password"
+                            inputMode="numeric"
+                            pattern="[0-9]{6}"
+                            minLength={6}
+                            maxLength={6}
+                            autoComplete="new-password"
+                            required
+                          />
+                        </label>
+                      </div>
+                      {dialogError && <p className="form-error">{dialogError}</p>}
+                      {dialogMessage && <p className="form-success">{dialogMessage}</p>}
+                      <button className="dialog-submit" type="submit" disabled={busy}>
+                        {busy ? "Resetting…" : "Reset PIN"}
+                      </button>
+                      <button
+                        className="text-button"
+                        type="button"
+                        onClick={() => {
+                          setPinRecoveryDetails(null);
+                          setDialogError("");
+                          setDialogMessage("");
+                        }}
+                      >
+                        Send a new code
+                      </button>
+                    </form>
+                  </>
+                ) : (
+                  <>
+                    <p className="dialog-intro">
+                      Enter the Board Name and recovery email added during protection.
+                      The original PIN is never stored in readable form.
+                    </p>
+                    <form className="dialog-form" onSubmit={requestPinRecovery}>
+                      <label>
+                        Board Name
+                        <input name="boardName" required autoFocus />
+                      </label>
+                      <label>
+                        Recovery email
+                        <input name="recoveryEmail" type="email" required />
+                      </label>
+                      {dialogError && <p className="form-error">{dialogError}</p>}
+                      {dialogMessage && <p className="form-success">{dialogMessage}</p>}
+                      <button className="dialog-submit" type="submit" disabled={busy}>
+                        {busy ? "Sending…" : "Send PIN Reset Code"}
+                      </button>
+                    </form>
+                  </>
+                )}
               </>
             )}
 
@@ -1222,6 +1520,14 @@ export function BoardTester() {
                   <div className="complete"><span>✓</span><strong>No duplicate players or ranks</strong></div>
                   <div className="complete"><span>✓</span><strong>{personalIds.length} direct Personal Ranking{personalIds.length === 1 ? "" : "s"}</strong></div>
                   <div className="complete"><span>✓</span><strong>Protected as {protectedBoard?.name}</strong></div>
+                  <div className={protectedBoard?.isRecoveryEmailVerified ? "complete" : "blocked"}>
+                    <span>{protectedBoard?.isRecoveryEmailVerified ? "✓" : "!"}</span>
+                    <strong>
+                      {protectedBoard?.isRecoveryEmailVerified
+                        ? `Contact email verified · ${protectedBoard.recoveryEmailMasked}`
+                        : "Contact email will be verified in Step 2"}
+                    </strong>
+                  </div>
                   <div className="complete"><span>✓</span><strong>Deadline: September 9 at 4:00 PM Eastern</strong></div>
                 </div>
                 <div className="final-top-150" aria-label="Final Top 150 review">
@@ -1270,6 +1576,74 @@ export function BoardTester() {
                     The September 9 deadline does not provide an editing window after submission.
                   </p>
                 </div>
+                <section className={`email-verification ${protectedBoard?.isRecoveryEmailVerified ? "verified" : ""}`}>
+                  <div className="email-verification-heading">
+                    <span aria-hidden="true">
+                      {protectedBoard?.isRecoveryEmailVerified ? "✓" : "@"}
+                    </span>
+                    <div>
+                      <strong>
+                        {protectedBoard?.isRecoveryEmailVerified
+                          ? "Contact email verified"
+                          : "Verify your contact email"}
+                      </strong>
+                      <small>
+                        {protectedBoard?.isRecoveryEmailVerified
+                          ? protectedBoard.recoveryEmailMasked
+                          : emailVerificationRequired
+                            ? "Required to submit and used for PIN recovery."
+                            : "Required at launch. Delivery is still being connected in this tester."}
+                      </small>
+                    </div>
+                  </div>
+
+                  {emailVerificationRequired && !protectedBoard?.isRecoveryEmailVerified && (
+                    verificationCodeSent ? (
+                      <form className="email-verification-form" onSubmit={verifySubmissionEmail}>
+                        <label>
+                          Code sent to {verificationEmail}
+                          <input
+                            className="pin-input"
+                            name="code"
+                            inputMode="numeric"
+                            pattern="[0-9]{6}"
+                            minLength={6}
+                            maxLength={6}
+                            autoComplete="one-time-code"
+                            required
+                            autoFocus
+                          />
+                        </label>
+                        <button className="button gold" type="submit" disabled={busy}>
+                          {busy ? "Verifying…" : "Verify Email"}
+                        </button>
+                        <button
+                          className="text-button"
+                          type="button"
+                          onClick={() => {
+                            setVerificationCodeSent(false);
+                            setDialogError("");
+                            setDialogMessage("");
+                          }}
+                        >
+                          Use a different email
+                        </button>
+                      </form>
+                    ) : (
+                      <form className="email-verification-form" onSubmit={sendSubmissionVerification}>
+                        <label>
+                          Contact email
+                          <input name="email" type="email" autoComplete="email" required autoFocus />
+                        </label>
+                        <button className="button gold" type="submit" disabled={busy}>
+                          {busy ? "Sending…" : "Send Verification Code"}
+                        </button>
+                      </form>
+                    )
+                  )}
+                </section>
+                {dialogError && <p className="form-error">{dialogError}</p>}
+                {dialogMessage && <p className="form-success">{dialogMessage}</p>}
                 <form className="dialog-form" onSubmit={finallySubmitBoard}>
                   <label>
                     Type your exact Board Name
@@ -1278,7 +1652,10 @@ export function BoardTester() {
                       autoComplete="off"
                       placeholder={protectedBoard?.name}
                       required
-                      autoFocus
+                      autoFocus={
+                        !emailVerificationRequired ||
+                        Boolean(protectedBoard?.isRecoveryEmailVerified)
+                      }
                     />
                     <small>This confirms which Board will be permanently locked.</small>
                   </label>
@@ -1297,15 +1674,27 @@ export function BoardTester() {
                     />
                     <small>Your PIN is verified securely and is never stored in readable form.</small>
                   </label>
-                  {dialogError && <p className="form-error">{dialogError}</p>}
                   <div className="final-confirmation-actions">
                     <button className="button ghost" type="button" onClick={() => setDialog("entry")} disabled={busy}>
                       Go Back
                     </button>
-                    <button className="dialog-submit danger" type="submit" disabled={busy}>
+                    <button
+                      className="dialog-submit danger"
+                      type="submit"
+                      disabled={
+                        busy ||
+                        (emailVerificationRequired &&
+                          !protectedBoard?.isRecoveryEmailVerified)
+                      }
+                    >
                       {busy ? "Permanently submitting…" : "Permanently Submit My Board"}
                     </button>
                   </div>
+                  {emailVerificationRequired && !protectedBoard?.isRecoveryEmailVerified && (
+                    <small className="submission-blocked-note">
+                      Verify your email above to unlock permanent submission.
+                    </small>
+                  )}
                 </form>
               </>
             )}

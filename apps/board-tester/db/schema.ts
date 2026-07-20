@@ -12,6 +12,7 @@ export const boards = sqliteTable(
     pinHash: text("pin_hash").notNull(),
     recoveryEmail: text("recovery_email"),
     recoveryEmailKey: text("recovery_email_key"),
+    recoveryEmailVerifiedAt: text("recovery_email_verified_at"),
     orderJson: text("order_json").notNull(),
     personalRankingsJson: text("personal_rankings_json").notNull().default("[]"),
     status: text("status").notNull().default("protected_draft"),
@@ -45,10 +46,37 @@ export const pinRecoveryRequests = sqliteTable("pin_recovery_requests", {
     .notNull()
     .references(() => boards.id, { onDelete: "cascade" }),
   tokenHash: text("token_hash").notNull(),
+  tokenSalt: text("token_salt"),
   expiresAt: text("expires_at").notNull(),
+  failedAttempts: integer("failed_attempts").notNull().default(0),
   usedAt: text("used_at"),
   createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
 });
+
+export const emailVerificationRequests = sqliteTable(
+  "email_verification_requests",
+  {
+    id: text("id").primaryKey(),
+    boardId: text("board_id")
+      .notNull()
+      .references(() => boards.id, { onDelete: "cascade" }),
+    email: text("email").notNull(),
+    emailKey: text("email_key").notNull(),
+    purpose: text("purpose").notNull().default("official_submission"),
+    codeSalt: text("code_salt").notNull(),
+    codeHash: text("code_hash").notNull(),
+    expiresAt: text("expires_at").notNull(),
+    failedAttempts: integer("failed_attempts").notNull().default(0),
+    usedAt: text("used_at"),
+    createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+  },
+  (table) => [
+    index("email_verification_board_created_idx").on(
+      table.boardId,
+      table.createdAt,
+    ),
+  ],
+);
 
 export const boardEntries = sqliteTable(
   "board_entries",

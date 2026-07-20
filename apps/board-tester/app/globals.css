@@ -1462,6 +1462,11 @@ footer a {
   text-align: center;
 }
 
+.recovery-complete {
+  display: grid;
+  gap: 14px;
+}
+
 .entry-checks {
   display: grid;
   gap: 8px;
@@ -1597,6 +1602,107 @@ footer a {
   margin: 5px 0 0;
   font-size: 0.7rem;
   line-height: 1.5;
+}
+
+.email-verification {
+  display: grid;
+  gap: 13px;
+  margin: 0 0 17px;
+  padding: 14px;
+  border: 1px solid #d6c892;
+  border-radius: 10px;
+  background: #fbf5df;
+}
+
+.email-verification.verified {
+  border-color: #9bcbb9;
+  background: #e4f3ec;
+}
+
+.email-verification-heading {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+}
+
+.email-verification-heading > span {
+  display: inline-grid;
+  width: 31px;
+  height: 31px;
+  flex: none;
+  place-items: center;
+  border-radius: 50%;
+  color: #fff;
+  background: #a68631;
+  font-size: 0.75rem;
+  font-weight: 900;
+}
+
+.email-verification.verified .email-verification-heading > span {
+  background: #168064;
+}
+
+.email-verification-heading div {
+  display: grid;
+  gap: 3px;
+}
+
+.email-verification-heading strong {
+  color: var(--night);
+  font-size: 0.76rem;
+}
+
+.email-verification-heading small {
+  color: var(--muted);
+  font-size: 0.62rem;
+  line-height: 1.4;
+}
+
+.email-verification-form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 9px;
+}
+
+.email-verification-form label {
+  display: grid;
+  gap: 5px;
+  color: var(--night);
+  font-size: 0.68rem;
+  font-weight: 850;
+}
+
+.email-verification-form input {
+  width: 100%;
+  height: 41px;
+  padding: 0 11px;
+  border: 1px solid #b9b59f;
+  border-radius: 8px;
+  background: #fff;
+  font-size: 0.8rem;
+  font-weight: 650;
+}
+
+.email-verification-form .pin-input {
+  font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
+  font-size: 1rem;
+  letter-spacing: 0.22em;
+}
+
+.email-verification-form .button {
+  min-height: 41px;
+}
+
+.email-verification-form .text-button {
+  grid-column: 1 / -1;
+}
+
+.submission-blocked-note {
+  color: #7b6223;
+  font-size: 0.62rem;
+  font-weight: 750;
+  text-align: center;
 }
 
 .final-confirmation-actions {
@@ -2611,6 +2717,14 @@ footer a {
 
   .pin-grid {
     grid-template-columns: 1fr;
+  }
+
+  .email-verification-form {
+    grid-template-columns: 1fr;
+  }
+
+  .email-verification-form .text-button {
+    grid-column: auto;
   }
 
   footer {

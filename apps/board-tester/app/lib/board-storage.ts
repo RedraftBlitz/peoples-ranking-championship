@@ -5,6 +5,7 @@ export type StoredBoard = {
   id: string;
   board_name: string;
   recovery_email: string | null;
+  recovery_email_verified_at: string | null;
   order_json: string;
   personal_rankings_json: string;
   status: string;
@@ -13,10 +14,16 @@ export type StoredBoard = {
 };
 
 export function publicBoard(row: StoredBoard) {
+  const [localPart = "", domain = ""] = (row.recovery_email ?? "").split("@");
+  const maskedEmail = row.recovery_email
+    ? `${localPart.slice(0, 1)}***@${domain}`
+    : null;
   return {
     id: row.id,
     name: row.board_name,
     hasRecoveryEmail: Boolean(row.recovery_email),
+    recoveryEmailMasked: maskedEmail,
+    isRecoveryEmailVerified: Boolean(row.recovery_email_verified_at),
     order: JSON.parse(row.order_json) as string[],
     personalIds: JSON.parse(row.personal_rankings_json) as string[],
     status: row.status,
@@ -40,7 +47,8 @@ export async function boardForSession(request: Request, boardId: string) {
   const db = getD1();
   const board = await db
     .prepare(
-      `SELECT b.id, b.board_name, b.recovery_email, b.order_json,
+      `SELECT b.id, b.board_name, b.recovery_email, b.recovery_email_verified_at,
+        b.order_json,
         b.personal_rankings_json, b.status, b.updated_at, e.submitted_at
        FROM boards b
        JOIN board_sessions s ON s.board_id = b.id
