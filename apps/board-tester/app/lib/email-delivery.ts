@@ -86,3 +86,16 @@ export async function sendPinResetEmail(input: {
     html: `<div style="font-family:Arial,sans-serif;color:#10272b;line-height:1.55"><p style="font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#087d79">People's Ranking Championship</p><h1 style="font-family:Georgia,serif;font-size:26px">Reset your Board PIN</h1><p>Use this code to choose a new PIN for <strong>${boardName}</strong>:</p><p style="font-size:30px;font-weight:800;letter-spacing:.2em">${code}</p><p>This code expires in 10 minutes. Your old PIN cannot be viewed or emailed.</p></div>`,
   });
 }
+
+export async function sendRandomDrawVerificationEmail(input: {
+  to: string;
+  code: string;
+}) {
+  const code = escapeHtml(input.code);
+  await sendEmail({
+    to: input.to,
+    subject: "Verify your free PRC Random Draw entry",
+    text: `Your PRC Random Draw verification code is ${input.code}. It expires in 10 minutes. No purchase or Board is required. If you did not request this, you can ignore this email.`,
+    html: `<div style="font-family:Arial,sans-serif;color:#10272b;line-height:1.55"><p style="font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#087d79">People's Ranking Championship</p><h1 style="font-family:Georgia,serif;font-size:26px">Verify your free Random Draw entry</h1><p>Use this code to complete your entry:</p><p style="font-size:30px;font-weight:800;letter-spacing:.2em">${code}</p><p>This code expires in 10 minutes. No purchase, payment, or completed Board is required.</p></div>`,
+  });
+}

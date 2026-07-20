@@ -106,6 +106,52 @@ export const boardEntries = sqliteTable(
   ],
 );
 
+export const randomDrawVerificationRequests = sqliteTable(
+  "random_draw_verification_requests",
+  {
+    id: text("id").primaryKey(),
+    email: text("email").notNull(),
+    emailKey: text("email_key").notNull(),
+    codeSalt: text("code_salt").notNull(),
+    codeHash: text("code_hash").notNull(),
+    rulesVersion: text("rules_version").notNull(),
+    expiresAt: text("expires_at").notNull(),
+    failedAttempts: integer("failed_attempts").notNull().default(0),
+    usedAt: text("used_at"),
+    createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+  },
+  (table) => [
+    index("random_draw_verification_email_created_idx").on(
+      table.emailKey,
+      table.createdAt,
+    ),
+  ],
+);
+
+export const randomDrawEntries = sqliteTable(
+  "random_draw_entries",
+  {
+    id: text("id").primaryKey(),
+    season: integer("season").notNull().default(2026),
+    email: text("email").notNull(),
+    emailKey: text("email_key").notNull(),
+    entryMethod: text("entry_method").notNull().default("free_no_board_form"),
+    rulesVersion: text("rules_version").notNull(),
+    eligibilityConfirmedAt: text("eligibility_confirmed_at").notNull(),
+    submittedAt: text("submitted_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+  },
+  (table) => [
+    uniqueIndex("random_draw_entries_season_email_unique").on(
+      table.season,
+      table.emailKey,
+    ),
+    index("random_draw_entries_season_submitted_idx").on(
+      table.season,
+      table.submittedAt,
+    ),
+  ],
+);
+
 export const scoringSnapshots = sqliteTable(
   "scoring_snapshots",
   {

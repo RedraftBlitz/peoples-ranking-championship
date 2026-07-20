@@ -278,10 +278,11 @@ test("publishes the contest guide and approved 2026 prize lineup", async () => {
   assert.match(scoring, /70% Season Value/);
   assert.match(scoring, /QB13 · RB37 · WR49 · TE13/);
   assert.match(faq, /30 days to respond/);
-  assert.match(contestPage, /Owner review draft/);
+  assert.match(contestPage, /Random Draw/);
+  assert.match(contestPage, /href="\/privacy"/);
   assert.match(officialRules, /one final Board per[\s\S]*verified email address/);
   assert.match(officialRules, /independently operated[\s\S]*personally prize-funded/);
-  assert.match(officialRules, /duplicate physical prizes when required/);
+  assert.match(officialRules, /duplicate physical[\s\S]*prizes will be provided when required/);
   assert.match(board, /href="\/how-it-works"/);
   assert.match(board, /name="acceptedEligibility"/);
   assert.match(board, /name="acceptedOfficialRules"/);
@@ -301,7 +302,57 @@ test("enforces one final 2026 Board per verified email", async () => {
   assert.match(submitRoute, /board\.recovery_email_key/);
   assert.match(schema, /board_entries_season_email_unique/);
   assert.match(migration, /CREATE UNIQUE INDEX `board_entries_season_email_unique`/);
-  assert.match(rules, /PRC-2026-FINAL-ENTRY-v2/);
+  assert.match(rules, /PRC-2026-FINAL-ENTRY-v3/);
   assert.match(rules, /2026-09-09T22:00:00\.000Z/);
   assert.match(rules, /2026-09-10T00:20:00\.000Z/);
+  assert.match(rules, /2027-01-15T17:00:00\.000Z/);
+});
+
+test("adds a verified no-Board Random Draw entry with one chance per email", async () => {
+  const [
+    page,
+    component,
+    sendRoute,
+    verifyRoute,
+    emailDelivery,
+    schema,
+    migration,
+    officialRules,
+    privacy,
+    prizes,
+    faq,
+  ] = await Promise.all([
+    readFile(new URL("app/random-draw/page.tsx", projectRoot), "utf8"),
+    readFile(new URL("app/components/RandomDrawEntry.tsx", projectRoot), "utf8"),
+    readFile(new URL("app/api/random-draw/send-code/route.ts", projectRoot), "utf8"),
+    readFile(new URL("app/api/random-draw/verify/route.ts", projectRoot), "utf8"),
+    readFile(new URL("app/lib/email-delivery.ts", projectRoot), "utf8"),
+    readFile(new URL("db/schema.ts", projectRoot), "utf8"),
+    readFile(new URL("drizzle/0007_random_draw_entry.sql", projectRoot), "utf8"),
+    readFile(new URL("app/official-rules/page.tsx", projectRoot), "utf8"),
+    readFile(new URL("app/privacy/page.tsx", projectRoot), "utf8"),
+    readFile(new URL("app/prizes/page.tsx", projectRoot), "utf8"),
+    readFile(new URL("app/faq/page.tsx", projectRoot), "utf8"),
+  ]);
+
+  assert.match(page, /No Board required/);
+  assert.match(page, /RANDOM_DRAW_LABEL/);
+  assert.match(component, /acceptedEligibility/);
+  assert.match(component, /acceptedOfficialRules/);
+  assert.match(component, /randomDrawVerificationCode/);
+  assert.match(sendRoute, /UNION ALL[\s\S]*random_draw_entries/);
+  assert.match(sendRoute, /entryDeadlinePassed\(\)/);
+  assert.match(verifyRoute, /INSERT OR IGNORE INTO random_draw_entries/);
+  assert.match(verifyRoute, /secureEqual/);
+  assert.match(emailDelivery, /sendRandomDrawVerificationEmail/);
+  assert.match(schema, /randomDrawEntries/);
+  assert.match(migration, /random_draw_entries_season_email_unique/);
+  assert.match(officialRules, /Free Random Draw Only entry/);
+  assert.match(officialRules, /cryptographically secure random-number/);
+  assert.match(officialRules, /Darian Hudock/);
+  assert.match(officialRules, /Bernalillo County/);
+  assert.doesNotMatch(officialRules, /Remaining legal terms|selection and audit procedure/);
+  assert.match(privacy, /does not sell entrant personal information/);
+  assert.match(prizes, /Random Draw Only form/);
+  assert.match(faq, /cryptographically secure uniform random-number process/);
 });

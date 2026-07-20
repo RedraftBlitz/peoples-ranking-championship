@@ -3865,6 +3865,116 @@ footer a {
   line-height: 1.5;
 }
 
+.random-entry-card {
+  padding: 38px;
+  border: 1px solid var(--line);
+  border-radius: 17px;
+  background: var(--card);
+  box-shadow: var(--shadow);
+}
+
+.random-entry-card form {
+  display: grid;
+  max-width: 760px;
+  gap: 17px;
+}
+
+.random-entry-card h2 {
+  margin: 8px 0 10px;
+  color: var(--night);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(1.8rem, 4vw, 2.8rem);
+  letter-spacing: -0.04em;
+}
+
+.random-entry-card p {
+  color: var(--muted);
+  font-size: 0.78rem;
+  line-height: 1.65;
+}
+
+.random-entry-field {
+  display: grid;
+  gap: 7px;
+  color: var(--night);
+  font-size: 0.72rem;
+  font-weight: 850;
+}
+
+.random-entry-field input {
+  min-height: 54px;
+  padding: 0 15px;
+  border: 1px solid #bec6c4;
+  border-radius: 10px;
+  color: var(--night);
+  background: #fff;
+  font: inherit;
+  font-size: 1rem;
+}
+
+.random-entry-check {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 13px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  color: #4f5b60;
+  background: #fffdf8;
+  font-size: 0.7rem;
+  font-weight: 750;
+  line-height: 1.5;
+}
+
+.random-entry-check input {
+  width: 17px;
+  height: 17px;
+  flex: none;
+  margin-top: 2px;
+}
+
+.random-entry-check a {
+  color: var(--teal);
+}
+
+.random-entry-message {
+  margin: 0;
+  padding: 11px 13px;
+  border-radius: 8px;
+  background: #e9f5f1;
+}
+
+.random-entry-message.error {
+  color: #7c3029;
+  background: #fae8e4;
+}
+
+.random-entry-card .button {
+  justify-self: start;
+}
+
+.random-entry-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.random-entry-success {
+  color: #fff;
+  background:
+    radial-gradient(circle at 95% 0%, rgba(232, 177, 63, 0.25), transparent 19rem),
+    var(--night);
+}
+
+.random-entry-success h2 {
+  color: #fff;
+}
+
+.random-entry-success p {
+  max-width: 760px;
+  color: #cbd8d9;
+}
+
 .board-contest-links {
   display: flex;
   flex-wrap: wrap;
@@ -4016,5 +4126,14 @@ footer a {
 
   .rules-document {
     padding: 28px 21px;
+  }
+
+  .random-entry-card {
+    padding: 27px 20px;
+  }
+
+  .random-entry-card .button,
+  .random-entry-actions .button {
+    width: 100%;
   }
 }

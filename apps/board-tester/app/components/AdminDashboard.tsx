@@ -28,6 +28,8 @@ type DashboardData = {
     verifiedEmails: number;
     verifiedFinalEntries: number;
     temporarilyPinLocked: number;
+    randomDrawOnlyEntries: number;
+    totalRandomDrawEntries: number;
   };
   email: {
     deliveryConfigured: boolean;
@@ -185,6 +187,7 @@ export function AdminDashboard({ displayName }: { displayName: string }) {
           <strong>{displayName}</strong>
           <nav aria-label="Admin navigation">
             <Link href="/admin/updates">Data updates</Link>
+            <Link href="/random-draw">Random Draw form</Link>
             <Link href="/">Board tester</Link>
           </nav>
         </div>
@@ -252,6 +255,14 @@ export function AdminDashboard({ displayName }: { displayName: string }) {
             <span>Temporary PIN locks</span>
             <strong>{data?.summary.temporarilyPinLocked ?? "—"}</strong>
             <small>Automatically clear after the security window</small>
+          </article>
+          <article>
+            <span>Total Random Draw entries</span>
+            <strong>{data?.summary.totalRandomDrawEntries ?? "—"}</strong>
+            <small>
+              {data?.summary.randomDrawOnlyEntries ?? 0} entered without a Board;
+              duplicate emails count once
+            </small>
           </article>
         </div>
       </section>
