@@ -44,3 +44,17 @@ test("emits a deployable build without starter-preview remnants", async () => {
   assert.doesNotMatch(layout, /codex-preview|_sites-preview/i);
   assert.doesNotMatch(packageJson, /react-loading-skeleton/);
 });
+
+test("keeps ranking controls with the user", async () => {
+  const [component, styles] = await Promise.all([
+    readFile(new URL("app/components/BoardTester.tsx", projectRoot), "utf8"),
+    readFile(new URL("app/globals.css", projectRoot), "utf8"),
+  ]);
+
+  assert.match(component, /className="floating-undo"/);
+  assert.match(component, /setFollowedPlayerId\(id\)/);
+  assert.match(component, /scrollIntoView/);
+  assert.match(component, /autoScrollWhileDragging\(event\.clientY\)/);
+  assert.match(component, /Build your Board\./);
+  assert.match(styles, /\.floating-undo\s*\{[\s\S]*position:\s*fixed/);
+});

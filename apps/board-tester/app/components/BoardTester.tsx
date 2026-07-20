@@ -161,6 +161,7 @@ export function BoardTester() {
   const [position, setPosition] = useState<Position | "ALL">("ALL");
   const [draggedId, setDraggedId] = useState<string | null>(null);
   const [dropId, setDropId] = useState<string | null>(null);
+  const [followedPlayerId, setFollowedPlayerId] = useState<string | null>(null);
   const [hydrated, setHydrated] = useState(false);
   const [saveState, setSaveState] = useState("Ready");
   const [dialog, setDialog] = useState<DialogName>(null);
@@ -243,6 +244,22 @@ export function BoardTester() {
     };
   }, [hydrated, order, personalIds, protectedBoard]);
 
+  useEffect(() => {
+    if (!followedPlayerId) return;
+    const rank = order.indexOf(followedPlayerId) + 1;
+    if (rank < 1 || rank > BOARD_SIZE) return;
+
+    const frame = window.requestAnimationFrame(() => {
+      document.getElementById(`rank-${rank}`)?.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
+      setFollowedPlayerId(null);
+    });
+
+    return () => window.cancelAnimationFrame(frame);
+  }, [followedPlayerId, order]);
+
   const personalSet = useMemo(() => new Set(personalIds), [personalIds]);
 
   const ranks = useMemo(
@@ -301,9 +318,22 @@ export function BoardTester() {
     next.splice(sourceIndex, 1);
     next.splice(targetRank - 1, 0, id);
     setOrder(next);
+    setFollowedPlayerId(id);
     setPersonalIds((current) =>
       current.includes(id) ? current : [...current, id],
     );
+  }
+
+  function autoScrollWhileDragging(clientY: number) {
+    const edge = Math.min(120, window.innerHeight * 0.18);
+    const maxStep = 22;
+    if (clientY < edge) {
+      const strength = (edge - clientY) / edge;
+      window.scrollBy({ top: -Math.ceil(maxStep * strength), behavior: "auto" });
+    } else if (clientY > window.innerHeight - edge) {
+      const strength = (clientY - (window.innerHeight - edge)) / edge;
+      window.scrollBy({ top: Math.ceil(maxStep * strength), behavior: "auto" });
+    }
   }
 
   function submitRank(event: FormEvent<HTMLFormElement>, id: string) {
@@ -481,7 +511,7 @@ export function BoardTester() {
       <header className="hero">
         <div className="hero-copy">
           <div className="eyebrow">People&apos;s Ranking Championship</div>
-          <h1>{activeView === "board" ? "Build your board." : "Follow every board."}</h1>
+          <h1>{activeView === "board" ? "Build your Board." : "Follow every Board."}</h1>
           {activeView === "board" ? (
             <p>
               Drag a player to a new spot or type any rank from 1–200. Everyone
@@ -700,6 +730,7 @@ export function BoardTester() {
                     onDragOver={(event) => {
                       event.preventDefault();
                       event.dataTransfer.dropEffect = "move";
+                      autoScrollWhileDragging(event.clientY);
                       setDropId(player.id);
                     }}
                     onDragLeave={() => setDropId(null)}
@@ -880,6 +911,16 @@ export function BoardTester() {
           </div>
         </aside>
       </div>
+      {undoStack.length > 0 && (
+        <button
+          className="floating-undo"
+          type="button"
+          onClick={undo}
+          aria-label="Undo the last ranking move"
+        >
+          ↶ Undo last move
+        </button>
+      )}
         </>
       ) : (
         <DemoLeaderboard rows={demoField.leaderboard} />

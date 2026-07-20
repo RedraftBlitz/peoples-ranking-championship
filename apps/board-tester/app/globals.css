@@ -725,6 +725,32 @@ a:focus-visible {
   gap: 8px;
 }
 
+.floating-undo {
+  position: fixed;
+  right: max(18px, env(safe-area-inset-right));
+  bottom: max(18px, env(safe-area-inset-bottom));
+  z-index: 20;
+  min-height: 46px;
+  padding: 0 18px;
+  border: 1px solid #fff;
+  border-radius: 999px;
+  color: #fff;
+  background: var(--night);
+  box-shadow: 0 10px 28px rgba(16, 38, 43, 0.28);
+  font-size: 0.78rem;
+  font-weight: 850;
+}
+
+.floating-undo:hover {
+  background: var(--teal);
+  transform: translateY(-1px);
+}
+
+.floating-undo:focus-visible {
+  outline: 3px solid var(--gold);
+  outline-offset: 3px;
+}
+
 .button {
   min-height: 38px;
   padding: 0 14px;
