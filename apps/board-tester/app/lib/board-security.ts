@@ -1,5 +1,6 @@
 const encoder = new TextEncoder();
-const PIN_ITERATIONS = 120_000;
+// Cloudflare Workers rejects PBKDF2 iteration counts above 100,000.
+const PIN_ITERATIONS = 100_000;
 const SESSION_DAYS = 30;
 
 function toHex(bytes: ArrayBuffer | Uint8Array) {

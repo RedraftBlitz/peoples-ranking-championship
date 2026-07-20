@@ -18,6 +18,7 @@ import {
 } from "../../../lib/board-validation";
 
 export async function POST(request: Request) {
+  let failureStage = "parse_request";
   try {
     const payload = (await request.json()) as {
       boardName?: string;
@@ -26,6 +27,7 @@ export async function POST(request: Request) {
       order?: unknown;
       personalIds?: unknown;
     };
+    failureStage = "validate_board";
     const boardName = normalizeBoardName(payload.boardName ?? "");
     const pin = (payload.pin ?? "").replace(/\D/g, "");
     const recoveryEmail = normalizeEmail(payload.recoveryEmail ?? "");
@@ -37,6 +39,7 @@ export async function POST(request: Request) {
       stateError;
     if (error) return Response.json({ error }, { status: 400 });
 
+    failureStage = "secure_pin";
     const id = crypto.randomUUID();
     const pinSalt = createPinSalt();
     const pinHash = await hashPin(pin, pinSalt);
@@ -45,6 +48,7 @@ export async function POST(request: Request) {
     const now = new Date().toISOString();
     const db = getD1();
 
+    failureStage = "save_board";
     await db.batch([
       db
         .prepare(
@@ -77,6 +81,7 @@ export async function POST(request: Request) {
         .bind(tokenHash, id, now, expiresAt),
     ]);
 
+    failureStage = "build_response";
     const response = Response.json(
       {
         board: {
@@ -96,18 +101,33 @@ export async function POST(request: Request) {
       },
       { status: 201 },
     );
+    failureStage = "set_session_cookie";
     response.headers.append("Set-Cookie", sessionCookie(request, token));
     return response;
   } catch (error) {
     const message = error instanceof Error ? error.message : "";
-    if (message.includes("UNIQUE constraint failed")) {
+    const causeMessage =
+      error instanceof Error && error.cause instanceof Error
+        ? error.cause.message
+        : "";
+    const combinedMessage = `${message} ${causeMessage}`;
+    console.error("protect_board_failed", {
+      stage: failureStage,
+      errorName: error instanceof Error ? error.name : typeof error,
+      message,
+      causeMessage,
+    });
+    if (/unique constraint failed|sqlite_constraint_unique/i.test(combinedMessage)) {
       return Response.json(
         { error: "That Board Name is already taken." },
         { status: 409 },
       );
     }
     return Response.json(
-      { error: "The Board could not be protected. Try again." },
+      {
+        error: "The Board could not be protected. Try again.",
+        code: `PROTECT_${failureStage.toUpperCase()}`,
+      },
       { status: 500 },
     );
   }
