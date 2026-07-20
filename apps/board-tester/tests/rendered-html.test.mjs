@@ -182,6 +182,7 @@ test("keeps draft recovery optional and requires verified email at submission", 
     recoveryRequest,
     recoveryReset,
     submitRoute,
+    boardSecurity,
     migration,
   ] = await Promise.all([
     readFile(new URL("app/components/BoardTester.tsx", projectRoot), "utf8"),
@@ -192,6 +193,7 @@ test("keeps draft recovery optional and requires verified email at submission", 
     readFile(new URL("app/api/boards/recovery/route.ts", projectRoot), "utf8"),
     readFile(new URL("app/api/boards/recovery/reset/route.ts", projectRoot), "utf8"),
     readFile(new URL("app/api/boards/[id]/submit/route.ts", projectRoot), "utf8"),
+    readFile(new URL("app/lib/board-security.ts", projectRoot), "utf8"),
     readFile(new URL("drizzle/0005_fluffy_bromley.sql", projectRoot), "utf8"),
   ]);
 
@@ -210,6 +212,8 @@ test("keeps draft recovery optional and requires verified email at submission", 
   assert.match(recoveryReset, /recovery_email_verified_at/);
   assert.match(submitRoute, /submissionEmailVerificationRequired\(\)/);
   assert.match(submitRoute, /Verify a contact email before permanently submitting/);
+  assert.match(boardSecurity, /PIN_ITERATIONS = 100_000/);
+  assert.doesNotMatch(boardSecurity, /PIN_ITERATIONS = 120_000/);
   assert.match(migration, /CREATE TABLE `email_verification_requests`/);
   assert.match(migration, /ALTER TABLE `boards` ADD `recovery_email_verified_at`/);
 });
