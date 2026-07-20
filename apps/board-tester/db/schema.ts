@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { integer, sqliteTable, text, uniqueIndex } from "drizzle-orm/sqlite-core";
+import { index, integer, sqliteTable, text, uniqueIndex } from "drizzle-orm/sqlite-core";
 
 export const boards = sqliteTable(
   "boards",
@@ -49,3 +49,26 @@ export const pinRecoveryRequests = sqliteTable("pin_recovery_requests", {
   usedAt: text("used_at"),
   createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
 });
+
+export const scoringSnapshots = sqliteTable(
+  "scoring_snapshots",
+  {
+    id: text("id").primaryKey(),
+    season: integer("season").notNull().default(2026),
+    sourceFileName: text("source_file_name").notNull(),
+    sourceFileSha256: text("source_file_sha256").notNull(),
+    completedWeeks: integer("completed_weeks").notNull(),
+    status: text("status").notNull().default("pending_review"),
+    reviewJson: text("review_json").notNull(),
+    snapshotJson: text("snapshot_json").notNull(),
+    uploadedBy: text("uploaded_by").notNull(),
+    approvedBy: text("approved_by"),
+    scheduledFor: text("scheduled_for"),
+    createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+    approvedAt: text("approved_at"),
+  },
+  (table) => [
+    uniqueIndex("scoring_snapshots_source_hash_unique").on(table.sourceFileSha256),
+    index("scoring_snapshots_status_created_idx").on(table.status, table.createdAt),
+  ],
+);

@@ -58,3 +58,28 @@ test("keeps ranking controls with the user", async () => {
   assert.match(component, /Build your Board\./);
   assert.match(styles, /\.floating-undo\s*\{[\s\S]*position:\s*fixed/);
 });
+
+test("adds a private manual weekly scoring approval workflow", async () => {
+  const [page, component, importer, uploadRoute, approvalRoute, migration, fixture] = await Promise.all([
+    readFile(new URL("app/admin/updates/page.tsx", projectRoot), "utf8"),
+    readFile(new URL("app/components/AdminScoringUpdates.tsx", projectRoot), "utf8"),
+    readFile(new URL("app/lib/fantasypros-import.ts", projectRoot), "utf8"),
+    readFile(new URL("app/api/admin/scoring-updates/route.ts", projectRoot), "utf8"),
+    readFile(new URL("app/api/admin/scoring-updates/[id]/approve/route.ts", projectRoot), "utf8"),
+    readFile(new URL("drizzle/0001_flawless_runaways.sql", projectRoot), "utf8"),
+    readFile(new URL("tests/fixtures/fantasypros-half-format.csv", projectRoot), "utf8"),
+  ]);
+
+  assert.match(page, /requireChatGPTUser\("\/admin\/updates"\)/);
+  assert.match(page, /isAdminEmail\(user\.email\)/);
+  assert.match(component, /10:00 AM Mountain · 12:00 PM Eastern/);
+  assert.match(component, /Upload & Review/);
+  assert.match(component, /Approve Update/);
+  assert.match(importer, /"PLAYER",\s*"POS",\s*"GP"/);
+  assert.match(importer, /buildBvmSnapshot/);
+  assert.match(importer, /unresolvedBvmTop150/);
+  assert.match(uploadRoute, /status = analysis\.review\.ready \? "pending_review" : "blocked"/);
+  assert.match(approvalRoute, /status = 'approved'/);
+  assert.match(migration, /CREATE TABLE `scoring_snapshots`/);
+  assert.match(fixture, /RK,PLAYER,POS,GP,1,2,3/);
+});
