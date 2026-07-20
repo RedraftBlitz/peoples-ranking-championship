@@ -1123,7 +1123,9 @@ export function BoardTester() {
                     }}
                   >
                     <div className="rank-cell">
-                      <span className="drag-handle" aria-hidden="true">⠿</span>
+                      {!isEntered && (
+                        <span className="drag-handle" aria-hidden="true">⠿</span>
+                      )}
                       <strong>{rank}</strong>
                     </div>
 

@@ -3172,23 +3172,36 @@ footer a {
   }
 
   .board-head {
-    grid-template-columns: 58px 1fr 92px;
+    grid-template-columns: 66px 1fr 92px;
   }
 
   .player-row {
-    grid-template-columns: 58px minmax(0, 1fr) 92px;
+    grid-template-columns: 66px minmax(0, 1fr) 92px;
     padding-inline: 8px;
   }
 
   .drag-handle {
-    display: none;
+    display: inline-flex;
+    width: 20px;
+    height: 28px;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #bad7d0;
+    border-radius: 6px;
+    color: var(--teal);
+    background: #e8f4f1;
+    font-size: 1rem;
+    line-height: 1;
   }
 
   .rank-cell {
+    gap: 4px;
     justify-content: flex-start;
   }
 
   .rank-cell strong {
+    min-width: 24px;
     text-align: left;
   }
 

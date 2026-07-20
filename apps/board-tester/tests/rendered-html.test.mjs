@@ -62,9 +62,12 @@ test("keeps ranking controls with the user", async () => {
   assert.match(component, /setFollowedPlayerId\(id\)/);
   assert.match(component, /scrollIntoView/);
   assert.match(component, /autoScrollWhileDragging\(event\.clientY\)/);
+  assert.match(component, /!isEntered && \([\s\S]*className="drag-handle"/);
   assert.match(component, /Build Your Board/);
   assert.match(styles, /\.floating-undo\s*\{[\s\S]*position:\s*fixed/);
   assert.match(styles, /\.mobile-board-controls\s*\{[\s\S]*position:\s*fixed/);
+  assert.match(styles, /\.drag-handle\s*\{[\s\S]*display:\s*inline-flex/);
+  assert.doesNotMatch(styles, /\.drag-handle\s*\{[^}]*display:\s*none/);
   assert.match(styles, /\.hero-copy > p\s*\{\s*display:\s*none/);
   assert.match(styles, /\.score-strip\s*\{\s*display:\s*none/);
   assert.match(styles, /\.demo-score-grid\.is-mobile-open\s*\{[\s\S]*display:\s*grid/);
