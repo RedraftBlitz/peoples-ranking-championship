@@ -9,10 +9,10 @@ export const metadata: Metadata = {
     description: "Drag, search, and rearrange a 200-player fantasy football board.",
     images: [
       {
-        url: "/prc-board-preview.png",
+        url: "/prc-official-leaderboard-preview.png",
         width: 1536,
         height: 1024,
-        alt: "A fantasy football ranking board with one card moving upward",
+        alt: "People's Ranking Championship official leaderboard",
       },
     ],
   },
@@ -20,7 +20,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "PRC Board Tester",
     description: "Drag, search, and rearrange a 200-player fantasy football board.",
-    images: ["/prc-board-preview.png"],
+    images: ["/prc-official-leaderboard-preview.png"],
   },
   icons: {
     icon: "/favicon.svg",

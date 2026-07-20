@@ -5,13 +5,13 @@ import playerData from "../data/players.json";
 import {
   DEMO_SNAPSHOT_LABEL,
   scoreDemoField,
-  type DemoLeaderboardRow,
 } from "../lib/demo-scoring";
 import {
   ENTRY_DEADLINE_LABEL,
   ENTRY_DEADLINE_UTC,
   entryDeadlinePassed,
 } from "../lib/entry-rules";
+import { OfficialLeaderboard } from "./OfficialLeaderboard";
 
 type Position = "QB" | "RB" | "WR" | "TE";
 type AppView = "board" | "leaderboard";
@@ -118,74 +118,6 @@ function formatSubmittedAt(value: string | null) {
     minute: "2-digit",
     timeZoneName: "short",
   }).format(new Date(value));
-}
-
-function DemoLeaderboard({ rows }: { rows: DemoLeaderboardRow[] }) {
-  return (
-    <section className="leaderboard-shell" aria-labelledby="leaderboard-title">
-      <div className="leaderboard-intro">
-        <div>
-          <span className="state-pill demo">Demo results · not official</span>
-          <span className="panel-kicker">People&apos;s leaderboard</span>
-          <h2 id="leaderboard-title">See the scoring engine work.</h2>
-          <p>
-            This table runs the approved scoring math against one fixed,
-            fabricated Week 1 snapshot. Move players on your Board to see its
-            score and placement change.
-          </p>
-        </div>
-        <span className="demo-snapshot-label">{DEMO_SNAPSHOT_LABEL}</span>
-      </div>
-
-      <div className="leaderboard-summary" aria-label="Demo scoring summary">
-        <div>
-          <span>Boards shown</span>
-          <strong>{rows.length}</strong>
-        </div>
-        <div>
-          <span>Scoring update</span>
-          <strong>Demo Week 1</strong>
-        </div>
-        <div>
-          <span>Placement</span>
-          <strong>Full precision</strong>
-        </div>
-        <div>
-          <span>Board Accuracy</span>
-          <strong>0–100 index</strong>
-        </div>
-      </div>
-
-      <div className="demo-leaderboard" role="table" aria-label="Scored demo Boards">
-        <div className="demo-leaderboard-head" role="row">
-          <span role="columnheader">Place</span>
-          <span role="columnheader">Board</span>
-          <span role="columnheader">Accuracy</span>
-          <span role="columnheader">Percentile</span>
-        </div>
-        {rows.map((row) => (
-          <div
-            className={`demo-leaderboard-row ${row.isCurrentBoard ? "is-current" : ""}`}
-            role="row"
-            key={row.boardId}
-          >
-            <strong role="cell">{row.placement}</strong>
-            <span role="cell">
-              <b>{row.boardName}</b>
-              <small>{row.isCurrentBoard ? "Your current Board" : "Demo Board"}</small>
-            </span>
-            <strong role="cell">{row.boardAccuracy}</strong>
-            <span role="cell">{row.percentile}</span>
-          </div>
-        ))}
-      </div>
-
-      <p className="demo-disclaimer">
-        Player results and opponent Boards are fabricated for testing. No demo
-        result can be submitted, published, or treated as an official PRC score.
-      </p>
-    </section>
-  );
 }
 
 export function BoardTester() {
@@ -672,15 +604,15 @@ export function BoardTester() {
             </p>
           ) : (
             <p>
-              Explore scored standings using fabricated results and the real
-              BVM, positional, and Board Accuracy engine.
+              Follow every permanently submitted Board. Preseason placement is
+              randomized; official scoring begins after Week 1.
             </p>
           )}
         </div>
         <div className="hero-status" aria-live="polite">
           <span className="status-dot" />
           <div>
-            <strong>{activeView === "board" ? saveState : "Demo scoring active"}</strong>
+            <strong>{activeView === "board" ? saveState : "Official standings"}</strong>
             <small>
               {activeView === "board"
                 ? protectedBoard
@@ -688,7 +620,7 @@ export function BoardTester() {
                     ? `${protectedBoard.name} · final entry`
                     : protectedBoard.name
                   : "Browser draft · no account needed"
-                : "Fabricated Week 1 · not official"}
+                : "Final entries only · updated after approval"}
             </small>
           </div>
         </div>
@@ -702,7 +634,7 @@ export function BoardTester() {
               : entryClosed
                 ? "Final entry closed"
                 : "Entry deadline · September 9"
-            : "Demo results · not official"}
+            : "Official leaderboard"}
         </strong>
         <span>
           {activeView === "board"
@@ -711,7 +643,7 @@ export function BoardTester() {
               : entryClosed
                 ? "Final entry is closed. Draft Boards can no longer be submitted."
                 : `Final submission closes ${ENTRY_DEADLINE_LABEL}. Submitting early locks the Board immediately.`
-            : "Real scoring math with fabricated player results and opponent Boards."}
+            : "Preseason order is stable and randomized. Accuracy and percentile appear after the first published Week 1 update."}
         </span>
       </section>
 
@@ -722,7 +654,7 @@ export function BoardTester() {
           aria-pressed={activeView === "board"}
           onClick={() => setActiveView("board")}
         >
-          Your Board
+          Build Your Board
         </button>
         <button
           type="button"
@@ -1115,12 +1047,12 @@ export function BoardTester() {
       )}
         </>
       ) : (
-        <DemoLeaderboard rows={demoField.leaderboard} />
+        <OfficialLeaderboard currentBoardName={protectedBoard?.name ?? null} />
       )}
 
       <footer>
         <span>
-          PRC 2026 · Final entry deadline {ENTRY_DEADLINE_LABEL} · Demo scores are not official
+          PRC 2026 · Final entry deadline {ENTRY_DEADLINE_LABEL} · Official leaderboard uses final Boards only
         </span>
         <span>
           Player data sources: <a href="https://fantasycalc.com/" target="_blank" rel="noreferrer">FantasyCalc</a>

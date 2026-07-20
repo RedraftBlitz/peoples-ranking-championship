@@ -96,6 +96,31 @@ export const scoringSnapshots = sqliteTable(
   ],
 );
 
+export const leaderboardPublications = sqliteTable(
+  "leaderboard_publications",
+  {
+    id: text("id").primaryKey(),
+    scoringSnapshotId: text("scoring_snapshot_id")
+      .notNull()
+      .references(() => scoringSnapshots.id, { onDelete: "cascade" }),
+    season: integer("season").notNull().default(2026),
+    completedWeeks: integer("completed_weeks").notNull(),
+    boardCount: integer("board_count").notNull(),
+    scoringSpecVersion: text("scoring_spec_version").notNull(),
+    resultsJson: text("results_json").notNull(),
+    scheduledFor: text("scheduled_for").notNull(),
+    approvedAt: text("approved_at").notNull(),
+    createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+  },
+  (table) => [
+    uniqueIndex("leaderboard_publications_snapshot_unique").on(table.scoringSnapshotId),
+    index("leaderboard_publications_season_schedule_idx").on(
+      table.season,
+      table.scheduledFor,
+    ),
+  ],
+);
+
 export const marketSnapshots = sqliteTable(
   "market_snapshots",
   {

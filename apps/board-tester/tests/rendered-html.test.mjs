@@ -4,22 +4,25 @@ import test from "node:test";
 
 const projectRoot = new URL("../", import.meta.url);
 
-test("connects the Board tester to exact demo scoring", async () => {
-  const [component, adapter, engine, curves] = await Promise.all([
+test("connects the Board tester to exact demo scoring and official standings", async () => {
+  const [component, officialLeaderboard, adapter, engine, curves] = await Promise.all([
     readFile(new URL("app/components/BoardTester.tsx", projectRoot), "utf8"),
+    readFile(new URL("app/components/OfficialLeaderboard.tsx", projectRoot), "utf8"),
     readFile(new URL("app/lib/demo-scoring.ts", projectRoot), "utf8"),
     readFile(new URL("../../packages/scoring-engine/src/engine.ts", projectRoot), "utf8"),
     readFile(new URL("app/data/demo-curves.json", projectRoot), "utf8"),
   ]);
 
-  assert.match(component, /Demo results · not official/);
   assert.match(component, /Your Board score/);
   assert.match(component, /demoField\.currentBoard\.boardAccuracy/);
   assert.match(component, /demoField\.currentBoard\.positionalAccuracy/);
   assert.match(component, /demoField\.currentBoard\.bvmAccuracy/);
   assert.match(component, /demoField\.currentBoard\.percentile/);
   assert.match(component, /demoField\.currentBoard\.tier/);
-  assert.match(component, /<DemoLeaderboard rows=\{demoField\.leaderboard\}/);
+  assert.match(component, /<OfficialLeaderboard currentBoardName=/);
+  assert.match(officialLeaderboard, /Official preseason standings/);
+  assert.match(officialLeaderboard, /first published Week 1 update/);
+  assert.match(officialLeaderboard, /fetch\("\/api\/leaderboard"/);
   assert.match(adapter, /scoreField\(/);
   assert.match(adapter, /completedWeeks:\s*1/);
   assert.match(adapter, /mode:\s*"fabricated-demo-data"/);
@@ -56,6 +59,7 @@ test("keeps ranking controls with the user", async () => {
   assert.match(component, /scrollIntoView/);
   assert.match(component, /autoScrollWhileDragging\(event\.clientY\)/);
   assert.match(component, /Build your Board\./);
+  assert.match(component, /Build Your Board/);
   assert.match(styles, /\.floating-undo\s*\{[\s\S]*position:\s*fixed/);
 });
 
@@ -144,4 +148,27 @@ test("permanently locks final entries after two-step verification", async () => 
   assert.match(marketApproval, /entryDeadlinePassed\(\)/);
   assert.match(migration, /CREATE TABLE `board_entries`/);
   assert.match(migration, /CREATE UNIQUE INDEX `board_entries_board_unique`/);
+});
+
+test("publishes a stable preseason leaderboard and exact approved scoring", async () => {
+  const [publicRoute, scoringApproval, leaderboardLogic, component, migration] = await Promise.all([
+    readFile(new URL("app/api/leaderboard/route.ts", projectRoot), "utf8"),
+    readFile(new URL("app/api/admin/scoring-updates/[id]/approve/route.ts", projectRoot), "utf8"),
+    readFile(new URL("app/lib/official-leaderboard.ts", projectRoot), "utf8"),
+    readFile(new URL("app/components/OfficialLeaderboard.tsx", projectRoot), "utf8"),
+    readFile(new URL("drizzle/0004_goofy_hercules.sql", projectRoot), "utf8"),
+  ]);
+
+  assert.match(publicRoute, /WHERE season = \?1 AND scheduled_for <= \?2/);
+  assert.match(publicRoute, /mode: "preseason"/);
+  assert.match(publicRoute, /mode: "scored"/);
+  assert.match(scoringApproval, /leaderboardPublicationPayload/);
+  assert.match(scoringApproval, /INSERT INTO leaderboard_publications/);
+  assert.match(leaderboardLogic, /PRESEASON_RANDOM_SEED/);
+  assert.match(leaderboardLogic, /boardAccuracy: row\.boardAccuracy\.toFraction\(\)/);
+  assert.match(component, /Placement is randomized once and stays stable/);
+  assert.match(component, /Accuracy/);
+  assert.match(component, /Percentile/);
+  assert.match(migration, /CREATE TABLE `leaderboard_publications`/);
+  assert.match(migration, /scoring_spec_version/);
 });

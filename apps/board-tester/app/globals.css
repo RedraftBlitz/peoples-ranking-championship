@@ -14,6 +14,70 @@
   --shadow: 0 18px 50px rgba(16, 38, 43, 0.12);
 }
 
+/* Official leaderboard */
+.official-leaderboard .leaderboard-intro {
+  align-items: flex-end;
+}
+
+.leaderboard-refresh {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+.official-leaderboard-state {
+  display: grid;
+  justify-items: start;
+  gap: 8px;
+  padding: 32px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.72);
+  color: var(--muted);
+}
+
+.official-leaderboard-state strong {
+  color: var(--ink);
+  font-size: 1.05rem;
+}
+
+.demo-leaderboard.is-preseason .demo-leaderboard-head,
+.demo-leaderboard.is-preseason .demo-leaderboard-row {
+  grid-template-columns: 70px minmax(180px, 1fr) 140px;
+}
+
+.preseason-status-head,
+.preseason-status {
+  text-align: right;
+}
+
+.preseason-status {
+  color: var(--teal);
+  font-weight: 800;
+}
+
+.official-leaderboard-note {
+  max-width: 800px;
+}
+
+@media (max-width: 720px) {
+  .official-leaderboard .leaderboard-intro {
+    align-items: stretch;
+  }
+
+  .leaderboard-refresh {
+    width: 100%;
+  }
+
+  .demo-leaderboard.is-preseason .demo-leaderboard-head,
+  .demo-leaderboard.is-preseason .demo-leaderboard-row {
+    grid-template-columns: 48px minmax(0, 1fr) 76px;
+  }
+
+  .official-leaderboard-state {
+    padding: 24px;
+  }
+}
+
 * {
   box-sizing: border-box;
 }
