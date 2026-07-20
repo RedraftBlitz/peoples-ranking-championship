@@ -758,7 +758,9 @@ export function BoardTester() {
         <div className="readiness-summary">
           <span className={completeTop150 ? "ready" : "waiting"}>Top 150 complete</span>
           <span className={hasPersonalRanking ? "ready" : "waiting"}>
-            {personalIds.length} Personal Ranking{personalIds.length === 1 ? "" : "s"}
+            {hasPersonalRanking
+              ? `${personalIds.length} direct player move${personalIds.length === 1 ? "" : "s"}`
+              : "Move 1 player directly · any amount"}
           </span>
           <span className={protectedBoard ? "ready" : "waiting"}>
             {isEntered ? "Final & locked" : protectedBoard ? "Protected" : "Protection needed"}
@@ -779,6 +781,13 @@ export function BoardTester() {
             type="button"
             disabled={!entryPreviewReady}
             onClick={() => openDialog("entry")}
+            title={
+              !protectedBoard
+                ? "Protect this Board before final submission."
+                : !hasPersonalRanking
+                  ? "Move at least one player directly by any amount before final submission."
+                  : undefined
+            }
           >
             {isEntered ? "Board Submitted" : entryClosed ? "Entries Closed" : "Submit Final Board"}
           </button>
@@ -1118,6 +1127,10 @@ export function BoardTester() {
           {" · "}
           <a href="https://www.fantasypros.com/" target="_blank" rel="noreferrer">FantasyPros</a>
         </span>
+        <small className="brand-disclaimer">
+          People&apos;s Ranking Championship is independent and is not affiliated with,
+          sponsored by, or endorsed by FantasyCalc, FantasyPros, or Fanatics.
+        </small>
       </footer>
 
       {dialog && (

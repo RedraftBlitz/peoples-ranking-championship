@@ -133,6 +133,8 @@ test("permanently locks final entries after two-step verification", async () => 
   assert.match(component, /Permanently Submit My Board/);
   assert.match(component, /draggable=\{!isEntered\}/);
   assert.match(component, /Final Board permanently locked/);
+  assert.match(component, /Move 1 player directly · any amount/);
+  assert.match(component, /not affiliated with,[\s\S]*FantasyCalc, FantasyPros, or Fanatics/);
   assert.match(submitRoute, /hashPin\(pin, pinRow\.pin_salt\)/);
   assert.match(submitRoute, /secureEqual\(candidate, pinRow\.pin_hash\)/);
   assert.match(submitRoute, /status = 'entered'/);
