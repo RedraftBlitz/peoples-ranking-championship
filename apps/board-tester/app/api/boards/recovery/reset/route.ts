@@ -14,6 +14,7 @@ import {
   validateEmailCode,
   validatePin,
 } from "../../../../lib/board-validation";
+import { enforceRateLimit, RATE_LIMITS } from "../../../../lib/rate-limit";
 
 type ResetRequest = {
   id: string;
@@ -27,6 +28,8 @@ const INVALID_MESSAGE = "That reset code or Board information is incorrect or ex
 
 export async function POST(request: Request) {
   try {
+    const limited = await enforceRateLimit(request, RATE_LIMITS.resetPin);
+    if (limited) return limited;
     const payload = (await request.json()) as {
       boardName?: string;
       recoveryEmail?: string;

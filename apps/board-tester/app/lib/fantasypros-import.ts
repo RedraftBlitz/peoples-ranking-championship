@@ -235,7 +235,12 @@ export function analyzeFantasyProsCsv(
     const bvm = buildBvmSnapshot({
       snapshotId: `review-${crypto.randomUUID()}`,
       completedWeeks,
-      players: parsed.map(({ sourceId: _sourceId, sourceName: _sourceName, sourceTeam: _sourceTeam, matchId: _matchId, matchName: _matchName, matchReason: _matchReason, ...player }) => player),
+      players: parsed.map((player) => ({
+        playerId: player.playerId,
+        position: player.position,
+        seasonTotal: player.seasonTotal,
+        weeklyPoints: player.weeklyPoints,
+      })),
       sourceVersions: { fantasypros: sourceFileName, mode: "historical-regression" },
     });
     for (const player of bvm.top150) top150SourceIds.add(player.playerId);

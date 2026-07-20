@@ -14,6 +14,9 @@ type DashboardEntry = {
   submittedAt: string | null;
   rulesVersion: string | null;
   top150Count: number;
+  moderationStatus: "active" | "name_hidden" | "disqualified";
+  moderationNote: string | null;
+  moderatedAt: string | null;
 };
 
 type DashboardData = {
@@ -28,6 +31,9 @@ type DashboardData = {
     verifiedEmails: number;
     verifiedFinalEntries: number;
     temporarilyPinLocked: number;
+    hiddenBoardNames: number;
+    disqualifiedBoards: number;
+    blockedRequests24h: number;
     randomDrawOnlyEntries: number;
     totalRandomDrawEntries: number;
   };
@@ -103,6 +109,8 @@ export function AdminDashboard({ displayName }: { displayName: string }) {
   const [refreshKey, setRefreshKey] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [message, setMessage] = useState("");
+  const [moderatingId, setModeratingId] = useState<string | null>(null);
   const [now, setNow] = useState(() => Date.now());
 
   useEffect(() => {
@@ -171,6 +179,45 @@ export function AdminDashboard({ displayName }: { displayName: string }) {
     setRefreshKey((value) => value + 1);
   }
 
+  async function moderateEntry(
+    entry: DashboardEntry,
+    nextStatus: DashboardEntry["moderationStatus"],
+  ) {
+    if (
+      nextStatus === "disqualified" &&
+      !window.confirm(
+        `Disqualify ${entry.boardName}?\n\nIt will be removed from the public leaderboard. This action is reversible and permanently recorded.`,
+      )
+    ) return;
+    const reason = window.prompt(
+      `Reason for ${nextStatus === "active" ? "restoring" : nextStatus === "name_hidden" ? "hiding the name of" : "disqualifying"} ${entry.boardName}:`,
+    )?.trim();
+    if (!reason) return;
+
+    setModeratingId(entry.id);
+    setError("");
+    setMessage("");
+    try {
+      const response = await fetch(`/api/admin/boards/${entry.id}/moderate`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ status: nextStatus, reason }),
+      });
+      const payload = (await response.json()) as { error?: string };
+      if (!response.ok) throw new Error(payload.error ?? "The moderation action failed.");
+      setMessage(`${entry.boardName} was updated and the audit record was saved.`);
+      refreshDashboard();
+    } catch (moderationError) {
+      setError(
+        moderationError instanceof Error
+          ? moderationError.message
+          : "The moderation action failed.",
+      );
+    } finally {
+      setModeratingId(null);
+    }
+  }
+
   return (
     <main className="admin-shell admin-dashboard-shell">
       <header className="admin-hero dashboard-hero">
@@ -205,6 +252,7 @@ export function AdminDashboard({ displayName }: { displayName: string }) {
       </section>
 
       {error && <p className="admin-alert error">{error}</p>}
+      {message && <p className="admin-alert success">{message}</p>}
 
       <section className="admin-overview" aria-labelledby="admin-overview-title">
         <div className="dashboard-section-heading">
@@ -231,7 +279,7 @@ export function AdminDashboard({ displayName }: { displayName: string }) {
           <article>
             <span>Final entries</span>
             <strong>{data?.summary.finalEntries ?? "—"}</strong>
-            <small>Permanently locked and leaderboard eligible</small>
+            <small>Permanently locked; moderation is tracked separately</small>
           </article>
           <article>
             <span>Recovery coverage</span>
@@ -263,6 +311,22 @@ export function AdminDashboard({ displayName }: { displayName: string }) {
               {data?.summary.randomDrawOnlyEntries ?? 0} entered without a Board;
               duplicate emails count once
             </small>
+          </article>
+          <article className={data?.summary.disqualifiedBoards ? "attention" : "safe"}>
+            <span>Moderated Boards</span>
+            <strong>
+              {data
+                ? data.summary.hiddenBoardNames + data.summary.disqualifiedBoards
+                : "—"}
+            </strong>
+            <small>
+              {data?.summary.hiddenBoardNames ?? 0} hidden names · {data?.summary.disqualifiedBoards ?? 0} disqualified
+            </small>
+          </article>
+          <article className={data?.summary.blockedRequests24h ? "attention" : "safe"}>
+            <span>Abuse blocks · 24h</span>
+            <strong>{data?.summary.blockedRequests24h ?? "—"}</strong>
+            <small>Automatic request limits protecting public forms</small>
           </article>
         </div>
       </section>
@@ -328,7 +392,10 @@ export function AdminDashboard({ displayName }: { displayName: string }) {
                 ? formatDate(data.operations.leaderboard.scheduledFor)
                 : "Stable randomized order until the first scoring publication"}
             </small>
-            <em>{data?.operations.leaderboard.boardCount ?? data?.summary.finalEntries ?? 0} official Boards</em>
+            <em>
+              {data?.operations.leaderboard.boardCount ??
+                Math.max(0, (data?.summary.finalEntries ?? 0) - (data?.summary.disqualifiedBoards ?? 0))} official Boards
+            </em>
           </article>
 
           <article>
@@ -358,8 +425,8 @@ export function AdminDashboard({ displayName }: { displayName: string }) {
             <Link className="button secondary" href="/api/admin/entries/export?format=csv" prefetch={false} download>
               Export Entry List
             </Link>
-            <Link className="button ghost" href="/api/admin/entries/export?format=json" prefetch={false} download>
-              Download Exact Backup
+            <Link className="button ghost" href="/api/admin/backup" prefetch={false} download>
+              Download Full Backup
             </Link>
           </div>
         </div>
@@ -391,6 +458,7 @@ export function AdminDashboard({ displayName }: { displayName: string }) {
             <span>Board</span>
             <span>Status</span>
             <span>Email</span>
+            <span>Moderation</span>
             <span>Last activity</span>
           </div>
           {data?.entries.length ? (
@@ -412,6 +480,46 @@ export function AdminDashboard({ displayName }: { displayName: string }) {
                   <small className={entry.emailVerifiedAt ? "verified" : "waiting"}>
                     {entry.emailVerifiedAt ? "Verified" : "Not verified"}
                   </small>
+                </div>
+                <div className="entry-moderation-state">
+                  <small className={`moderation-label ${entry.moderationStatus}`}>
+                    {entry.moderationStatus === "active"
+                      ? "Active"
+                      : entry.moderationStatus === "name_hidden"
+                        ? "Name hidden"
+                        : "Disqualified"}
+                  </small>
+                  {entry.moderationNote && <small title={entry.moderationNote}>{entry.moderationNote}</small>}
+                  <div>
+                    {entry.moderationStatus !== "active" && (
+                      <button
+                        type="button"
+                        disabled={moderatingId === entry.id}
+                        onClick={() => void moderateEntry(entry, "active")}
+                      >
+                        Restore
+                      </button>
+                    )}
+                    {entry.moderationStatus === "active" && (
+                      <button
+                        type="button"
+                        disabled={moderatingId === entry.id}
+                        onClick={() => void moderateEntry(entry, "name_hidden")}
+                      >
+                        Hide name
+                      </button>
+                    )}
+                    {entry.moderationStatus !== "disqualified" && (
+                      <button
+                        className="danger"
+                        type="button"
+                        disabled={moderatingId === entry.id}
+                        onClick={() => void moderateEntry(entry, "disqualified")}
+                      >
+                        Disqualify
+                      </button>
+                    )}
+                  </div>
                 </div>
                 <time dateTime={entry.submittedAt ?? entry.updatedAt}>
                   {formatDate(entry.submittedAt ?? entry.updatedAt)}

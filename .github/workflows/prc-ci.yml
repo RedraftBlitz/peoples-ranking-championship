@@ -1,0 +1,44 @@
+name: PRC launch checks
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: apps/board-tester/package-lock.json
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Board app dependencies
+        working-directory: apps/board-tester
+        run: npm ci
+
+      - name: Lint Board app
+        working-directory: apps/board-tester
+        run: npm run lint
+
+      - name: Build and test Board app
+        working-directory: apps/board-tester
+        run: npm test
+
+      - name: Test scoring engine
+        run: node --experimental-strip-types --test packages/scoring-engine/test/*.test.ts
+
+      - name: Validate identity crosswalk
+        run: python tests/validate_player_identity.py
+
+      - name: Validate scoring regression
+        run: python tests/validate_scoring_regression.py

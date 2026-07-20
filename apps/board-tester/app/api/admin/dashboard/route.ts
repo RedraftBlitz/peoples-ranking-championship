@@ -17,6 +17,8 @@ type SummaryRow = {
   verified_emails: number;
   verified_final_entries: number;
   temporarily_pin_locked: number;
+  hidden_board_names: number;
+  disqualified_boards: number;
 };
 
 type RandomDrawSummaryRow = {
@@ -35,6 +37,9 @@ type EntryRow = {
   submitted_at: string | null;
   rules_version: string | null;
   final_top_150_json: string | null;
+  moderation_status: "active" | "name_hidden" | "disqualified";
+  moderation_note: string | null;
+  moderated_at: string | null;
 };
 
 type MarketStatusRow = {
@@ -97,6 +102,7 @@ export async function GET(request: Request) {
     const searchPattern = `%${query.toLocaleLowerCase("en-US")}%`;
     const offset = (page - 1) * PAGE_SIZE;
     const now = new Date().toISOString();
+    const securityWindowStart = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
     const db = getD1();
 
     const [
@@ -108,6 +114,7 @@ export async function GET(request: Request) {
       scoring,
       publication,
       pendingMarket,
+      blockedRequests,
       pendingScoring,
     ] = await Promise.all([
       db
@@ -119,7 +126,9 @@ export async function GET(request: Request) {
             SUM(CASE WHEN recovery_email IS NOT NULL THEN 1 ELSE 0 END) AS recovery_emails,
             SUM(CASE WHEN recovery_email_verified_at IS NOT NULL THEN 1 ELSE 0 END) AS verified_emails,
             SUM(CASE WHEN status = 'entered' AND recovery_email_verified_at IS NOT NULL THEN 1 ELSE 0 END) AS verified_final_entries,
-            SUM(CASE WHEN locked_until IS NOT NULL AND locked_until > ?1 THEN 1 ELSE 0 END) AS temporarily_pin_locked
+            SUM(CASE WHEN locked_until IS NOT NULL AND locked_until > ?1 THEN 1 ELSE 0 END) AS temporarily_pin_locked,
+            SUM(CASE WHEN moderation_status = 'name_hidden' THEN 1 ELSE 0 END) AS hidden_board_names,
+            SUM(CASE WHEN moderation_status = 'disqualified' THEN 1 ELSE 0 END) AS disqualified_boards
            FROM boards WHERE season = ?2`,
         )
         .bind(now, SEASON)
@@ -152,7 +161,8 @@ export async function GET(request: Request) {
         .prepare(
           `SELECT b.id, b.board_name, b.status, b.recovery_email,
             b.recovery_email_verified_at, b.created_at, b.updated_at,
-            e.submitted_at, e.rules_version, e.final_top_150_json
+            e.submitted_at, e.rules_version, e.final_top_150_json,
+            b.moderation_status, b.moderation_note, b.moderated_at
            FROM boards b
            LEFT JOIN board_entries e ON e.board_id = b.id
            WHERE b.season = ?1
@@ -202,6 +212,13 @@ export async function GET(request: Request) {
         .first<{ count: number }>(),
       db
         .prepare(
+          `SELECT COUNT(*) AS count FROM security_events
+           WHERE event_type = 'rate_limit_blocked' AND created_at >= ?1`,
+        )
+        .bind(securityWindowStart)
+        .first<{ count: number }>(),
+      db
+        .prepare(
           `SELECT COUNT(*) AS count FROM scoring_snapshots
            WHERE season = ?1 AND status = 'pending_review'`,
         )
@@ -223,6 +240,9 @@ export async function GET(request: Request) {
           verifiedEmails: summary?.verified_emails ?? 0,
           verifiedFinalEntries: summary?.verified_final_entries ?? 0,
           temporarilyPinLocked: summary?.temporarily_pin_locked ?? 0,
+          hiddenBoardNames: summary?.hidden_board_names ?? 0,
+          disqualifiedBoards: summary?.disqualified_boards ?? 0,
+          blockedRequests24h: blockedRequests?.count ?? 0,
           randomDrawOnlyEntries: randomDraw?.random_draw_only_entries ?? 0,
           totalRandomDrawEntries: randomDraw?.total_random_draw_entries ?? 0,
         },
@@ -271,6 +291,9 @@ export async function GET(request: Request) {
           submittedAt: entry.submitted_at,
           rulesVersion: entry.rules_version,
           top150Count: safeJsonLength(entry.final_top_150_json),
+          moderationStatus: entry.moderation_status,
+          moderationNote: entry.moderation_note,
+          moderatedAt: entry.moderated_at,
         })),
         pagination: {
           page,

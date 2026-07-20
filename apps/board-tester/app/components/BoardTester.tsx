@@ -330,7 +330,7 @@ export function BoardTester() {
   const board = order.slice(0, BOARD_SIZE).map((id) => playerById.get(id)!);
   const demoField = useMemo(
     () => scoreDemoField(players, order, protectedBoard?.name ?? "Your Board"),
-    [order, protectedBoard?.name],
+    [order, players, protectedBoard?.name],
   );
 
   const searchResults = useMemo(() => {
@@ -348,7 +348,7 @@ export function BoardTester() {
       })
       .sort((a, b) => (ranks.get(a.id) ?? 999) - (ranks.get(b.id) ?? 999))
       .slice(0, 40);
-  }, [position, query, ranks]);
+  }, [players, position, query, ranks]);
 
   const completeTop150 =
     order.slice(0, OFFICIAL_CUTOFF).length === OFFICIAL_CUTOFF &&

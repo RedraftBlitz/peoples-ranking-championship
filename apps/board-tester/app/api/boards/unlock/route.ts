@@ -14,6 +14,7 @@ import {
   validateBoardName,
   validatePin,
 } from "../../../lib/board-validation";
+import { enforceRateLimit, RATE_LIMITS } from "../../../lib/rate-limit";
 
 type UnlockRow = StoredBoard & {
   pin_salt: string;
@@ -24,6 +25,8 @@ type UnlockRow = StoredBoard & {
 
 export async function POST(request: Request) {
   try {
+    const limited = await enforceRateLimit(request, RATE_LIMITS.unlock);
+    if (limited) return limited;
     const payload = (await request.json()) as {
       boardName?: string;
       pin?: string;

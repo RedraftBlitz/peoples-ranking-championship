@@ -9,12 +9,15 @@ import {
   ENTRY_RULES_VERSION,
   entryDeadlinePassed,
 } from "../../../lib/entry-rules";
+import { enforceRateLimit, RATE_LIMITS } from "../../../lib/rate-limit";
 
 const SEASON = 2026;
 const RESEND_WAIT_MS = 60_000;
 
 export async function POST(request: Request) {
   try {
+    const limited = await enforceRateLimit(request, RATE_LIMITS.sendRandomDrawCode);
+    if (limited) return limited;
     if (entryDeadlinePassed()) {
       return Response.json(
         { error: "Random Draw entry is closed." },

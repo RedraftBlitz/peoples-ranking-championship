@@ -12,6 +12,7 @@ import {
   validateBoardName,
   validateEmail,
 } from "../../../lib/board-validation";
+import { enforceRateLimit, RATE_LIMITS } from "../../../lib/rate-limit";
 
 const GENERIC_MESSAGE =
   "If that Board has the matching recovery email, a six-digit reset code has been sent.";
@@ -19,6 +20,8 @@ const RESEND_WAIT_MS = 60_000;
 
 export async function POST(request: Request) {
   try {
+    const limited = await enforceRateLimit(request, RATE_LIMITS.startRecovery);
+    if (limited) return limited;
     if (!emailDeliveryConfigured()) {
       return Response.json(
         { error: "PIN recovery email is still being connected. Try again once it is ready." },

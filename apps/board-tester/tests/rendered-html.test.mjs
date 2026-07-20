@@ -246,7 +246,7 @@ test("adds a private contest control room with safe final-entry exports", async 
   assert.match(component, /Contest control room/);
   assert.match(component, /Search every Board/);
   assert.match(component, /Resend domain pending/);
-  assert.match(component, /Download Exact Backup/);
+  assert.match(component, /Download Full Backup/);
   assert.match(dashboardRoute, /isAdminRequest\(request\)/);
   assert.match(dashboardRoute, /verified_final_entries/);
   assert.match(dashboardRoute, /temporarily_pin_locked/);
@@ -364,4 +364,91 @@ test("adds a verified no-Board Random Draw entry with one chance per email", asy
   assert.match(privacy, /does not sell entrant personal information/);
   assert.match(prizes, /Random Draw Only form/);
   assert.match(faq, /cryptographically secure uniform random-number process/);
+});
+
+test("hardens every public credential and entry endpoint", async () => {
+  const [rateLimit, worker, migration, ...routes] = await Promise.all([
+    readFile(new URL("app/lib/rate-limit.ts", projectRoot), "utf8"),
+    readFile(new URL("worker/index.ts", projectRoot), "utf8"),
+    readFile(new URL("drizzle/0008_condemned_polaris.sql", projectRoot), "utf8"),
+    ...[
+      "app/api/boards/protect/route.ts",
+      "app/api/boards/unlock/route.ts",
+      "app/api/boards/recovery/route.ts",
+      "app/api/boards/recovery/reset/route.ts",
+      "app/api/boards/[id]/submit/route.ts",
+      "app/api/boards/[id]/email/send-code/route.ts",
+      "app/api/boards/[id]/email/verify/route.ts",
+      "app/api/random-draw/send-code/route.ts",
+      "app/api/random-draw/verify/route.ts",
+    ].map((path) => readFile(new URL(path, projectRoot), "utf8")),
+  ]);
+
+  assert.match(rateLimit, /ON CONFLICT\(rate_key\) DO UPDATE/);
+  assert.match(rateLimit, /rate_limit_blocked/);
+  assert.match(rateLimit, /status: 429/);
+  for (const route of routes) assert.match(route, /enforceRateLimit/);
+  assert.match(worker, /content-security-policy/);
+  assert.match(worker, /strict-transport-security/);
+  assert.match(worker, /x-content-type-options/);
+  assert.match(worker, /permissions-policy/);
+  assert.match(migration, /CREATE TABLE `request_rate_limits`/);
+  assert.match(migration, /CREATE TABLE `security_events`/);
+  assert.doesNotMatch(migration, /CREATE TABLE `random_draw_entries`/);
+});
+
+test("provides safe full backups and public readiness monitoring", async () => {
+  const [backup, health, dashboard] = await Promise.all([
+    readFile(new URL("app/api/admin/backup/route.ts", projectRoot), "utf8"),
+    readFile(new URL("app/api/health/route.ts", projectRoot), "utf8"),
+    readFile(new URL("app/components/AdminDashboard.tsx", projectRoot), "utf8"),
+  ]);
+
+  assert.match(backup, /containsPrivateContactInformation: true/);
+  assert.match(backup, /excludesCredentials: true/);
+  assert.match(backup, /marketSnapshots/);
+  assert.match(backup, /leaderboardPublications/);
+  assert.match(backup, /moderationActions/);
+  assert.doesNotMatch(backup, /pin_hash|pin_salt|code_hash|token_hash/);
+  assert.match(health, /SELECT 1 AS ready/);
+  assert.match(health, /emailDeliveryConfigured/);
+  assert.match(dashboard, /Download Full Backup/);
+  assert.match(dashboard, /Abuse blocks · 24h/);
+});
+
+test("audits moderation and excludes disqualified Boards from standings", async () => {
+  const [moderation, leaderboard, approval, dashboard, schema, migration] = await Promise.all([
+    readFile(new URL("app/api/admin/boards/[id]/moderate/route.ts", projectRoot), "utf8"),
+    readFile(new URL("app/api/leaderboard/route.ts", projectRoot), "utf8"),
+    readFile(new URL("app/api/admin/scoring-updates/[id]/approve/route.ts", projectRoot), "utf8"),
+    readFile(new URL("app/components/AdminDashboard.tsx", projectRoot), "utf8"),
+    readFile(new URL("db/schema.ts", projectRoot), "utf8"),
+    readFile(new URL("drizzle/0008_condemned_polaris.sql", projectRoot), "utf8"),
+  ]);
+
+  assert.match(moderation, /board_moderation_actions/);
+  assert.match(moderation, /leaderboardPublicationPayload/);
+  assert.match(moderation, /reason.length < 3/);
+  assert.match(leaderboard, /moderation_status <> 'disqualified'/);
+  assert.match(approval, /moderation_status <> 'disqualified'/);
+  assert.match(dashboard, /Hide name/);
+  assert.match(dashboard, /Disqualify/);
+  assert.match(schema, /boardModerationActions/);
+  assert.match(migration, /ALTER TABLE `boards` ADD `moderation_status`/);
+});
+
+test("ships an automated launch gate and an owner operating runbook", async () => {
+  const [workflow, runbook] = await Promise.all([
+    readFile(new URL("../../.github/workflows/prc-ci.yml", projectRoot), "utf8"),
+    readFile(new URL("../../docs/LAUNCH-RUNBOOK.md", projectRoot), "utf8"),
+  ]);
+
+  assert.match(workflow, /npm run lint/);
+  assert.match(workflow, /npm test/);
+  assert.match(workflow, /packages\/scoring-engine\/test/);
+  assert.match(workflow, /validate_scoring_regression.py/);
+  assert.match(runbook, /Before public promotion/);
+  assert.match(runbook, /Launch-day watch/);
+  assert.match(runbook, /Weekly scoring after Week 1/);
+  assert.match(runbook, /Incident and recovery/);
 });

@@ -73,16 +73,22 @@ export function AdminMarketUpdates() {
   }, []);
 
   useEffect(() => {
-    loadHistory().catch((loadError) => {
-      setError(loadError instanceof Error ? loadError.message : "FantasyCalc history could not be loaded.");
-    });
+    const timeout = window.setTimeout(() => {
+      loadHistory().catch((loadError) => {
+        setError(loadError instanceof Error ? loadError.message : "FantasyCalc history could not be loaded.");
+      });
+    }, 0);
+    return () => window.clearTimeout(timeout);
   }, [loadHistory]);
 
   useEffect(() => {
     const updateFreeze = () => setMarketFrozen(entryDeadlinePassed());
-    updateFreeze();
+    const timeout = window.setTimeout(updateFreeze, 0);
     const interval = window.setInterval(updateFreeze, 30_000);
-    return () => window.clearInterval(interval);
+    return () => {
+      window.clearTimeout(timeout);
+      window.clearInterval(interval);
+    };
   }, []);
 
   async function checkFantasyCalc() {

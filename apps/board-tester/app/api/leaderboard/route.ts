@@ -11,6 +11,7 @@ type EntryRow = {
   board_id: string;
   board_name: string;
   final_top_150_json: string;
+  moderation_status: string;
 };
 
 type PublicationRow = {
@@ -27,16 +28,19 @@ type PublicationRow = {
 async function officialEntries(): Promise<EntryForLeaderboard[]> {
   const result = await getD1()
     .prepare(
-      `SELECT board_id, board_name, final_top_150_json
-       FROM board_entries
-       WHERE season = ?1
-       ORDER BY submitted_at ASC, id ASC`,
+      `SELECT e.board_id, e.board_name, e.final_top_150_json, b.moderation_status
+       FROM board_entries e
+       JOIN boards b ON b.id = e.board_id
+       WHERE e.season = ?1 AND b.moderation_status <> 'disqualified'
+       ORDER BY e.submitted_at ASC, e.id ASC`,
     )
     .bind(LEADERBOARD_SEASON)
     .all<EntryRow>();
   return result.results.map((row) => ({
     boardId: row.board_id,
-    boardName: row.board_name,
+    boardName: row.moderation_status === "name_hidden"
+      ? `Board under review · ${row.board_id.slice(0, 6).toUpperCase()}`
+      : row.board_name,
     playerIds: JSON.parse(row.final_top_150_json) as string[],
   }));
 }
