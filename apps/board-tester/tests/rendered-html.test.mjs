@@ -352,6 +352,7 @@ test("adds a verified no-Board Random Draw entry with one chance per email", asy
   assert.match(officialRules, /Darian Hudock/);
   assert.match(officialRules, /Bernalillo County/);
   assert.doesNotMatch(officialRules, /Remaining legal terms|selection and audit procedure/);
+  assert.doesNotMatch(officialRules, /Operator review version/);
   assert.match(privacy, /does not sell entrant personal information/);
   assert.match(prizes, /Random Draw Only form/);
   assert.match(faq, /cryptographically secure uniform random-number process/);

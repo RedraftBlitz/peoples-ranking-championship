@@ -285,10 +285,6 @@ export default function OfficialRulesPage() {
         </section>
       </article>
 
-      <p className="contest-legal-note">
-        Operator review version: qualified promotions counsel should review these
-        Rules before public entries open. This note is not part of the entrant terms.
-      </p>
     </ContestPage>
   );
 }
