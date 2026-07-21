@@ -853,11 +853,8 @@ export function BoardTester() {
             <PrcChampionshipMark />
           </div>
           <span className="inaugural-ribbon" aria-label="2026 Inaugural Championship">
-            <span className="inaugural-ribbon-desktop" aria-hidden="true">
+            <span aria-hidden="true">
               Inaugural Championship
-            </span>
-            <span className="inaugural-ribbon-mobile" aria-hidden="true">
-              Inaugural · 2026
             </span>
           </span>
         </div>

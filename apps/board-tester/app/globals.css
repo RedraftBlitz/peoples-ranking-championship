@@ -190,10 +190,6 @@ a:focus-visible {
   white-space: nowrap;
 }
 
-.inaugural-ribbon-mobile {
-  display: none !important;
-}
-
 .prc-championship-mark {
   display: block;
   width: 100%;
@@ -6074,24 +6070,9 @@ footer a {
     object-fit: contain;
   }
 
-  .inaugural-ribbon {
-    width: 68px;
-    margin: -4px 0 0 -3px;
-  }
-
-  .inaugural-ribbon > span {
-    padding: 4px 3px;
-    font-family: Inter, ui-sans-serif, system-ui, sans-serif;
-    font-size: 0.37rem;
-    letter-spacing: 0.055em;
-  }
-
-  .inaugural-ribbon-desktop {
-    display: none !important;
-  }
-
-  .inaugural-ribbon-mobile {
-    display: block !important;
+  .inaugural-ribbon,
+  .contest-wordmark-copy small {
+    display: none;
   }
 
   .hero-copy {
