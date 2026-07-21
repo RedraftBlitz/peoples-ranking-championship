@@ -126,11 +126,18 @@ test("reports the exact eligible ADP count when FantasyPros returns fewer than 2
 
 test("reports received and API-reported ECR access counts without saving rankings", () => {
   const players = Array.from({ length: 10 }, (_, index) => ({
-    player_id: 50000 + index,
+    id: 50000 + index,
     player_name: `ECR Player ${index + 1}`,
     position_id: ["QB", "RB", "WR", "TE"][index % 4],
-    rank_ecr_half: index + 1,
-    rank_ecr_pos: index < 8 ? Math.floor(index / 4) + 1 : null,
+    rank: {
+      ECR: {
+        HALF: {
+          ALL: index + 1,
+          ...index < 8 ? { [["QB", "RB", "WR", "TE"][index % 4]]: Math.floor(index / 4) + 1 } : {},
+        },
+        PPR: { ALL: index + 2 },
+      },
+    },
   }));
   const summary = summarizeFantasyProsEcrPayload({
     sport: "NFL",
@@ -141,27 +148,44 @@ test("reports received and API-reported ECR access counts without saving ranking
   });
 
   assert.deepEqual(summary, {
-    rankingType: "Half-PPR player",
+    rankingType: "Half-PPR rankings",
     reportedPlayers: 396,
     receivedPlayers: 10,
     eligiblePlayers: 10,
+    eligiblePprPlayers: 10,
     eligiblePositionalPlayers: 8,
     lastUpdated: null,
     fullTop200Available: false,
   });
 });
 
-test("fails closed when the player endpoint does not confirm NFL half-PPR ECR", () => {
+test("reports full-PPR access when half-PPR ECR is absent", () => {
   assert.throws(
     () => summarizeFantasyProsEcrPayload({ sport: "MLB", season: 2026, players: [] }),
     /NFL ECR players/,
   );
-  assert.throws(
-    () => summarizeFantasyProsEcrPayload({
-      sport: "NFL",
-      season: 2026,
-      players: [{ player_id: 1, player_name: "No Half ECR", position_id: "RB", rank_ecr: 1 }],
-    }),
-    /no eligible half-PPR ECR players/i,
-  );
+  const summary = summarizeFantasyProsEcrPayload({
+    sport: "NFL",
+    season: 2026,
+    players: [{ id: 1, player_name: "PPR Only", position_id: "RB", rank: { ECR: { PPR: { ALL: 1 } } } }],
+  });
+  assert.equal(summary.eligiblePlayers, 0);
+  assert.equal(summary.eligiblePprPlayers, 1);
+});
+
+test("uses standard positional ECR for quarterbacks when half-PPR omits the QB position key", () => {
+  const summary = summarizeFantasyProsEcrPayload({
+    sport: "NFL",
+    season: 2026,
+    count: 1,
+    players: [{
+      id: 7,
+      player_name: "Quarterback Test",
+      position_id: "QB",
+      rank: { ECR: { HALF: { ALL: 12 }, STD: { QB: 4 } } },
+    }],
+  });
+  assert.equal(summary.eligiblePlayers, 1);
+  assert.equal(summary.eligiblePprPlayers, 0);
+  assert.equal(summary.eligiblePositionalPlayers, 1);
 });
