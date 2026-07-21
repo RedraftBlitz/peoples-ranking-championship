@@ -100,3 +100,25 @@ test("fails closed when FantasyPros does not confirm the ADP dataset", () => {
     /half-PPR ADP/,
   );
 });
+
+test("reports the exact eligible ADP count when FantasyPros returns fewer than 200", () => {
+  const players = Array.from({ length: 173 }, (_, index) => ({
+    player_id: 40000 + index,
+    player_name: `Eligible Player ${index + 1}`,
+    player_team_id: "FA",
+    player_position_id: ["QB", "RB", "WR", "TE"][index % 4],
+    rank_ecr: index + 1,
+  }));
+
+  assert.throws(
+    () => fantasyProsHalfPprAdpRows({
+      sport: "NFL",
+      year: "2026",
+      type: "ADP",
+      scoring: "HALF",
+      position_id: "ALL",
+      players,
+    }),
+    /returned 173 eligible half-PPR ADP players; at least 200 are currently required/,
+  );
+});

@@ -83,7 +83,9 @@ export function fantasyProsHalfPprAdpRows(payload: unknown): FantasyProsAdpRow[]
     left.sourceAdp - right.sourceAdp || left.externalId.localeCompare(right.externalId),
   );
   if (rows.length < 200) {
-    throw new Error("FantasyPros returned fewer than 200 eligible half-PPR ADP players.");
+    throw new Error(
+      `FantasyPros returned ${rows.length} eligible half-PPR ADP players; at least 200 are currently required.`,
+    );
   }
   return rows.map((row, index) => ({ ...row, overallRank: index + 1 }));
 }
