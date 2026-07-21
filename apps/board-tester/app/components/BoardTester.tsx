@@ -1575,6 +1575,9 @@ export function BoardTester() {
                       Enter the six-digit code from the email, then choose a new PIN.
                       The code expires after 10 minutes.
                     </p>
+                    <p className="email-delivery-note">
+                      Not there after a minute? Check your Spam or Junk folder.
+                    </p>
                     <form className="dialog-form" onSubmit={resetRecoveredPin}>
                       <label>
                         Six-digit reset code
@@ -1790,6 +1793,9 @@ export function BoardTester() {
                             autoFocus
                           />
                         </label>
+                        <p className="email-delivery-note">
+                          Not there after a minute? Check your Spam or Junk folder.
+                        </p>
                         <button className="button gold" type="submit" disabled={busy}>
                           {busy ? "Verifying…" : "Verify Email"}
                         </button>

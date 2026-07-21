@@ -20,7 +20,7 @@ export async function POST(
   }
   if (entryDeadlinePassed()) {
     return Response.json(
-      { error: "FantasyCalc updates froze at the September 9, 2026 entry deadline." },
+      { error: "Player-market updates froze at the September 9, 2026 entry deadline." },
       { status: 409 },
     );
   }
@@ -30,7 +30,7 @@ export async function POST(
     .prepare("SELECT id, status, review_json FROM market_snapshots WHERE id = ?1")
     .bind(id)
     .first<ApprovalRow>();
-  if (!snapshot) return Response.json({ error: "That FantasyCalc review was not found." }, { status: 404 });
+  if (!snapshot) return Response.json({ error: "That player-market review was not found." }, { status: 404 });
   const review = JSON.parse(snapshot.review_json) as MarketReview;
   if (snapshot.status !== "pending_review" || !review.ready) {
     return Response.json(

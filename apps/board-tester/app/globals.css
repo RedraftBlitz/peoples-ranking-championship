@@ -2348,6 +2348,14 @@ footer a {
   line-height: 1.5;
 }
 
+.market-source-actions {
+  display: flex;
+  flex: none;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
 .board-safety-rule {
   justify-content: flex-start;
   margin: 18px 0 14px;
@@ -3472,6 +3480,11 @@ footer a {
   .admin-section-heading {
     align-items: stretch;
     flex-direction: column;
+  }
+
+  .market-source-actions {
+    display: grid;
+    grid-template-columns: 1fr;
   }
 
   .market-history,
@@ -4667,6 +4680,14 @@ footer a {
 .random-entry-message.error {
   color: #7c3029;
   background: #fae8e4;
+}
+
+.email-delivery-note {
+  margin: 6px 0 0;
+  color: var(--muted);
+  font-size: 0.68rem;
+  font-weight: 800;
+  line-height: 1.45;
 }
 
 .random-entry-card .button {

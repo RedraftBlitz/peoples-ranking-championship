@@ -347,7 +347,7 @@ export function AdminDashboard({ displayName }: { displayName: string }) {
           <article>
             <div className="operation-title">
               <span className={`operation-light ${data?.operations.market.status === "approved" ? "ready" : "waiting"}`} />
-              <strong>FantasyCalc market</strong>
+              <strong>Opening player market</strong>
             </div>
             <b>{data?.operations.market.status === "approved" ? "Approved" : "Not approved yet"}</b>
             <small>
