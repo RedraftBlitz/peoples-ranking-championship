@@ -53,4 +53,7 @@ This is the operating checklist for the 2026 People's Ranking Championship.
 - At September 9, 2026, 4:00 PM Eastern, confirm new final submissions and Random Draw Only entries are closed.
 - Export the final entry CSV and a Full Backup, then preserve both unchanged.
 - Contact potential winners using verified entry emails and follow the 30-day response rule in the Official Rules.
-- Complete the Random Draw no later than January 15, 2027 at 10:00 AM Mountain using the documented cryptographically secure process and retain the audit record.
+- Before January 15, review the deduplicated field in `/admin/random-draw`, remove any documented ineligible or test entries, and run a practice test.
+- At January 15, 2027 at 10:00 AM Mountain, use `/admin/random-draw` to conduct the date-locked official drawing and download the private winner contact file.
+- Record the potential winner as confirmed after eligibility and acceptance are verified. Record a forfeiture only after a documented verification failure or the 30-day response period, then use the same page for an official alternate drawing.
+- Retain the exact backup containing the immutable pool, cryptographic hash, random value, selection, administrator identity, and winner-status audit actions.

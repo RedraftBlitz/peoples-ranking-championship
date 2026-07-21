@@ -13,6 +13,7 @@ import {
   compareBvmTieKeys,
   competitionRanks,
   formatScore,
+  firstRoundCrownWinnerIds,
   midrankPercentiles,
   positionalAccuracyFromRows,
   topNAccuracyFromSubmittedRanks,
@@ -164,6 +165,26 @@ test("leaderboard uses full precision, shared nonwinner places, and winner-only 
     trueTieRows.filter((row) => row.isOfficialChampionshipTie).map((row) => row.boardName),
     trueTie.expected_official_tie,
   );
+});
+
+test("First Round Crown uses Top-12 first, the remaining exact ladder, and true ties", () => {
+  const candidates = [
+    leaderboardInput({ board_name: "Top 12 leader", board_accuracy: 10, tiebreakers: [95, 10, 10, 10, 10, 10] }, 1),
+    leaderboardInput({ board_name: "Overall leader", board_accuracy: 99, tiebreakers: [94, 99, 99, 99, 99, 99] }, 2),
+  ];
+  assert.deepEqual(firstRoundCrownWinnerIds(candidates), ["board-1"]);
+
+  const ladderResolved = [
+    leaderboardInput({ board_name: "Top-24 winner", board_accuracy: 20, tiebreakers: [95, 96, 10, 10, 10, 10] }, 3),
+    leaderboardInput({ board_name: "Top-24 runner-up", board_accuracy: 99, tiebreakers: [95, 95, 99, 99, 99, 99] }, 4),
+  ];
+  assert.deepEqual(firstRoundCrownWinnerIds(ladderResolved), ["board-3"]);
+
+  const trueTie = [
+    leaderboardInput({ board_name: "Zulu Crown", board_accuracy: 99, tiebreakers: [95, 94, 93, 92, 91, 90] }, 5),
+    leaderboardInput({ board_name: "Alpha Crown", board_accuracy: 1, tiebreakers: [95, 94, 93, 92, 91, 90] }, 6),
+  ];
+  assert.deepEqual(firstRoundCrownWinnerIds(trueTie), ["board-6", "board-5"]);
 });
 
 test("historical Top-150 fixture retains exact 70/30 values and order", () => {

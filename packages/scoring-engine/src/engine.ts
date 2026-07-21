@@ -413,6 +413,39 @@ function compareTieLadder(left: LeaderboardBoardInput, right: LeaderboardBoardIn
   return 0;
 }
 
+export function firstRoundCrownWinnerIds(
+  boardsInput: readonly LeaderboardBoardInput[],
+): string[] {
+  requireCondition(
+    boardsInput.length > 0,
+    "EMPTY_FIRST_ROUND_CROWN_FIELD",
+    "The First Round Crown requires at least one scored Board.",
+  );
+  const ids = new Set<string>();
+  for (const board of boardsInput) {
+    requireCondition(
+      board.boardId.trim().length > 0 && board.boardName.trim().length > 0,
+      "INVALID_FIRST_ROUND_CROWN_BOARD",
+      "Every First Round Crown candidate requires an ID and name.",
+    );
+    requireCondition(
+      !ids.has(board.boardId),
+      "DUPLICATE_FIRST_ROUND_CROWN_BOARD_ID",
+      `Duplicate First Round Crown Board ID: ${board.boardId}.`,
+    );
+    ids.add(board.boardId);
+  }
+  const ordered = [...boardsInput].sort((left, right) =>
+    compareTieLadder(left, right)
+      || compareText(left.boardName, right.boardName)
+      || left.boardId.localeCompare(right.boardId, "en"),
+  );
+  const best = ordered[0];
+  return ordered
+    .filter((board) => compareTieLadder(board, best) === 0)
+    .map((board) => board.boardId);
+}
+
 export function buildLeaderboard(boardsInput: readonly LeaderboardBoardInput[]): LeaderboardRow[] {
   requireCondition(boardsInput.length > 0, "EMPTY_LEADERBOARD", "A scored leaderboard cannot be empty.");
   const ids = new Set<string>();

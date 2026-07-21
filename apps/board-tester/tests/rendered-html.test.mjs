@@ -275,6 +275,47 @@ test("adds a private contest control room with safe final-entry exports", async 
   assert.match(updateCenter, /href="\/admin"/);
 });
 
+test("adds date-locked Random Draw operations and a privacy-safe public audit record", async () => {
+  const [
+    adminPage,
+    adminComponent,
+    drawRoute,
+    publicRoute,
+    publicPage,
+    schema,
+    migration,
+    backup,
+  ] = await Promise.all([
+    readFile(new URL("app/admin/random-draw/page.tsx", projectRoot), "utf8"),
+    readFile(new URL("app/components/AdminRandomDraw.tsx", projectRoot), "utf8"),
+    readFile(new URL("app/api/admin/random-draw/draw/route.ts", projectRoot), "utf8"),
+    readFile(new URL("app/api/random-draw/results/route.ts", projectRoot), "utf8"),
+    readFile(new URL("app/random-draw/results/page.tsx", projectRoot), "utf8"),
+    readFile(new URL("db/schema.ts", projectRoot), "utf8"),
+    readFile(new URL("drizzle/0009_fluffy_forgotten_one.sql", projectRoot), "utf8"),
+    readFile(new URL("app/api/admin/backup/route.ts", projectRoot), "utf8"),
+  ]);
+
+  assert.match(adminPage, /requireChatGPTUser\("\/admin\/random-draw"\)/);
+  assert.match(adminPage, /isAdminEmail\(user\.email\)/);
+  assert.match(adminComponent, /Run Practice Test/);
+  assert.match(adminComponent, /Conduct Official Draw/);
+  assert.match(adminComponent, /Draw Official Alternate/);
+  assert.match(adminComponent, /Download Winner Contact/);
+  assert.match(drawRoute, /state\.readiness\.canRunOfficial/);
+  assert.match(drawRoute, /hashOrderedEntryIds/);
+  assert.match(drawRoute, /secureUniformIndex/);
+  assert.match(drawRoute, /pool_ids_json/);
+  assert.match(publicRoute, /poolSha256/);
+  assert.doesNotMatch(publicRoute, /selected_email_key|drawn_by/);
+  assert.match(publicPage, /PublicRandomDrawRecord/);
+  assert.match(schema, /random_draw_audits/);
+  assert.match(schema, /random_draw_winner_actions/);
+  assert.match(migration, /random_draw_audits_season_sequence_unique/);
+  assert.match(backup, /randomDrawAudits/);
+  assert.match(backup, /pool_ids_json/);
+});
+
 test("publishes the contest guide and approved 2026 prize lineup", async () => {
   const [howItWorks, prizes, scoring, faq, officialRules, contestPage, board] = await Promise.all([
     readFile(new URL("app/how-it-works/page.tsx", projectRoot), "utf8"),
@@ -328,7 +369,7 @@ test("enforces one final 2026 Board per verified email", async () => {
   assert.match(submitRoute, /board\.recovery_email_key/);
   assert.match(schema, /board_entries_season_email_unique/);
   assert.match(migration, /CREATE UNIQUE INDEX `board_entries_season_email_unique`/);
-  assert.match(rules, /PRC-2026-FINAL-ENTRY-v3/);
+  assert.match(rules, /PRC-2026-FINAL-ENTRY-v4/);
   assert.match(rules, /2026-09-09T22:00:00\.000Z/);
   assert.match(rules, /2026-09-10T00:20:00\.000Z/);
   assert.match(rules, /2027-01-15T17:00:00\.000Z/);

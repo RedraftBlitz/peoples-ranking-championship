@@ -5,6 +5,7 @@ const guideLinks = [
   ["How It Works", "/how-it-works"],
   ["Prizes", "/prizes"],
   ["Random Draw", "/random-draw"],
+  ["Draw Record", "/random-draw/results"],
   ["Scoring", "/scoring"],
   ["FAQ", "/faq"],
   ["Official Rules", "/official-rules"],

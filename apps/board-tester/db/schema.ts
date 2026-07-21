@@ -156,6 +156,77 @@ export const randomDrawEntries = sqliteTable(
   ],
 );
 
+export const randomDrawEligibilityActions = sqliteTable(
+  "random_draw_eligibility_actions",
+  {
+    id: text("id").primaryKey(),
+    season: integer("season").notNull().default(2026),
+    entryId: text("entry_id").notNull(),
+    emailKey: text("email_key").notNull(),
+    action: text("action").notNull(),
+    reason: text("reason").notNull(),
+    actedBy: text("acted_by").notNull(),
+    createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+  },
+  (table) => [
+    index("random_draw_eligibility_email_created_idx").on(
+      table.season,
+      table.emailKey,
+      table.createdAt,
+    ),
+  ],
+);
+
+export const randomDrawAudits = sqliteTable(
+  "random_draw_audits",
+  {
+    id: text("id").primaryKey(),
+    season: integer("season").notNull().default(2026),
+    sequence: integer("sequence").notNull(),
+    drawType: text("draw_type").notNull(),
+    priorDrawId: text("prior_draw_id"),
+    methodVersion: text("method_version").notNull(),
+    rulesVersion: text("rules_version").notNull(),
+    poolCount: integer("pool_count").notNull(),
+    poolIdsJson: text("pool_ids_json").notNull(),
+    poolSha256: text("pool_sha256").notNull(),
+    selectedNumber: integer("selected_number").notNull(),
+    selectedEntryId: text("selected_entry_id").notNull(),
+    selectedEmailKey: text("selected_email_key").notNull(),
+    selectedSource: text("selected_source").notNull(),
+    selectedBoardId: text("selected_board_id"),
+    randomValueHex: text("random_value_hex").notNull(),
+    rejectionCount: integer("rejection_count").notNull().default(0),
+    alternateReason: text("alternate_reason"),
+    drawnBy: text("drawn_by").notNull(),
+    drawnAt: text("drawn_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+  },
+  (table) => [
+    uniqueIndex("random_draw_audits_season_sequence_unique").on(
+      table.season,
+      table.sequence,
+    ),
+    index("random_draw_audits_season_drawn_idx").on(table.season, table.drawnAt),
+  ],
+);
+
+export const randomDrawWinnerActions = sqliteTable(
+  "random_draw_winner_actions",
+  {
+    id: text("id").primaryKey(),
+    drawId: text("draw_id")
+      .notNull()
+      .references(() => randomDrawAudits.id, { onDelete: "restrict" }),
+    action: text("action").notNull(),
+    reason: text("reason").notNull(),
+    actedBy: text("acted_by").notNull(),
+    createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+  },
+  (table) => [
+    uniqueIndex("random_draw_winner_actions_draw_unique").on(table.drawId),
+  ],
+);
+
 export const scoringSnapshots = sqliteTable(
   "scoring_snapshots",
   {

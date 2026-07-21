@@ -188,7 +188,7 @@ This section locks presentation only. It does not authorize scoring implementati
 - The champion is determined by final Board Accuracy and the objective tiebreaker ladder.
 - The champion receives the People's Cup and permanent recognition.
 - The `First Round Crown` recognizes the highest Top-12 Board Accuracy. Its exact calculation is controlled by the approved Scoring Specification.
-- `Random Draw` is selected from remaining eligible participants after excluding the Overall Champion and First Round Crown winner.
+- `Random Draw` is selected from remaining eligible participants after excluding every skill-prize winner. This includes the Overall Champion and First Round Crown winner, plus second- and third-place prize winners when the 5,000-Board boost activates.
 - At 5,000 valid official Boards, the Champion's Fanatics gift card increases from $200 to $400, second place receives a $200 Fanatics gift card, and third place receives a $100 Fanatics gift card. The helmet, People's Cup, First Round Crown, and Random Draw prizes remain unchanged.
 - The 2026-07-20 owner approval sets the announced prizes as follows: the People's Ranking Champion receives a LaDainian Tomlinson full-size signed helmet, a $200 Fanatics gift card, the physical People's Cup, and permanent recognition; the First Round Crown winner receives a $100 Fanatics gift card; and the Random Draw winner receives a $50 Fanatics gift card.
 - The People's Cup may be kept permanently by the champion or voluntarily returned to continue the passing-trophy tradition.

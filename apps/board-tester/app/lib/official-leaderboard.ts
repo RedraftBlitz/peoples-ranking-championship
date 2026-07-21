@@ -1,6 +1,7 @@
 import {
   SCORING_SPEC_VERSION,
   formatScore,
+  firstRoundCrownWinnerIds,
   scoreField,
   type BoardInput,
   type CurveRowInput,
@@ -77,7 +78,19 @@ export function scoreOfficialLeaderboard(
   entries: readonly EntryForLeaderboard[],
   snapshot: ScoringSnapshotInput,
 ): StoredLeaderboardRow[] {
-  if (!entries.length) return [];
+  return scoreOfficialField(entries, snapshot).rows;
+}
+
+function scoreOfficialField(
+  entries: readonly EntryForLeaderboard[],
+  snapshot: ScoringSnapshotInput,
+) {
+  if (!entries.length) {
+    return {
+      rows: [] as StoredLeaderboardRow[],
+      firstRoundCrownWinnerBoardIds: [] as string[],
+    };
+  }
   const boards: BoardInput[] = entries.map((entry) => ({
     boardId: entry.boardId,
     boardName: entry.boardName,
@@ -89,7 +102,8 @@ export function scoreOfficialLeaderboard(
       entry.publicBoardName ?? entry.boardName,
     ]),
   );
-  return scoreField(boards, snapshot, curveData as CurveRowInput[]).leaderboard.map((row) => ({
+  const field = scoreField(boards, snapshot, curveData as CurveRowInput[]);
+  const rows = field.leaderboard.map((row) => ({
     boardId: row.boardId,
     boardName: publicNames.get(row.boardId) ?? row.boardName,
     placement: row.placement,
@@ -99,6 +113,18 @@ export function scoreOfficialLeaderboard(
     isChampion: row.isChampion,
     isOfficialChampionshipTie: row.isOfficialChampionshipTie,
   }));
+  const crownWinnerIds = firstRoundCrownWinnerIds(field.boards.map((board) => ({
+    boardId: board.boardId,
+    boardName: board.boardName,
+    boardAccuracy: board.boardAccuracy,
+    top12: board.topN[12].score,
+    top24: board.topN[24].score,
+    top50: board.topN[50].score,
+    top100: board.topN[100].score,
+    bvmAccuracy: board.bvm.score,
+    positionalAccuracy: board.positional.score,
+  })));
+  return { rows, firstRoundCrownWinnerBoardIds: crownWinnerIds };
 }
 
 export function publicScoredLeaderboard(
@@ -120,8 +146,12 @@ export function leaderboardPublicationPayload(
   entries: readonly EntryForLeaderboard[],
   snapshot: ScoringSnapshotInput,
 ) {
+  const scored = scoreOfficialField(entries, snapshot);
   return {
     scoringSpecVersion: SCORING_SPEC_VERSION,
-    rows: scoreOfficialLeaderboard(entries, snapshot),
+    rows: scored.rows,
+    awards: {
+      firstRoundCrownWinnerBoardIds: scored.firstRoundCrownWinnerBoardIds,
+    },
   };
 }
