@@ -41,6 +41,9 @@ npm run build
 ## Operations
 
 - `/admin` is the private contest control room.
+- `/admin/updates` fetches FantasyPros half-PPR player points with a protected
+  API key, preserves CSV as a backup path, and requires manual approval before
+  standings change.
 - `/api/health` reports database and email readiness for uptime monitoring.
 - [The owner launch runbook](../../docs/LAUNCH-RUNBOOK.md) covers launch day,
   weekly updates, backups, moderation, incidents, and prize operations.

@@ -5,8 +5,9 @@ This is the operating checklist for the 2026 People's Ranking Championship.
 ## Before public promotion
 
 - [ ] Have the final Official Rules reviewed for the states where entry is allowed.
-- [ ] Confirm the published sponsor mailing address is appropriate for public use.
-- [ ] Keep written permission or license notes for FantasyCalc and FantasyPros data use.
+- [ ] Confirm the published Operator mailing address is appropriate for public use.
+- [x] Retain the written FantasyPros API-use approval with the private launch records.
+- [ ] Keep written permission or license notes for FantasyCalc data use.
 - [ ] Open `https://prc.redraftblitz.com/api/health` and confirm `status` is `ok`.
 - [ ] Sign in to `/admin` and confirm email delivery is ready, the leaderboard is in preseason mode, and no update is waiting for review.
 - [ ] Download a Full Backup from `/admin`; open the JSON and confirm its counts match the dashboard.
@@ -32,8 +33,8 @@ This is the operating checklist for the 2026 People's Ranking Championship.
 
 ## Weekly scoring after Week 1
 
-1. Export the current FantasyPros half-PPR points file.
-2. Open `/admin/updates`, upload it, and review the completed-week count and identity report.
+1. Open `/admin/updates` and run the FantasyPros API review. Use a current half-PPR CSV only as a backup if the API is unavailable.
+2. Review the completed-week count and identity report.
 3. Do not approve with any blocking issue or unresolved BVM Top 150 player.
 4. Approve the snapshot only after its scheduled publication time is correct.
 5. Confirm the public leaderboard switches to scored mode and shows the correct completed week.
