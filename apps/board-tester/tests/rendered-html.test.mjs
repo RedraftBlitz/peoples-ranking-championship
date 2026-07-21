@@ -139,6 +139,7 @@ test("adds manual primary and backup market reviews without rearranging saved Bo
     adpImporter,
     apiClient,
     reviewRoute,
+    ecrAccessRoute,
     approvalRoute,
     marketRoute,
     board,
@@ -149,6 +150,7 @@ test("adds manual primary and backup market reviews without rearranging saved Bo
     readFile(new URL("app/lib/fantasypros-adp.ts", projectRoot), "utf8"),
     readFile(new URL("app/lib/fantasypros-api.ts", projectRoot), "utf8"),
     readFile(new URL("app/api/admin/market-updates/route.ts", projectRoot), "utf8"),
+    readFile(new URL("app/api/admin/market-updates/fantasypros-ecr/route.ts", projectRoot), "utf8"),
     readFile(new URL("app/api/admin/market-updates/[id]/approve/route.ts", projectRoot), "utf8"),
     readFile(new URL("app/api/market/route.ts", projectRoot), "utf8"),
     readFile(new URL("app/components/BoardTester.tsx", projectRoot), "utf8"),
@@ -157,6 +159,7 @@ test("adds manual primary and backup market reviews without rearranging saved Bo
 
   assert.match(component, /Check FantasyCalc Now/);
   assert.match(component, /Check FantasyPros ADP Backup/);
+  assert.match(component, /Check FantasyPros ECR Access/);
   assert.match(component, /FantasyCalc is the primary source/);
   assert.match(component, /Saved Boards rearranged/);
   assert.match(component, /Existing saved Boards keep their exact order/);
@@ -168,6 +171,7 @@ test("adds manual primary and backup market reviews without rearranging saved Bo
   assert.match(adpImporter, /fantasyCalcId/);
   assert.match(apiClient, /consensus-rankings\?position=ALL&scoring=HALF&type=ADP/);
   assert.match(reviewRoute, /FANTASYCALC_SOURCE_URL/);
+  assert.match(ecrAccessRoute, /summarizeFantasyProsEcrPayload/);
   assert.match(reviewRoute, /analyzeFantasyProsAdpPayload/);
   assert.match(reviewRoute, /source === "fantasypros_adp"/);
   assert.match(approvalRoute, /UPDATE market_snapshots/);

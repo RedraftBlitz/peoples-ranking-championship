@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { fantasyProsHalfPprAdpRows } from "../app/lib/fantasypros-adp-response.ts";
+import { summarizeFantasyProsEcrPayload } from "../app/lib/fantasypros-ecr-response.ts";
 import { fantasyProsPlayerPointsToCsv } from "../app/lib/fantasypros-player-points.ts";
 
 test("normalizes FantasyPros half-PPR player points without changing decimal values", () => {
@@ -121,4 +122,31 @@ test("reports the exact eligible ADP count when FantasyPros returns fewer than 2
     }),
     /returned 173 eligible half-PPR ADP players; at least 200 are currently required/,
   );
+});
+
+test("reports received and API-reported ECR access counts without saving rankings", () => {
+  const players = Array.from({ length: 10 }, (_, index) => ({
+    player_id: 50000 + index,
+    player_name: `ECR Player ${index + 1}`,
+    player_position_id: ["QB", "RB", "WR", "TE"][index % 4],
+    rank_ecr: index + 1,
+  }));
+  const summary = summarizeFantasyProsEcrPayload({
+    year: 2026,
+    type: "Preseason",
+    scoring: "HALF",
+    position_id: "ALL",
+    count: 396,
+    last_updated: "7/20",
+    players,
+  });
+
+  assert.deepEqual(summary, {
+    rankingType: "Preseason",
+    reportedPlayers: 396,
+    receivedPlayers: 10,
+    eligiblePlayers: 10,
+    lastUpdated: "7/20",
+    fullTop200Available: false,
+  });
 });

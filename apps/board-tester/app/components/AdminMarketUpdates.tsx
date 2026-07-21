@@ -40,6 +40,15 @@ type MarketSnapshot = {
   approvedAt: string | null;
 };
 
+type EcrAccessSummary = {
+  rankingType: string;
+  reportedPlayers: number | null;
+  receivedPlayers: number;
+  eligiblePlayers: number;
+  lastUpdated: string | null;
+  fullTop200Available: boolean;
+};
+
 function sourceLabel(source: MarketSnapshot["source"]) {
   return source === "fantasypros_adp"
     ? "FantasyPros half-PPR ADP"
@@ -119,6 +128,33 @@ export function AdminMarketUpdates() {
     }
   }
 
+  async function checkEcrAccess() {
+    setBusy(true);
+    setError("");
+    setMessage("");
+    try {
+      const response = await fetch("/api/admin/market-updates/fantasypros-ecr", { method: "POST" });
+      const data = (await response.json()) as { summary?: EcrAccessSummary; error?: string };
+      if (!response.ok || !data.summary) {
+        throw new Error(data.error ?? "FantasyPros ECR access could not be checked.");
+      }
+      const summary = data.summary;
+      const reported = summary.reportedPlayers === null
+        ? ""
+        : ` FantasyPros reports ${summary.reportedPlayers} total players in the dataset.`;
+      const result = `FantasyPros ${summary.rankingType} ECR returned ${summary.eligiblePlayers} eligible QB/RB/WR/TE players from ${summary.receivedPlayers} received rows.${reported} Nothing was saved or approved.`;
+      if (summary.fullTop200Available) {
+        setMessage(`${result} Full Top 200 ECR access is available.`);
+      } else {
+        setError(`${result} Full Top 200 ECR access is not available with this response.`);
+      }
+    } catch (accessError) {
+      setError(accessError instanceof Error ? accessError.message : "FantasyPros ECR access could not be checked.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
   async function approveSnapshot() {
     if (!active?.review.ready || active.status !== "pending_review") return;
     const label = sourceLabel(active.source);
@@ -156,6 +192,9 @@ export function AdminMarketUpdates() {
           </button>
           <button className="button ghost" type="button" onClick={() => checkMarket("fantasypros_adp")} disabled={busy}>
             Check FantasyPros ADP Backup
+          </button>
+          <button className="button ghost" type="button" onClick={checkEcrAccess} disabled={busy}>
+            Check FantasyPros ECR Access
           </button>
         </div>
       </div>
