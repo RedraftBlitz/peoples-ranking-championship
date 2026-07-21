@@ -1,4 +1,4 @@
-const PRC_MARK_SRC = "/prc-2026-championship-mark.png";
+const PRC_MARK_SRC = "/prc-2026-shield-transparent.png";
 
 export function PrcChampionshipMark({
   className = "",
@@ -19,7 +19,7 @@ export function PrcChampionshipMark({
     <img
       className={`prc-championship-mark ${className}`.trim()}
       src={PRC_MARK_SRC}
-      alt="2026 People's Ranking Championship, powered by Redraft Blitz"
+      alt="2026 People's Ranking Championship"
     />
   );
 }
@@ -32,9 +32,7 @@ export function RedraftBlitzCredit({ className = "" }: { className?: string }) {
     >
       <span aria-hidden="true">
         <small>Powered by</small>
-        <strong>
-          Redraft BL<span className="blitz-bolt">&#9889;</span>TZ
-        </strong>
+        <strong>Redraft Blitz</strong>
       </span>
     </span>
   );
