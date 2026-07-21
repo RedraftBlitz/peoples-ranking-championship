@@ -27,7 +27,7 @@ export default function OfficialRulesPage() {
     >
       <article className="rules-document">
         <section>
-          <p><strong>Effective and last updated: July 20, 2026.</strong></p>
+          <p><strong>Effective and last updated: July 21, 2026.</strong></p>
           <p>
             Participation constitutes acceptance of these Official Rules. The
             skill competition and Random Draw are collectively called the
@@ -256,6 +256,14 @@ export default function OfficialRulesPage() {
             misdirected, inaccessible, or interrupted entries or communications
             caused by systems outside reasonable control. Nothing in these Rules
             limits rights that applicable law does not permit to be limited.
+          </p>
+          <p>
+            The Promotion is not sponsored by, endorsed by, administered by, or
+            associated with Reddit, Inc. To the fullest extent permitted by law,
+            entrants release Reddit, Inc., its affiliates, and their respective
+            officers, directors, employees, and agents from all claims and
+            liability arising out of or relating to the Promotion, except where
+            such a release is prohibited by law.
           </p>
         </section>
 
