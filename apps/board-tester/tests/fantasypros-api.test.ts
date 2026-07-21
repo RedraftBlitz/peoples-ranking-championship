@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import { fantasyProsHalfPprAdpRows } from "../app/lib/fantasypros-adp-response.ts";
 import { fantasyProsPlayerPointsToCsv } from "../app/lib/fantasypros-player-points.ts";
 
 test("normalizes FantasyPros half-PPR player points without changing decimal values", () => {
@@ -42,5 +43,60 @@ test("fails closed when FantasyPros does not confirm the season and scoring form
   assert.throws(
     () => fantasyProsPlayerPointsToCsv({ season: 2026, scoring: "PPR", players: [{}] }),
     /half-PPR/,
+  );
+});
+
+test("normalizes and ranks FantasyPros 2026 half-PPR ADP", () => {
+  const players = Array.from({ length: 200 }, (_, index) => ({
+    player_id: index + 1,
+    player_name: `Player ${index + 1}`,
+    player_team_id: "FA",
+    player_position_id: ["QB", "RB", "WR", "TE"][index % 4],
+    rank_ecr: 200 - index,
+  }));
+  const rows = fantasyProsHalfPprAdpRows({
+    sport: "NFL",
+    year: 2026,
+    type: "ADP",
+    scoring: "HALF",
+    position_id: "ALL",
+    players: [
+      ...players,
+      {
+        player_id: 999,
+        player_name: "Ignored Kicker",
+        player_team_id: "FA",
+        player_position_id: "K",
+        rank_ecr: 1,
+      },
+    ],
+  });
+
+  assert.equal(rows.length, 200);
+  assert.deepEqual(rows[0], {
+    externalId: "200",
+    name: "Player 200",
+    position: "TE",
+    team: "FA",
+    sourceAdp: 1,
+    overallRank: 1,
+  });
+  assert.equal(rows[199].overallRank, 200);
+});
+
+test("fails closed when FantasyPros does not confirm the ADP dataset", () => {
+  const players = Array.from({ length: 200 }, (_, index) => ({
+    player_id: index + 1,
+    player_name: `Player ${index + 1}`,
+    player_position_id: "RB",
+    rank_adp: index + 1,
+  }));
+  assert.throws(
+    () => fantasyProsHalfPprAdpRows({ year: 2026, type: "Preseason", scoring: "HALF", position_id: "ALL", players }),
+    /confirm that this ranking is ADP/,
+  );
+  assert.throws(
+    () => fantasyProsHalfPprAdpRows({ year: 2026, type: "ADP", scoring: "PPR", position_id: "ALL", players }),
+    /half-PPR ADP/,
   );
 });

@@ -3,8 +3,14 @@ import { isAdminRequest } from "../../../lib/admin-auth";
 import {
   analyzeFantasyCalcPayload,
   FANTASYCALC_SOURCE_URL,
+  type MarketAnalysis,
   type MarketReview,
 } from "../../../lib/fantasycalc-import";
+import { analyzeFantasyProsAdpPayload } from "../../../lib/fantasypros-adp";
+import {
+  FANTASYPROS_HALF_PPR_ADP_URL,
+  fetchFantasyProsHalfPprAdp,
+} from "../../../lib/fantasypros-api";
 import { sha256Hex } from "../../../lib/fantasypros-import";
 
 const ADMIN_EMAIL_HEADER = "oai-authenticated-user-email";
@@ -22,9 +28,18 @@ type MarketSnapshotRow = {
   approved_at: string | null;
 };
 
+type MarketSource = "fantasycalc" | "fantasypros_adp";
+
+function marketSource(sourceUrl: string): MarketSource {
+  return sourceUrl === FANTASYPROS_HALF_PPR_ADP_URL
+    ? "fantasypros_adp"
+    : "fantasycalc";
+}
+
 function publicSnapshot(row: MarketSnapshotRow) {
   return {
     id: row.id,
+    source: marketSource(row.source_url),
     sourceUrl: row.source_url,
     sourceSha256: row.source_sha256,
     status: row.status,
@@ -66,22 +81,40 @@ export async function POST(request: Request) {
   if (!isAdminRequest(request)) {
     return Response.json({ error: "Administrator access is required." }, { status: 403 });
   }
+  const source = new URL(request.url).searchParams.get("source") ?? "fantasycalc";
+  if (source !== "fantasycalc" && source !== "fantasypros_adp") {
+    return Response.json({ error: "Choose FantasyCalc or FantasyPros ADP." }, { status: 400 });
+  }
   try {
-    const sourceResponse = await fetch(FANTASYCALC_SOURCE_URL, {
-      headers: { accept: "application/json", "user-agent": "PRC-Board-Review/1.0" },
-      cache: "no-store",
-    });
-    if (!sourceResponse.ok) {
-      throw new Error(`FantasyCalc could not be reached (${sourceResponse.status}).`);
+    let sourceText: string;
+    let sourceUrl: string;
+    let retrievedAt: string;
+    let analysis: MarketAnalysis;
+    if (source === "fantasypros_adp") {
+      const fetched = await fetchFantasyProsHalfPprAdp();
+      sourceText = fetched.sourceText;
+      sourceUrl = FANTASYPROS_HALF_PPR_ADP_URL;
+      retrievedAt = fetched.retrievedAt;
+      analysis = await analyzeFantasyProsAdpPayload(fetched.payload, crypto.randomUUID());
+    } else {
+      const sourceResponse = await fetch(FANTASYCALC_SOURCE_URL, {
+        headers: { accept: "application/json", "user-agent": "PRC-Board-Review/1.0" },
+        cache: "no-store",
+      });
+      if (!sourceResponse.ok) {
+        throw new Error(`FantasyCalc could not be reached (${sourceResponse.status}).`);
+      }
+      sourceText = await sourceResponse.text();
+      sourceUrl = FANTASYCALC_SOURCE_URL;
+      retrievedAt = new Date().toISOString();
+      analysis = await analyzeFantasyCalcPayload(JSON.parse(sourceText), crypto.randomUUID());
     }
-    const sourceText = await sourceResponse.text();
     const sourceSha256 = await sha256Hex(sourceText);
     const existing = await snapshotByHash(sourceSha256);
     if (existing) return Response.json({ snapshot: publicSnapshot(existing), duplicate: true });
 
-    const id = crypto.randomUUID();
-    const analysis = await analyzeFantasyCalcPayload(JSON.parse(sourceText), id);
-    const now = new Date().toISOString();
+    const id = analysis.snapshot.snapshotId;
+    const now = retrievedAt;
     analysis.snapshot.sourceRetrievedAt = now;
     const fetchedBy = request.headers.get(ADMIN_EMAIL_HEADER)!.trim().toLowerCase();
     const status = analysis.review.ready ? "pending_review" : "blocked";
@@ -94,7 +127,7 @@ export async function POST(request: Request) {
       )
       .bind(
         id,
-        FANTASYCALC_SOURCE_URL,
+        sourceUrl,
         sourceSha256,
         status,
         JSON.stringify(analysis.review),
@@ -107,9 +140,14 @@ export async function POST(request: Request) {
     return Response.json({ snapshot: publicSnapshot(row!) }, { status: 201 });
   } catch (error) {
     return Response.json(
-      { error: error instanceof Error ? error.message : "FantasyCalc could not be reviewed." },
+      {
+        error: error instanceof Error
+          ? error.message
+          : source === "fantasypros_adp"
+            ? "FantasyPros ADP could not be reviewed."
+            : "FantasyCalc could not be reviewed.",
+      },
       { status: 400 },
     );
   }
 }
-

@@ -151,6 +151,9 @@ export function RandomDrawEntry() {
             <span className="panel-kicker">Check your inbox</span>
             <h2>Enter the six-digit code.</h2>
             <p>{message}</p>
+            <p className="email-delivery-note">
+              Not there after a minute? Check your Spam or Junk folder.
+            </p>
           </div>
           <label className="random-entry-field">
             <span>Verification code</span>

@@ -30,6 +30,7 @@ type MarketReview = {
 
 type MarketSnapshot = {
   id: string;
+  source: "fantasycalc" | "fantasypros_adp";
   status: "blocked" | "pending_review" | "approved" | "superseded";
   review: MarketReview;
   fetchedBy: string;
@@ -38,6 +39,12 @@ type MarketSnapshot = {
   createdAt: string;
   approvedAt: string | null;
 };
+
+function sourceLabel(source: MarketSnapshot["source"]) {
+  return source === "fantasypros_adp"
+    ? "FantasyPros half-PPR ADP"
+    : "FantasyCalc";
+}
 
 function formatDate(value: string | null) {
   if (!value) return "Never";
@@ -68,14 +75,14 @@ export function AdminMarketUpdates() {
   const loadHistory = useCallback(async () => {
     const response = await fetch("/api/admin/market-updates", { cache: "no-store" });
     const data = (await response.json()) as { snapshots?: MarketSnapshot[]; error?: string };
-    if (!response.ok) throw new Error(data.error ?? "FantasyCalc history could not be loaded.");
+    if (!response.ok) throw new Error(data.error ?? "Player-market history could not be loaded.");
     setSnapshots(data.snapshots ?? []);
   }, []);
 
   useEffect(() => {
     const timeout = window.setTimeout(() => {
       loadHistory().catch((loadError) => {
-        setError(loadError instanceof Error ? loadError.message : "FantasyCalc history could not be loaded.");
+        setError(loadError instanceof Error ? loadError.message : "Player-market history could not be loaded.");
       });
     }, 0);
     return () => window.clearTimeout(timeout);
@@ -91,21 +98,22 @@ export function AdminMarketUpdates() {
     };
   }, []);
 
-  async function checkFantasyCalc() {
+  async function checkMarket(source: MarketSnapshot["source"]) {
     setBusy(true);
     setError("");
     setMessage("");
     try {
-      const response = await fetch("/api/admin/market-updates", { method: "POST" });
+      const response = await fetch(`/api/admin/market-updates?source=${source}`, { method: "POST" });
       const data = (await response.json()) as { snapshot?: MarketSnapshot; duplicate?: boolean; error?: string };
-      if (!response.ok || !data.snapshot) throw new Error(data.error ?? "FantasyCalc could not be reviewed.");
+      const label = sourceLabel(source);
+      if (!response.ok || !data.snapshot) throw new Error(data.error ?? `${label} could not be reviewed.`);
       setActive(data.snapshot);
       setMessage(data.duplicate
-        ? "FantasyCalc has not changed since this review. Nothing was approved."
-        : "Fresh FantasyCalc review complete. Nothing was approved yet.");
+        ? `${label} has not changed since this review. Nothing was approved.`
+        : `Fresh ${label} review complete. Nothing was approved yet.`);
       await loadHistory();
     } catch (reviewError) {
-      setError(reviewError instanceof Error ? reviewError.message : "FantasyCalc could not be reviewed.");
+      setError(reviewError instanceof Error ? reviewError.message : "The player market could not be reviewed.");
     } finally {
       setBusy(false);
     }
@@ -113,8 +121,9 @@ export function AdminMarketUpdates() {
 
   async function approveSnapshot() {
     if (!active?.review.ready || active.status !== "pending_review") return;
+    const label = sourceLabel(active.source);
     if (!window.confirm(
-      `Approve this FantasyCalc update?\n\nIt will set the starting order for NEW Boards and update the searchable player pool.\n\nEvery existing saved Board will keep its exact player order.`,
+      `Approve this ${label} update?\n\nIt will set the starting order for NEW Boards and update the searchable player pool.\n\nEvery existing saved Board will keep its exact player order.`,
     )) return;
     setBusy(true);
     setError("");
@@ -122,7 +131,7 @@ export function AdminMarketUpdates() {
     try {
       const response = await fetch(`/api/admin/market-updates/${active.id}/approve`, { method: "POST" });
       const data = (await response.json()) as { error?: string };
-      if (!response.ok) throw new Error(data.error ?? "The FantasyCalc update could not be approved.");
+      if (!response.ok) throw new Error(data.error ?? `The ${label} update could not be approved.`);
       setActive({ ...active, status: "approved", approvedAt: new Date().toISOString() });
       setMessage("Approved. New Boards now use this order; all saved Boards remain unchanged.");
       await loadHistory();
@@ -138,12 +147,17 @@ export function AdminMarketUpdates() {
       <div className="admin-section-heading">
         <div>
           <span className="panel-kicker">Preseason player market</span>
-          <h2 id="market-update-title">FantasyCalc Board update</h2>
-          <p>Review every change before it reaches new Boards. Updates freeze at the contest entry deadline.</p>
+          <h2 id="market-update-title">Opening Board market</h2>
+          <p>FantasyCalc is the primary source. FantasyPros half-PPR ADP is the approved backup. Every source requires a separate manual review.</p>
         </div>
-        <button className="button gold" type="button" onClick={checkFantasyCalc} disabled={busy}>
-          {busy ? "Checking…" : "Check FantasyCalc Now"}
-        </button>
+        <div className="market-source-actions">
+          <button className="button gold" type="button" onClick={() => checkMarket("fantasycalc")} disabled={busy}>
+            {busy ? "Checking…" : "Check FantasyCalc Now"}
+          </button>
+          <button className="button ghost" type="button" onClick={() => checkMarket("fantasypros_adp")} disabled={busy}>
+            Check FantasyPros ADP Backup
+          </button>
+        </div>
       </div>
 
       <div className="board-safety-rule">
@@ -155,23 +169,23 @@ export function AdminMarketUpdates() {
       </div>
       {marketFrozen && (
         <p className="admin-alert error">
-          The player market is frozen. No FantasyCalc update can be approved after the final entry deadline.
+          The player market is frozen. No source update can be approved after the final entry deadline.
         </p>
       )}
 
       {error && <p className="admin-alert error">{error}</p>}
       {message && <p className="admin-alert success">{message}</p>}
 
-      <div className="market-history" aria-label="FantasyCalc review history">
+      <div className="market-history" aria-label="Player-market review history">
         {snapshots.length ? snapshots.map((snapshot) => (
           <button key={snapshot.id} type="button" onClick={() => setActive(snapshot)}>
             <span>
               <strong>{formatDate(snapshot.sourceRetrievedAt)} Mountain</strong>
-              <small>{snapshot.review.totalSourcePlayers} players · {snapshot.review.rankChanges} Top 200 moves</small>
+              <small>{sourceLabel(snapshot.source)} · {snapshot.review.totalSourcePlayers} players · {snapshot.review.rankChanges} Top 200 moves</small>
             </span>
             <b className={`snapshot-status ${snapshot.status}`}>{statusLabel(snapshot.status)}</b>
           </button>
-        )) : <p>No FantasyCalc updates have been reviewed yet.</p>}
+        )) : <p>No player-market updates have been reviewed yet.</p>}
       </div>
 
       {active && (
@@ -179,7 +193,7 @@ export function AdminMarketUpdates() {
           <div className="review-heading">
             <div>
               <span className="panel-kicker">Review before approval</span>
-              <h3>FantasyCalc · {formatDate(active.sourceRetrievedAt)}</h3>
+              <h3>{sourceLabel(active.source)} · {formatDate(active.sourceRetrievedAt)}</h3>
             </div>
             <span className={`review-readiness ${active.review.ready ? "ready" : "blocked"}`}>
               {active.review.ready ? "Ready for approval" : "Approval blocked"}
@@ -223,7 +237,7 @@ export function AdminMarketUpdates() {
               </div>
             </details>
             <details>
-              <summary>New permanent players ({active.review.additions.length})</summary>
+              <summary>Unmatched source players ({active.review.additions.length})</summary>
               <div className="review-list">
                 {active.review.additions.length ? active.review.additions.map((player) => (
                   <span key={player.id}><b>{player.name}</b><small>{player.position} · {player.team} · {player.proposedRank ? `#${player.proposedRank}` : "UR"}</small></span>
@@ -231,7 +245,7 @@ export function AdminMarketUpdates() {
               </div>
             </details>
             <details>
-              <summary>Not in the current FantasyCalc Top 200 ({active.review.removals.length})</summary>
+              <summary>Not in the current {sourceLabel(active.source)} Top 200 ({active.review.removals.length})</summary>
               <div className="review-list">
                 {active.review.removals.length ? active.review.removals.map((player) => (
                   <span key={player.id}><b>{player.name}</b><small>{player.position} · kept permanently · becomes UR for new Boards</small></span>
@@ -263,14 +277,14 @@ export function AdminMarketUpdates() {
                 ? "Market Frozen"
                 : active.status === "approved"
                   ? "Approved"
-                  : "Approve FantasyCalc Update"}
+                  : `Approve ${sourceLabel(active.source)} Update`}
             </button>
           </div>
         </div>
       )}
 
       <p className="source-attribution">
-        Rankings provided by <a href="https://fantasycalc.com/" target="_blank" rel="noreferrer">FantasyCalc</a>. Manual approval is required before use.
+        Primary rankings provided by <a href="https://fantasycalc.com/" target="_blank" rel="noreferrer">FantasyCalc</a>. Backup ADP provided by <a href="https://www.fantasypros.com/" target="_blank" rel="noreferrer">FantasyPros</a>. Manual approval is required before either source is used.
       </p>
     </section>
   );
