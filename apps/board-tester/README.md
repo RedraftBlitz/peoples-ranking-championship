@@ -14,7 +14,7 @@ The public 2026 People's Ranking Championship Board builder and contest operatio
 - working PIN recovery, final-entry confirmation, and permanent final Board locking
 - one final 2026 Board per verified email plus a verified Random Draw Only entry path
 - official preseason and weekly scored leaderboards
-- manual-review FantasyCalc primary market, FantasyPros half-PPR ADP fallback, and FantasyPros scoring update centers
+- manual-review FantasyCalc market and FantasyPros scoring update centers
 - private admin dashboard with complete backups and audited Board moderation
 - public form rate limits, global security headers, and a public health endpoint
 
