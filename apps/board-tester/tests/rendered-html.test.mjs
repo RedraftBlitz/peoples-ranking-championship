@@ -363,6 +363,12 @@ test("publishes the contest guide and approved 2026 prize lineup", async () => {
   assert.match(scoring, /80%/);
   assert.match(scoring, /70% Season Value/);
   assert.match(scoring, /QB13 · RB37 · WR49 · TE13/);
+  assert.match(scoring, /BVM asks one question/);
+  assert.match(scoring, /replacement-level player at the same position/);
+  assert.match(scoring, /= \+8 weekly value/);
+  assert.match(scoring, /= −4 weekly value/);
+  assert.match(scoring, /do not receive fixed shares of BVM/);
+  assert.match(scoring, /converted into percentiles across the entire eligible player pool/);
   assert.match(faq, /30 days to respond/);
   assert.match(contestPage, /Random Draw/);
   assert.match(contestPage, /href="\/privacy"/);
