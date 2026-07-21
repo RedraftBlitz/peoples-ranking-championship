@@ -17,6 +17,7 @@ import {
   movePlayerInBoard,
 } from "../lib/board-order";
 import { OfficialLeaderboard } from "./OfficialLeaderboard";
+import { PrcChampionshipMark, RedraftBlitzCredit } from "./PrcBrand";
 
 type Position = "QB" | "RB" | "WR" | "TE";
 type AppView = "board" | "leaderboard";
@@ -847,6 +848,16 @@ export function BoardTester() {
   return (
     <main className="app-shell">
       <header className="hero">
+        <div className="hero-brand-lockup">
+          <div className="hero-brand-card">
+            <PrcChampionshipMark />
+          </div>
+          <span className="inaugural-ribbon" aria-label="2026 Inaugural Championship">
+            <span aria-hidden="true">
+              Inaugural Championship
+            </span>
+          </span>
+        </div>
         <div className="hero-copy">
           <div className="eyebrow">People&apos;s Ranking Championship</div>
           <h1>
@@ -1423,9 +1434,13 @@ export function BoardTester() {
         <OfficialLeaderboard currentBoardName={protectedBoard?.name ?? null} />
       )}
 
-      <footer>
+      <footer className="app-footer">
+        <div className="app-footer-brand">
+          <span>People&apos;s Ranking Championship · 2026</span>
+          <RedraftBlitzCredit />
+        </div>
         <span>
-          PRC 2026 · Final entry deadline {ENTRY_DEADLINE_LABEL} · Official leaderboard uses final Boards only
+          Final entry deadline {ENTRY_DEADLINE_LABEL} · Official leaderboard uses final Boards only
         </span>
         <span>
           Player data sources: <a href="https://fantasycalc.com/" target="_blank" rel="noreferrer">FantasyCalc</a>
