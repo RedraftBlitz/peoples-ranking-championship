@@ -45,6 +45,7 @@ type EcrAccessSummary = {
   reportedPlayers: number | null;
   receivedPlayers: number;
   eligiblePlayers: number;
+  eligiblePositionalPlayers: number;
   lastUpdated: string | null;
   fullTop200Available: boolean;
 };
@@ -142,7 +143,7 @@ export function AdminMarketUpdates() {
       const reported = summary.reportedPlayers === null
         ? ""
         : ` FantasyPros reports ${summary.reportedPlayers} total players in the dataset.`;
-      const result = `FantasyPros ${summary.rankingType} ECR returned ${summary.eligiblePlayers} eligible QB/RB/WR/TE players from ${summary.receivedPlayers} received rows.${reported} Nothing was saved or approved.`;
+      const result = `FantasyPros ${summary.rankingType} ECR returned ${summary.eligiblePlayers} eligible QB/RB/WR/TE players from ${summary.receivedPlayers} received rows, including ${summary.eligiblePositionalPlayers} with positional ECR.${reported} Nothing was saved or approved.`;
       if (summary.fullTop200Available) {
         setMessage(`${result} Full Top 200 ECR access is available.`);
       } else {
