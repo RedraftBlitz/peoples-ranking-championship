@@ -51,7 +51,7 @@ export function ContestPage({
             <PrcChampionshipMark compact />
             <span className="contest-wordmark-copy">
               <strong>People&apos;s Ranking Championship</strong>
-              <small>Official 2026 Championship</small>
+              <small>2026 Inaugural Championship</small>
             </span>
           </Link>
           <Link className="button gold contest-build-link" href="/">

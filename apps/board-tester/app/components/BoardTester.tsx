@@ -848,8 +848,18 @@ export function BoardTester() {
   return (
     <main className="app-shell">
       <header className="hero">
-        <div className="hero-brand-card">
-          <PrcChampionshipMark />
+        <div className="hero-brand-lockup">
+          <div className="hero-brand-card">
+            <PrcChampionshipMark />
+          </div>
+          <span className="inaugural-ribbon" aria-label="2026 Inaugural Championship">
+            <span className="inaugural-ribbon-desktop" aria-hidden="true">
+              Inaugural Championship
+            </span>
+            <span className="inaugural-ribbon-mobile" aria-hidden="true">
+              Inaugural · 2026
+            </span>
+          </span>
         </div>
         <div className="hero-copy">
           <div className="eyebrow">People&apos;s Ranking Championship</div>
