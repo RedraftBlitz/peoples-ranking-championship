@@ -44,6 +44,43 @@ export default function ScoringPage() {
         </p>
       </section>
 
+      <section className="bvm-explainer" aria-label="BVM in plain English">
+        <div>
+          <span className="panel-kicker">In plain English</span>
+          <h2>BVM asks one question.</h2>
+          <p>
+            How much fantasy value did each player produce above the
+            replacement-level player at the same position?
+          </p>
+          <small>
+            Total season value counts 70%. Week-by-week value counts 30%. A bad
+            week can produce negative value.
+          </small>
+        </div>
+        <aside aria-label="Weekly BVM example">
+          <span>One weekly RB example</span>
+          <p>
+            <span><strong>18 points</strong> − <strong>10-point RB37 baseline</strong></span>
+            <b className="positive">= +8 weekly value</b>
+          </p>
+          <p>
+            <span><strong>6 points instead</strong> − <strong>the same baseline</strong></span>
+            <b className="negative">= −4 weekly value</b>
+          </p>
+        </aside>
+        <div className="bvm-position-bridge">
+          <strong>How positions are compared</strong>
+          <p>
+            QB, RB, WR, and TE do not receive fixed shares of BVM. Each player
+            is first measured against the replacement baseline for his own
+            position. Those season and weekly above-replacement results are then
+            converted into percentiles across the entire eligible player pool,
+            putting every position on the same comparison scale before the
+            70/30 blend.
+          </p>
+        </div>
+      </section>
+
       <section className="scoring-detail-grid">
         <article>
           <strong>70% Season Value</strong>
