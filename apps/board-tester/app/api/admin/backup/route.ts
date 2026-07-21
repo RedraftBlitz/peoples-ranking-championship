@@ -47,6 +47,7 @@ export async function GET(request: Request) {
       publications,
       moderation,
       security,
+      simulations,
     ] =
       await Promise.all([
         db.prepare(
@@ -115,10 +116,16 @@ export async function GET(request: Request) {
           `SELECT id, event_type, subject_hash, action, detail, created_at
            FROM security_events ORDER BY created_at ASC, id ASC`,
         ).all<Record<string, unknown>>(),
+        db.prepare(
+          `SELECT id, version, seed, board_count, player_count, snapshot_id,
+            step_count, passed_steps, issue_count, status, stage_results_json,
+            issues_json, duration_ms, run_by, created_at
+           FROM board_simulation_runs ORDER BY created_at ASC, id ASC`,
+        ).all<Record<string, unknown>>(),
       ]);
 
     const backup = {
-      schemaVersion: 2,
+      schemaVersion: 3,
       exportedAt,
       season: SEASON,
       containsPrivateContactInformation: true,
@@ -141,6 +148,7 @@ export async function GET(request: Request) {
         leaderboardPublications: publications.results.length,
         moderationActions: moderation.results.length,
         securityEvents: security.results.length,
+        boardSimulationRuns: simulations.results.length,
       },
       data: {
         boards: hydrateJsonFields(boards.results, ["order_json", "personal_rankings_json"]),
@@ -159,6 +167,10 @@ export async function GET(request: Request) {
         leaderboardPublications: hydrateJsonFields(publications.results, ["results_json"]),
         moderationActions: moderation.results,
         securityEvents: hydrateJsonFields(security.results, ["detail"]),
+        boardSimulationRuns: hydrateJsonFields(simulations.results, [
+          "stage_results_json",
+          "issues_json",
+        ]),
       },
     };
 

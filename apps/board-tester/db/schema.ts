@@ -350,3 +350,31 @@ export const securityEvents = sqliteTable(
     index("security_events_type_created_idx").on(table.eventType, table.createdAt),
   ],
 );
+
+export const boardSimulationRuns = sqliteTable(
+  "board_simulation_runs",
+  {
+    id: text("id").primaryKey(),
+    version: text("version").notNull(),
+    seed: integer("seed").notNull(),
+    boardCount: integer("board_count").notNull(),
+    playerCount: integer("player_count").notNull(),
+    snapshotId: text("snapshot_id").notNull(),
+    stepCount: integer("step_count").notNull(),
+    passedSteps: integer("passed_steps").notNull(),
+    issueCount: integer("issue_count").notNull(),
+    status: text("status").notNull(),
+    stageResultsJson: text("stage_results_json").notNull(),
+    issuesJson: text("issues_json").notNull(),
+    durationMs: integer("duration_ms").notNull(),
+    runBy: text("run_by").notNull(),
+    createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+  },
+  (table) => [
+    index("board_simulation_runs_created_idx").on(table.createdAt),
+    index("board_simulation_runs_status_created_idx").on(
+      table.status,
+      table.createdAt,
+    ),
+  ],
+);
