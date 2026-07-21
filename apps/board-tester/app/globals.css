@@ -1906,6 +1906,35 @@ footer a {
   gap: 12px;
 }
 
+.upload-card > .button {
+  width: 100%;
+}
+
+.api-connection-note {
+  display: block;
+  margin-top: 9px;
+  color: var(--muted);
+  font-size: 0.67rem;
+  font-weight: 750;
+}
+
+.csv-fallback {
+  margin-top: 18px;
+  padding-top: 15px;
+  border-top: 1px solid var(--line);
+}
+
+.csv-fallback summary {
+  color: var(--teal);
+  cursor: pointer;
+  font-size: 0.72rem;
+  font-weight: 850;
+}
+
+.csv-fallback form {
+  margin-top: 12px;
+}
+
 .file-drop {
   display: grid;
   gap: 8px;

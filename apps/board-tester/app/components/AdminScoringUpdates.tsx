@@ -60,15 +60,21 @@ function statusLabel(status: Snapshot["status"]) {
 export function AdminScoringUpdates({ displayName }: { displayName: string }) {
   const [snapshots, setSnapshots] = useState<Snapshot[]>([]);
   const [active, setActive] = useState<Snapshot | null>(null);
+  const [fantasyProsApiReady, setFantasyProsApiReady] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
 
   const loadHistory = useCallback(async () => {
     const response = await fetch("/api/admin/scoring-updates", { cache: "no-store" });
-    const data = (await response.json()) as { snapshots?: Snapshot[]; error?: string };
+    const data = (await response.json()) as {
+      snapshots?: Snapshot[];
+      fantasyProsApiReady?: boolean;
+      error?: string;
+    };
     if (!response.ok) throw new Error(data.error ?? "Update history could not be loaded.");
     setSnapshots(data.snapshots ?? []);
+    setFantasyProsApiReady(Boolean(data.fantasyProsApiReady));
   }, []);
 
   useEffect(() => {
@@ -95,6 +101,28 @@ export function AdminScoringUpdates({ displayName }: { displayName: string }) {
       await loadHistory();
     } catch (uploadError) {
       setError(uploadError instanceof Error ? uploadError.message : "The file could not be reviewed.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function checkFantasyProsApi() {
+    setBusy(true);
+    setError("");
+    setMessage("");
+    try {
+      const response = await fetch("/api/admin/scoring-updates/fantasypros", { method: "POST" });
+      const data = (await response.json()) as { snapshot?: Snapshot; duplicate?: boolean; error?: string };
+      if (!response.ok || !data.snapshot) {
+        throw new Error(data.error ?? "FantasyPros scoring data could not be reviewed.");
+      }
+      setActive(data.snapshot);
+      setMessage(data.duplicate
+        ? "This exact FantasyPros API snapshot was already reviewed."
+        : "FantasyPros API review complete. Nothing has been approved yet.");
+      await loadHistory();
+    } catch (reviewError) {
+      setError(reviewError instanceof Error ? reviewError.message : "FantasyPros scoring data could not be reviewed.");
     } finally {
       setBusy(false);
     }
@@ -152,19 +180,35 @@ export function AdminScoringUpdates({ displayName }: { displayName: string }) {
 
       <div className="admin-grid">
         <section className="admin-card upload-card">
-          <span className="panel-kicker">Step 1 · Upload</span>
-          <h2>FantasyPros half-PPR CSV</h2>
-          <p>The file is checked against Weeks 1–17 and the permanent PRC player crosswalk.</p>
-          <form onSubmit={uploadForReview}>
-            <label className="file-drop">
-              <span>Choose scoring file</span>
-              <input name="file" type="file" accept=".csv,text/csv" required />
-              <small>Nothing changes when a file is uploaded.</small>
-            </label>
-            <button className="button gold" type="submit" disabled={busy}>
-              {busy ? "Reviewing…" : "Upload & Review"}
-            </button>
-          </form>
+          <span className="panel-kicker">Step 1 · Review source</span>
+          <h2>FantasyPros half-PPR API</h2>
+          <p>Fetch the official 2026 player-points feed, then check Weeks 1–17 against the permanent PRC player crosswalk.</p>
+          <button
+            className="button gold"
+            type="button"
+            disabled={busy || !fantasyProsApiReady}
+            onClick={checkFantasyProsApi}
+          >
+            {busy ? "Checking…" : "Check FantasyPros Now"}
+          </button>
+          <small className="api-connection-note">
+            {fantasyProsApiReady
+              ? "API connected · fetching never publishes"
+              : "API key setup is required before the first check"}
+          </small>
+          <details className="csv-fallback">
+            <summary>Use a CSV backup instead</summary>
+            <form onSubmit={uploadForReview}>
+              <label className="file-drop">
+                <span>Choose scoring file</span>
+                <input name="file" type="file" accept=".csv,text/csv" required />
+                <small>Nothing changes when a file is uploaded.</small>
+              </label>
+              <button className="button ghost" type="submit" disabled={busy}>
+                {busy ? "Reviewing…" : "Upload & Review"}
+              </button>
+            </form>
+          </details>
           {error && <p className="admin-alert error">{error}</p>}
           {message && <p className="admin-alert success">{message}</p>}
         </section>
