@@ -35,7 +35,19 @@ export async function GET(request: Request) {
   try {
     const db = getD1();
     const exportedAt = new Date().toISOString();
-    const [boards, entries, randomDraw, market, scoring, publications, moderation, security] =
+    const [
+      boards,
+      entries,
+      randomDraw,
+      randomDrawEligibility,
+      randomDrawAudits,
+      randomDrawWinnerActions,
+      market,
+      scoring,
+      publications,
+      moderation,
+      security,
+    ] =
       await Promise.all([
         db.prepare(
           `SELECT id, season, board_name, recovery_email, recovery_email_verified_at,
@@ -54,6 +66,25 @@ export async function GET(request: Request) {
           `SELECT id, season, email, email_key, entry_method, rules_version,
             eligibility_confirmed_at, submitted_at
            FROM random_draw_entries WHERE season = ?1 ORDER BY submitted_at ASC, id ASC`,
+        ).bind(SEASON).all<Record<string, unknown>>(),
+        db.prepare(
+          `SELECT id, season, entry_id, email_key, action, reason, acted_by, created_at
+           FROM random_draw_eligibility_actions WHERE season = ?1
+           ORDER BY created_at ASC, id ASC`,
+        ).bind(SEASON).all<Record<string, unknown>>(),
+        db.prepare(
+          `SELECT id, season, sequence, draw_type, prior_draw_id, method_version,
+            rules_version, pool_count, pool_ids_json, pool_sha256,
+            selected_number, selected_entry_id, selected_email_key,
+            selected_source, selected_board_id, random_value_hex,
+            rejection_count, alternate_reason, drawn_by, drawn_at
+           FROM random_draw_audits WHERE season = ?1 ORDER BY sequence ASC, id ASC`,
+        ).bind(SEASON).all<Record<string, unknown>>(),
+        db.prepare(
+          `SELECT a.id, a.draw_id, a.action, a.reason, a.acted_by, a.created_at
+           FROM random_draw_winner_actions a
+           JOIN random_draw_audits d ON d.id = a.draw_id
+           WHERE d.season = ?1 ORDER BY a.created_at ASC, a.id ASC`,
         ).bind(SEASON).all<Record<string, unknown>>(),
         db.prepare(
           `SELECT id, season, source_url, source_sha256, status, review_json,
@@ -87,7 +118,7 @@ export async function GET(request: Request) {
       ]);
 
     const backup = {
-      schemaVersion: 1,
+      schemaVersion: 2,
       exportedAt,
       season: SEASON,
       containsPrivateContactInformation: true,
@@ -102,6 +133,9 @@ export async function GET(request: Request) {
         boards: boards.results.length,
         finalEntries: entries.results.length,
         randomDrawOnlyEntries: randomDraw.results.length,
+        randomDrawEligibilityActions: randomDrawEligibility.results.length,
+        randomDrawAuditRounds: randomDrawAudits.results.length,
+        randomDrawWinnerActions: randomDrawWinnerActions.results.length,
         marketSnapshots: market.results.length,
         scoringSnapshots: scoring.results.length,
         leaderboardPublications: publications.results.length,
@@ -117,6 +151,9 @@ export async function GET(request: Request) {
           "confirmation_json",
         ]),
         randomDrawEntries: randomDraw.results,
+        randomDrawEligibilityActions: randomDrawEligibility.results,
+        randomDrawAudits: hydrateJsonFields(randomDrawAudits.results, ["pool_ids_json"]),
+        randomDrawWinnerActions: randomDrawWinnerActions.results,
         marketSnapshots: hydrateJsonFields(market.results, ["review_json", "snapshot_json"]),
         scoringSnapshots: hydrateJsonFields(scoring.results, ["review_json", "snapshot_json"]),
         leaderboardPublications: hydrateJsonFields(publications.results, ["results_json"]),

@@ -234,7 +234,8 @@ export function AdminDashboard({ displayName }: { displayName: string }) {
           <strong>{displayName}</strong>
           <nav aria-label="Admin navigation">
             <Link href="/admin/updates">Data updates</Link>
-            <Link href="/random-draw">Random Draw form</Link>
+            <Link href="/admin/random-draw">Random Draw controls</Link>
+            <Link href="/random-draw">Public entry form</Link>
             <Link href="/">Board tester</Link>
           </nav>
         </div>

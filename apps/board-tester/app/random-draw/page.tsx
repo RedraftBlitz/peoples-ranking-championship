@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { ContestPage } from "../components/ContestPage";
 import { RandomDrawEntry } from "../components/RandomDrawEntry";
 import { ENTRY_DEADLINE_LABEL, RANDOM_DRAW_LABEL } from "../lib/entry-rules";
@@ -33,6 +34,9 @@ export default function RandomDrawPage() {
             One potential winner will be selected using the documented procedure
             in the Official Rules. Odds depend on the final eligible entry count.
           </p>
+          <Link className="button secondary" href="/random-draw/results">
+            View Public Drawing Record
+          </Link>
         </article>
       </section>
     </ContestPage>

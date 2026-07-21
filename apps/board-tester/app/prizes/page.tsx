@@ -59,8 +59,9 @@ export default function PrizesPage() {
           <strong className="prize-value">$50 Fanatics gift card</strong>
           <p>
             Selected {RANDOM_DRAW_LABEL} from eligible, verified entries after
-            excluding the Overall Champion and First Round Crown winner. A final
-            Board enters automatically, or use the free Random Draw Only form.
+            excluding every skill-prize winner. If the 5,000-Board Prize Boost
+            activates, that also excludes the second- and third-place prize
+            winners. A final Board enters automatically, or use the free Random Draw Only form.
             One chance per verified email across both methods.
           </p>
         </article>

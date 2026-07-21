@@ -120,9 +120,11 @@ export default function OfficialRulesPage() {
             The drawing will occur <time dateTime={RANDOM_DRAW_UTC}>{RANDOM_DRAW_LABEL}</time>.
             Before the drawing, the Operator will combine verified final-Board
             entries and verified Random Draw Only entries, deduplicate them by
-            normalized verified email, and exclude every Overall Champion and
-            First Round Crown winner. Odds are one divided by the final number of
-            eligible deduplicated entries.
+            normalized verified email, and exclude every skill-prize winner.
+            This includes every Overall Champion and First Round Crown winner,
+            plus second- and third-place prize winners if the 5,000-Board Prize
+            Boost activates. Odds are one divided by the final number of eligible
+            deduplicated entries.
           </p>
           <p>
             Eligible entries will be ordered by immutable internal entry ID and
