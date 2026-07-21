@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { PrcChampionshipMark, RedraftBlitzCredit } from "./PrcBrand";
 
 const guideLinks = [
   ["How It Works", "/how-it-works"],
@@ -47,8 +48,11 @@ export function ContestPage({
       <header className="contest-page-hero">
         <div className="contest-page-brandbar">
           <Link href="/" className="contest-wordmark">
-            <span>PRC</span>
-            <strong>People&apos;s Ranking Championship</strong>
+            <PrcChampionshipMark compact />
+            <span className="contest-wordmark-copy">
+              <strong>People&apos;s Ranking Championship</strong>
+              <small>Official 2026 Championship</small>
+            </span>
           </Link>
           <Link className="button gold contest-build-link" href="/">
             Build Your Board
@@ -74,9 +78,10 @@ export function ContestPage({
       <div className="contest-page-content">{children}</div>
 
       <footer className="contest-page-footer">
-        <div>
+        <div className="contest-footer-brand">
           <strong>People&apos;s Ranking Championship · 2026</strong>
           <span>No purchase necessary · 18+ · United States only</span>
+          <RedraftBlitzCredit />
         </div>
         <div className="contest-footer-links">
           <Link href="/">Build Your Board</Link>
