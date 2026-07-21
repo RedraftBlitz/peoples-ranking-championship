@@ -5290,6 +5290,8 @@ footer a {
 }
 
 .notice-compact,
+.mobile-demo-label,
+.mobile-demo-disclaimer,
 .mobile-score-toggle,
 .mobile-board-controls {
   display: none;
@@ -5499,6 +5501,26 @@ footer a {
     font-size: 1rem;
   }
 
+  .demo-score-heading > div {
+    display: grid;
+    justify-items: start;
+    gap: 4px;
+  }
+
+  .mobile-demo-label {
+    display: inline-flex;
+    align-items: center;
+    min-height: 20px;
+    padding: 0 7px;
+    border-radius: 999px;
+    color: #fff;
+    background: var(--coral);
+    font-size: 0.49rem;
+    font-weight: 900;
+    letter-spacing: 0.055em;
+    text-transform: uppercase;
+  }
+
   .mobile-score-toggle {
     display: inline-flex;
     align-items: center;
@@ -5521,6 +5543,20 @@ footer a {
   .demo-score-grid.is-mobile-open {
     display: grid;
     border-top: 1px solid #d8c898;
+  }
+
+  .demo-score-grid.is-mobile-open .mobile-demo-disclaimer {
+    display: block;
+    grid-column: 1 / -1;
+    margin: 0;
+    padding: 9px 12px;
+    border-bottom: 1px solid #d8c898;
+    color: #7d332d;
+    background: #fff0ec;
+    font-size: 0.59rem;
+    font-weight: 850;
+    line-height: 1.4;
+    text-align: center;
   }
 
   .workspace {

@@ -1036,7 +1036,8 @@ export function BoardTester() {
           <div>
             <span className="state-pill demo">Demo results · not official</span>
             <span className="panel-kicker">{DEMO_SNAPSHOT_LABEL}</span>
-            <h2 id="demo-score-title">Your Board score</h2>
+            <span className="mobile-demo-label">Preseason demo · no real score yet</span>
+            <h2 id="demo-score-title">Preseason demo score</h2>
           </div>
           <p>
             These numbers recalculate when you move a player. The weekly player
@@ -1049,13 +1050,17 @@ export function BoardTester() {
             aria-controls="demo-score-grid"
             onClick={() => setMobileScoresOpen((open) => !open)}
           >
-            {mobileScoresOpen ? "Hide scores" : "View scores"}
+            {mobileScoresOpen ? "Hide demo scores" : "View demo scores"}
           </button>
         </div>
         <div
           id="demo-score-grid"
           className={`demo-score-grid ${mobileScoresOpen ? "is-mobile-open" : ""}`}
         >
+          <p className="mobile-demo-disclaimer">
+            Demo only — these weekly results are fabricated. Real Board Accuracy
+            and percentile begin after the first published Week 1 update.
+          </p>
           <div className="primary">
             <span>Board Accuracy</span>
             <strong>{demoField.currentBoard.boardAccuracy}</strong>

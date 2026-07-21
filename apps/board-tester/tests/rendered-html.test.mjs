@@ -13,7 +13,7 @@ test("connects the Board tester to exact demo scoring and official standings", a
     readFile(new URL("app/data/demo-curves.json", projectRoot), "utf8"),
   ]);
 
-  assert.match(component, /Your Board score/);
+  assert.match(component, /Preseason demo score/);
   assert.match(component, /demoField\.currentBoard\.boardAccuracy/);
   assert.match(component, /demoField\.currentBoard\.positionalAccuracy/);
   assert.match(component, /demoField\.currentBoard\.bvmAccuracy/);
@@ -58,6 +58,9 @@ test("keeps ranking controls with the user", async () => {
   assert.match(component, /className="mobile-board-controls"/);
   assert.match(component, /id="player-search"/);
   assert.match(component, /className="mobile-score-toggle"/);
+  assert.match(component, /Preseason demo · no real score yet/);
+  assert.match(component, /View demo scores/);
+  assert.match(component, /Real Board Accuracy[\s\S]*first published Week 1 update/);
   assert.match(component, /className="search-empty search-prompt"/);
   assert.match(component, /setFollowedPlayerId\(id\)/);
   assert.match(component, /scrollIntoView/);
@@ -71,6 +74,8 @@ test("keeps ranking controls with the user", async () => {
   assert.match(styles, /\.hero-copy > p\s*\{\s*display:\s*none/);
   assert.match(styles, /\.score-strip\s*\{\s*display:\s*none/);
   assert.match(styles, /\.demo-score-grid\.is-mobile-open\s*\{[\s\S]*display:\s*grid/);
+  assert.match(styles, /\.mobile-demo-label\s*\{[\s\S]*display:\s*inline-flex/);
+  assert.match(styles, /\.demo-score-grid\.is-mobile-open \.mobile-demo-disclaimer\s*\{[\s\S]*display:\s*block/);
 });
 
 test("adds a sticky read-only Position View without changing Board order", async () => {
