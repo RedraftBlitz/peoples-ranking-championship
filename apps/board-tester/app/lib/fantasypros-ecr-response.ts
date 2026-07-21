@@ -1,18 +1,16 @@
 type FantasyProsEcrPlayer = {
   player_id?: string | number;
   player_name?: string;
-  player_position_id?: string;
-  rank_ecr?: string | number;
+  position_id?: string;
+  rank_ecr_half?: string | number;
+  rank_ecr_pos?: string | number;
 };
 
 type FantasyProsEcrPayload = {
-  year?: string | number;
+  sport?: string;
   season?: string | number;
-  type?: string;
-  scoring?: string;
-  position_id?: string;
+  week?: string | number;
   count?: string | number;
-  last_updated?: string;
   players?: FantasyProsEcrPlayer[];
 };
 
@@ -21,6 +19,7 @@ export type FantasyProsEcrAccessSummary = {
   reportedPlayers: number | null;
   receivedPlayers: number;
   eligiblePlayers: number;
+  eligiblePositionalPlayers: number;
   lastUpdated: string | null;
   fullTop200Available: boolean;
 };
@@ -35,40 +34,38 @@ export function summarizeFantasyProsEcrPayload(payload: unknown): FantasyProsEcr
     throw new Error("FantasyPros returned an invalid ECR response.");
   }
   const data = payload as FantasyProsEcrPayload;
-  if (String(data.year ?? data.season ?? "") !== "2026") {
+  if (String(data.sport ?? "").toUpperCase() !== "NFL") {
+    throw new Error("FantasyPros did not return NFL ECR players.");
+  }
+  if (String(data.season ?? "") !== "2026") {
     throw new Error("FantasyPros did not return the 2026 ECR season.");
-  }
-  const scoring = String(data.scoring ?? "").toUpperCase().replaceAll("_", "-");
-  if (!scoring.includes("HALF")) {
-    throw new Error("FantasyPros did not confirm half-PPR ECR.");
-  }
-  if (String(data.position_id ?? "ALL").toUpperCase() !== "ALL") {
-    throw new Error("FantasyPros did not return overall ECR.");
-  }
-  const rankingType = String(data.type ?? "").trim();
-  if (!rankingType || rankingType.toUpperCase().includes("ADP")) {
-    throw new Error("FantasyPros did not confirm an ECR ranking response.");
   }
   if (!Array.isArray(data.players)) {
     throw new Error("FantasyPros returned no ECR player rows.");
   }
 
   const eligibleIds = new Set<string>();
+  const eligiblePositionalIds = new Set<string>();
   for (const player of data.players) {
-    const position = String(player.player_position_id ?? "").trim().toUpperCase();
+    const position = String(player.position_id ?? "").trim().toUpperCase();
     const externalId = String(player.player_id ?? "").trim();
     const name = String(player.player_name ?? "").trim();
-    const rank = positiveInteger(player.rank_ecr);
+    const rank = positiveInteger(player.rank_ecr_half);
     if (!["QB", "RB", "WR", "TE"].includes(position) || !externalId || !name || !rank) continue;
     eligibleIds.add(externalId);
+    if (positiveInteger(player.rank_ecr_pos)) eligiblePositionalIds.add(externalId);
+  }
+  if (eligibleIds.size === 0) {
+    throw new Error("FantasyPros returned no eligible half-PPR ECR players.");
   }
 
   return {
-    rankingType,
+    rankingType: "Half-PPR player",
     reportedPlayers: positiveInteger(data.count),
     receivedPlayers: data.players.length,
     eligiblePlayers: eligibleIds.size,
-    lastUpdated: String(data.last_updated ?? "").trim() || null,
+    eligiblePositionalPlayers: eligiblePositionalIds.size,
+    lastUpdated: null,
     fullTop200Available: eligibleIds.size >= 200,
   };
 }

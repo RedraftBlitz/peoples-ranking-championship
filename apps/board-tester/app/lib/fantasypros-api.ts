@@ -8,7 +8,7 @@ export const FANTASYPROS_HALF_PPR_ADP_URL =
   "https://api.fantasypros.com/public/v2/json/nfl/2026/consensus-rankings?position=ALL&scoring=HALF&type=ADP";
 
 export const FANTASYPROS_HALF_PPR_ECR_URL =
-  "https://api.fantasypros.com/public/v2/json/nfl/2026/consensus-rankings?position=ALL&scoring=HALF";
+  "https://api.fantasypros.com/public/v2/json/nfl/players?ecr=included&show=pos_rank";
 
 function configuredApiKey() {
   return String(env.FANTASYPROS_API_KEY ?? "").trim();

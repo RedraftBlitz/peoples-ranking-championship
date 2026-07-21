@@ -128,25 +128,40 @@ test("reports received and API-reported ECR access counts without saving ranking
   const players = Array.from({ length: 10 }, (_, index) => ({
     player_id: 50000 + index,
     player_name: `ECR Player ${index + 1}`,
-    player_position_id: ["QB", "RB", "WR", "TE"][index % 4],
-    rank_ecr: index + 1,
+    position_id: ["QB", "RB", "WR", "TE"][index % 4],
+    rank_ecr_half: index + 1,
+    rank_ecr_pos: index < 8 ? Math.floor(index / 4) + 1 : null,
   }));
   const summary = summarizeFantasyProsEcrPayload({
-    year: 2026,
-    type: "Preseason",
-    scoring: "HALF",
-    position_id: "ALL",
+    sport: "NFL",
+    season: 2026,
+    week: 0,
     count: 396,
-    last_updated: "7/20",
     players,
   });
 
   assert.deepEqual(summary, {
-    rankingType: "Preseason",
+    rankingType: "Half-PPR player",
     reportedPlayers: 396,
     receivedPlayers: 10,
     eligiblePlayers: 10,
-    lastUpdated: "7/20",
+    eligiblePositionalPlayers: 8,
+    lastUpdated: null,
     fullTop200Available: false,
   });
+});
+
+test("fails closed when the player endpoint does not confirm NFL half-PPR ECR", () => {
+  assert.throws(
+    () => summarizeFantasyProsEcrPayload({ sport: "MLB", season: 2026, players: [] }),
+    /NFL ECR players/,
+  );
+  assert.throws(
+    () => summarizeFantasyProsEcrPayload({
+      sport: "NFL",
+      season: 2026,
+      players: [{ player_id: 1, player_name: "No Half ECR", position_id: "RB", rank_ecr: 1 }],
+    }),
+    /no eligible half-PPR ECR players/i,
+  );
 });

@@ -170,6 +170,7 @@ test("adds manual primary and backup market reviews without rearranging saved Bo
   assert.match(adpImporter, /permanent player crosswalk/);
   assert.match(adpImporter, /fantasyCalcId/);
   assert.match(apiClient, /consensus-rankings\?position=ALL&scoring=HALF&type=ADP/);
+  assert.match(apiClient, /nfl\/players\?ecr=included&show=pos_rank/);
   assert.match(reviewRoute, /FANTASYCALC_SOURCE_URL/);
   assert.match(ecrAccessRoute, /summarizeFantasyProsEcrPayload/);
   assert.match(reviewRoute, /analyzeFantasyProsAdpPayload/);
