@@ -132,14 +132,11 @@ test("adds a private FantasyPros API review with manual approval and CSV fallbac
   assert.match(envExample, /FANTASYPROS_API_KEY=/);
 });
 
-test("adds manual primary and backup market reviews without rearranging saved Boards", async () => {
+test("adds manual FantasyCalc market reviews without rearranging saved Boards", async () => {
   const [
     component,
     importer,
-    adpImporter,
-    apiClient,
     reviewRoute,
-    ecrAccessRoute,
     approvalRoute,
     marketRoute,
     board,
@@ -147,10 +144,7 @@ test("adds manual primary and backup market reviews without rearranging saved Bo
   ] = await Promise.all([
     readFile(new URL("app/components/AdminMarketUpdates.tsx", projectRoot), "utf8"),
     readFile(new URL("app/lib/fantasycalc-import.ts", projectRoot), "utf8"),
-    readFile(new URL("app/lib/fantasypros-adp.ts", projectRoot), "utf8"),
-    readFile(new URL("app/lib/fantasypros-api.ts", projectRoot), "utf8"),
     readFile(new URL("app/api/admin/market-updates/route.ts", projectRoot), "utf8"),
-    readFile(new URL("app/api/admin/market-updates/fantasypros-ecr/route.ts", projectRoot), "utf8"),
     readFile(new URL("app/api/admin/market-updates/[id]/approve/route.ts", projectRoot), "utf8"),
     readFile(new URL("app/api/market/route.ts", projectRoot), "utf8"),
     readFile(new URL("app/components/BoardTester.tsx", projectRoot), "utf8"),
@@ -158,23 +152,15 @@ test("adds manual primary and backup market reviews without rearranging saved Bo
   ]);
 
   assert.match(component, /Check FantasyCalc Now/);
-  assert.match(component, /Check FantasyPros ADP Backup/);
-  assert.match(component, /Check FantasyPros ECR Access/);
-  assert.match(component, /FantasyCalc is the primary source/);
+  assert.doesNotMatch(component, /FantasyPros ADP|FantasyPros ECR/);
+  assert.match(component, /FantasyCalc is the opening Board market source/);
   assert.match(component, /Saved Boards rearranged/);
   assert.match(component, /Existing saved Boards keep their exact order/);
   assert.match(importer, /savedBoardsRearranged:\s*0/);
   assert.match(importer, /\["jr", "sr", "ii", "iii", "iv", "v"\]/);
   assert.match(importer, /`FC-\$\{row\.externalId\}`/);
-  assert.match(adpImporter, /FantasyPros half-PPR ADP is a fallback source/);
-  assert.match(adpImporter, /permanent player crosswalk/);
-  assert.match(adpImporter, /fantasyCalcId/);
-  assert.match(apiClient, /consensus-rankings\?position=ALL&scoring=HALF&type=ADP/);
-  assert.match(apiClient, /nfl\/2026\/rankings\?week=0/);
   assert.match(reviewRoute, /FANTASYCALC_SOURCE_URL/);
-  assert.match(ecrAccessRoute, /summarizeFantasyProsEcrPayload/);
-  assert.match(reviewRoute, /analyzeFantasyProsAdpPayload/);
-  assert.match(reviewRoute, /source === "fantasypros_adp"/);
+  assert.doesNotMatch(reviewRoute, /fantasypros_adp|FantasyPros ADP/);
   assert.match(approvalRoute, /UPDATE market_snapshots/);
   assert.doesNotMatch(approvalRoute, /UPDATE boards/);
   assert.match(marketRoute, /approvedMarketSnapshotOrBase/);
