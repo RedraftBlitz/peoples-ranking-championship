@@ -62,7 +62,7 @@ test("keeps ranking controls with the user", async () => {
   assert.match(component, /setFollowedPlayerId\(id\)/);
   assert.match(component, /scrollIntoView/);
   assert.match(component, /autoScrollWhileDragging\(event\.clientY\)/);
-  assert.match(component, /!isEntered && \([\s\S]*className="drag-handle"/);
+  assert.match(component, /!boardReadOnly && \([\s\S]*className="drag-handle"/);
   assert.match(component, /Build Your Board/);
   assert.match(styles, /\.floating-undo\s*\{[\s\S]*position:\s*fixed/);
   assert.match(styles, /\.mobile-board-controls\s*\{[\s\S]*position:\s*fixed/);
@@ -71,6 +71,25 @@ test("keeps ranking controls with the user", async () => {
   assert.match(styles, /\.hero-copy > p\s*\{\s*display:\s*none/);
   assert.match(styles, /\.score-strip\s*\{\s*display:\s*none/);
   assert.match(styles, /\.demo-score-grid\.is-mobile-open\s*\{[\s\S]*display:\s*grid/);
+});
+
+test("adds a sticky read-only Position View without changing Board order", async () => {
+  const [component, styles] = await Promise.all([
+    readFile(new URL("app/components/BoardTester.tsx", projectRoot), "utf8"),
+    readFile(new URL("app/globals.css", projectRoot), "utf8"),
+  ]);
+
+  assert.match(component, /const \[boardPositionView, setBoardPositionView\]/);
+  assert.match(component, /boardRows\.filter\(\(\{ player \}\) => player\.position === boardPositionView\)/);
+  assert.match(component, /const boardReadOnly = isEntered \|\| isPositionView/);
+  assert.match(component, /View Board by position/);
+  assert.match(component, /overall order preserved · read-only/);
+  assert.match(component, /className="position-rank"/);
+  assert.match(component, /\{player\.position\}\{positionalRank\}/);
+  assert.match(component, /draggable=\{!boardReadOnly\}/);
+  assert.match(component, /const showCutLine = rank <= OFFICIAL_CUTOFF && nextRank > OFFICIAL_CUTOFF/);
+  assert.match(styles, /\.board-position-view\s*\{[^}]*position:\s*sticky/);
+  assert.match(styles, /\.position-rank\s*\{/);
 });
 
 test("adds a private FantasyPros API review with manual approval and CSV fallback", async () => {
@@ -160,7 +179,7 @@ test("permanently locks final entries after two-step verification", async () => 
   assert.match(component, /Final verification · Step 1 of 2/);
   assert.match(component, /Final verification · Step 2 of 2/);
   assert.match(component, /Permanently Submit My Board/);
-  assert.match(component, /draggable=\{!isEntered\}/);
+  assert.match(component, /draggable=\{!boardReadOnly\}/);
   assert.match(component, /Final Board permanently locked/);
   assert.match(component, /Move 1 player directly · any amount/);
   assert.match(component, /not affiliated with,[\s\S]*FantasyCalc, FantasyPros, or Fanatics/);

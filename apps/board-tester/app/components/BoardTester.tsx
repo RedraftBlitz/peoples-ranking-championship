@@ -80,6 +80,12 @@ const LEGACY_STORAGE_KEY = "prc-board-tester-v1";
 const BOARD_SIZE = 200;
 const OFFICIAL_CUTOFF = 150;
 const POSITIONS: Position[] = ["QB", "RB", "WR", "TE"];
+const POSITION_LABELS: Record<Position, string> = {
+  QB: "Quarterbacks",
+  RB: "Running backs",
+  WR: "Wide receivers",
+  TE: "Tight ends",
+};
 
 function normalizeSearch(value: string) {
   return value
@@ -138,6 +144,7 @@ export function BoardTester() {
   const [protectedBoard, setProtectedBoard] = useState<ProtectedBoard | null>(null);
   const [query, setQuery] = useState("");
   const [position, setPosition] = useState<Position | "ALL">("ALL");
+  const [boardPositionView, setBoardPositionView] = useState<Position | "ALL">("ALL");
   const [draggedId, setDraggedId] = useState<string | null>(null);
   const [dropId, setDropId] = useState<string | null>(null);
   const [followedPlayerId, setFollowedPlayerId] = useState<string | null>(null);
@@ -165,6 +172,8 @@ export function BoardTester() {
     [players],
   );
   const isEntered = protectedBoard?.status === "entered";
+  const isPositionView = boardPositionView !== "ALL";
+  const boardReadOnly = isEntered || isPositionView;
 
   useEffect(() => {
     const updateDeadline = () => setEntryClosed(entryDeadlinePassed());
@@ -327,7 +336,19 @@ export function BoardTester() {
     [order],
   );
 
-  const board = order.slice(0, BOARD_SIZE).map((id) => playerById.get(id)!);
+  const positionCounts: Record<Position, number> = { QB: 0, RB: 0, WR: 0, TE: 0 };
+  const boardRows = order.slice(0, BOARD_SIZE).map((id, index) => {
+    const player = playerById.get(id)!;
+    positionCounts[player.position] += 1;
+    return {
+      player,
+      rank: index + 1,
+      positionalRank: positionCounts[player.position],
+    };
+  });
+  const visibleBoardRows = isPositionView
+    ? boardRows.filter(({ player }) => player.position === boardPositionView)
+    : boardRows;
   const demoField = useMemo(
     () => scoreDemoField(players, order, protectedBoard?.name ?? "Your Board"),
     [order, players, protectedBoard?.name],
@@ -365,7 +386,7 @@ export function BoardTester() {
   }
 
   function movePlayer(id: string, requestedRank: number) {
-    if (isEntered) return;
+    if (boardReadOnly) return;
     if (!Number.isFinite(requestedRank)) return;
     const targetRank = Math.min(
       BOARD_SIZE,
@@ -406,7 +427,7 @@ export function BoardTester() {
   }
 
   function undo() {
-    if (isEntered) return;
+    if (boardReadOnly) return;
     setUndoStack((stack) => {
       const previous = stack.at(-1);
       if (previous) {
@@ -418,7 +439,7 @@ export function BoardTester() {
   }
 
   function resetBoard() {
-    if (isEntered) return;
+    if (boardReadOnly) return;
     const resetWarning = protectedBoard
       ? `Reset ${protectedBoard.name}?\n\nThis will erase every ranking move on this Board and replace its protected saved rankings with the original tester order.\n\nYou can use Undo right away if this was a mistake.`
       : "Reset this browser draft?\n\nThis will erase every ranking move and return to the original tester order.";
@@ -445,7 +466,21 @@ export function BoardTester() {
 
   function viewPlayer(id: string) {
     const rank = ranks.get(id);
-    if (rank && rank <= BOARD_SIZE) jumpTo(rank);
+    if (!rank || rank > BOARD_SIZE) return;
+    const player = playerById.get(id);
+    if (isPositionView && player?.position !== boardPositionView) {
+      setBoardPositionView("ALL");
+      setFollowedPlayerId(id);
+      return;
+    }
+    jumpTo(rank);
+  }
+
+  function viewOverallRank(rank: number) {
+    const id = order[rank - 1];
+    if (!id) return;
+    setBoardPositionView("ALL");
+    setFollowedPlayerId(id);
   }
 
   function openDialog(next: DialogName) {
@@ -1057,43 +1092,84 @@ export function BoardTester() {
                 className="button secondary"
                 type="button"
                 onClick={undo}
-                disabled={!undoStack.length || isEntered}
+                disabled={!undoStack.length || boardReadOnly}
               >
                 ↶ Undo
               </button>
-              <button className="button ghost" type="button" onClick={resetBoard} disabled={isEntered}>
+              <button className="button ghost" type="button" onClick={resetBoard} disabled={boardReadOnly}>
                 Reset Rankings
               </button>
             </div>
           </div>
 
-          <nav className="jump-row" aria-label="Jump to a section of the board">
-            {[1, 50, 100, 150, 200].map((rank) => (
-              <button key={rank} type="button" onClick={() => jumpTo(rank)}>
-                {rank === 1 ? "Top" : `#${rank}`}
-              </button>
-            ))}
-          </nav>
+          <div className="board-position-view">
+            <div>
+              <span>Position View</span>
+              <div className="board-position-tabs" role="group" aria-label="View Board by position">
+                <button
+                  type="button"
+                  className={boardPositionView === "ALL" ? "active" : ""}
+                  aria-pressed={boardPositionView === "ALL"}
+                  onClick={() => setBoardPositionView("ALL")}
+                >
+                  All
+                </button>
+                {POSITIONS.map((item) => (
+                  <button
+                    key={item}
+                    type="button"
+                    className={boardPositionView === item ? "active" : ""}
+                    aria-pressed={boardPositionView === item}
+                    onClick={() => setBoardPositionView(item)}
+                  >
+                    {item}
+                  </button>
+                ))}
+              </div>
+            </div>
+            {isPositionView ? (
+              <p aria-live="polite">
+                <strong>{POSITION_LABELS[boardPositionView as Position]}</strong>
+                <span>{visibleBoardRows.length} players · overall order preserved · read-only</span>
+              </p>
+            ) : (
+              <p>
+                <strong>Overall Board</strong>
+                <span>Select a position to review its positional order.</span>
+              </p>
+            )}
+          </div>
 
-          <div className="board-head" aria-hidden="true">
-            <span>Rank</span>
+          {!isPositionView && (
+            <nav className="jump-row" aria-label="Jump to a section of the board">
+              {[1, 50, 100, 150, 200].map((rank) => (
+                <button key={rank} type="button" onClick={() => jumpTo(rank)}>
+                  {rank === 1 ? "Top" : `#${rank}`}
+                </button>
+              ))}
+            </nav>
+          )}
+
+          <div className={`board-head ${isPositionView ? "is-position-view" : ""}`} aria-hidden="true">
+            <span>{isPositionView ? "Overall" : "Rank"}</span>
             <span>Player</span>
-            <span>Move to</span>
+            <span>{isPositionView ? "Pos. rank" : "Move to"}</span>
           </div>
 
           <div className="board-list">
-            {board.map((player, index) => {
-              const rank = index + 1;
+            {visibleBoardRows.map(({ player, rank, positionalRank }, index) => {
               const change = player.initialRank - rank;
               const isPersonal = personalSet.has(player.id);
+              const nextRank = visibleBoardRows[index + 1]?.rank ?? Number.POSITIVE_INFINITY;
+              const showCutLine = rank <= OFFICIAL_CUTOFF && nextRank > OFFICIAL_CUTOFF;
               return (
                 <div key={player.id}>
                   <article
                     id={`rank-${rank}`}
-                    className={`player-row ${isPersonal ? "is-personal" : ""} ${draggedId === player.id ? "is-dragging" : ""} ${dropId === player.id ? "is-drop-target" : ""}`}
-                    draggable={!isEntered}
+                    className={`player-row ${isPersonal ? "is-personal" : ""} ${isPositionView ? "is-position-view" : ""} ${draggedId === player.id ? "is-dragging" : ""} ${dropId === player.id ? "is-drop-target" : ""}`}
+                    draggable={!boardReadOnly}
                     onDragStart={(event) => {
-                      if (isEntered) {
+                      if (boardReadOnly) {
                         event.preventDefault();
                         return;
                       }
@@ -1106,7 +1182,7 @@ export function BoardTester() {
                       setDropId(null);
                     }}
                     onDragOver={(event) => {
-                      if (isEntered) return;
+                      if (boardReadOnly) return;
                       event.preventDefault();
                       event.dataTransfer.dropEffect = "move";
                       autoScrollWhileDragging(event.clientY);
@@ -1114,7 +1190,7 @@ export function BoardTester() {
                     }}
                     onDragLeave={() => setDropId(null)}
                     onDrop={(event) => {
-                      if (isEntered) return;
+                      if (boardReadOnly) return;
                       event.preventDefault();
                       const sourceId = event.dataTransfer.getData("text/plain");
                       setDraggedId(null);
@@ -1123,7 +1199,7 @@ export function BoardTester() {
                     }}
                   >
                     <div className="rank-cell">
-                      {!isEntered && (
+                      {!boardReadOnly && (
                         <span className="drag-handle" aria-hidden="true">⠿</span>
                       )}
                       <strong>{rank}</strong>
@@ -1151,7 +1227,14 @@ export function BoardTester() {
                       )}
                     </div>
 
-                    {isEntered ? (
+                    {isPositionView ? (
+                      <span
+                        className="position-rank"
+                        aria-label={`${player.name} is ${player.position}${positionalRank} at overall rank ${rank}`}
+                      >
+                        {player.position}{positionalRank}
+                      </span>
+                    ) : isEntered ? (
                       <span className="locked-rank" aria-label={`${player.name} is locked at rank ${rank}`}>
                         Locked
                       </span>
@@ -1179,7 +1262,7 @@ export function BoardTester() {
                     )}
                   </article>
 
-                  {rank === OFFICIAL_CUTOFF && (
+                  {showCutLine && (
                     <div className="cut-line">
                       <span>Official Top {OFFICIAL_CUTOFF} cutoff</span>
                       <small>Ranks 151–200 stay available for Board building</small>
@@ -1260,7 +1343,7 @@ export function BoardTester() {
                       <button type="button" onClick={() => viewPlayer(player.id)}>
                         View
                       </button>
-                    ) : isEntered ? (
+                    ) : boardReadOnly ? (
                       <span className="unranked-label">UR</span>
                     ) : (
                       <div className="unranked-action">
@@ -1302,7 +1385,7 @@ export function BoardTester() {
           </div>
         </aside>
       </div>
-      {undoStack.length > 0 && !isEntered && (
+      {undoStack.length > 0 && !boardReadOnly && (
         <button
           className="floating-undo"
           type="button"
@@ -1313,13 +1396,13 @@ export function BoardTester() {
         </button>
       )}
       <nav className="mobile-board-controls" aria-label="Quick Board controls">
-        <button type="button" onClick={() => jumpTo(1)}>
+        <button type="button" onClick={() => viewOverallRank(1)}>
           Top
         </button>
         <button type="button" onClick={focusPlayerSearch}>
           Search
         </button>
-        <button type="button" onClick={undo} disabled={!undoStack.length || isEntered}>
+        <button type="button" onClick={undo} disabled={!undoStack.length || boardReadOnly}>
           Undo
         </button>
         <button

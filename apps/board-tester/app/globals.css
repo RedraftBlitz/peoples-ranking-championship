@@ -764,7 +764,7 @@ a:focus-visible {
 }
 
 .board-panel {
-  overflow: hidden;
+  overflow: clip;
 }
 
 .board-toolbar {
@@ -792,6 +792,90 @@ a:focus-visible {
 .toolbar-actions {
   display: flex;
   gap: 8px;
+}
+
+.board-position-view {
+  position: sticky;
+  top: 0;
+  z-index: 12;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 10px 24px;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  background: rgba(255, 253, 247, 0.96);
+  box-shadow: 0 8px 20px rgba(16, 38, 43, 0.08);
+  backdrop-filter: blur(12px);
+}
+
+.board-position-view > div {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.board-position-view > div > span {
+  color: var(--night);
+  font-size: 0.67rem;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.board-position-tabs {
+  display: flex;
+  gap: 5px;
+}
+
+.board-position-tabs button {
+  min-width: 38px;
+  min-height: 31px;
+  padding: 0 9px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: #536065;
+  background: #f7f5ee;
+  font-size: 0.67rem;
+  font-weight: 900;
+}
+
+.board-position-tabs button:hover,
+.board-position-tabs button.active {
+  border-color: var(--teal);
+  color: #fff;
+  background: var(--teal);
+}
+
+.board-position-tabs button:focus-visible {
+  outline: 3px solid var(--gold);
+  outline-offset: 2px;
+}
+
+.board-position-view p,
+.board-position-view p strong,
+.board-position-view p span {
+  display: block;
+}
+
+.board-position-view p {
+  min-width: 0;
+  margin: 0;
+  text-align: right;
+}
+
+.board-position-view p strong {
+  color: var(--teal);
+  font-size: 0.72rem;
+}
+
+.board-position-view p span {
+  margin-top: 2px;
+  color: var(--muted);
+  font-size: 0.61rem;
+  white-space: nowrap;
 }
 
 .floating-undo {
@@ -868,7 +952,7 @@ a:focus-visible {
 .jump-row {
   display: flex;
   gap: 6px;
-  padding: 0 24px 15px;
+  padding: 12px 24px 15px;
 }
 
 .jump-row button,
@@ -1010,6 +1094,26 @@ a:focus-visible {
 .position-badge.rb { background: #087d79; }
 .position-badge.wr { background: #315f99; }
 .position-badge.te { background: #7b5798; }
+
+.position-rank {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 64px;
+  min-height: 31px;
+  justify-self: end;
+  border: 1px solid #b8d7d1;
+  border-radius: 999px;
+  color: var(--teal);
+  background: #e8f4f1;
+  font-size: 0.7rem;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+}
+
+.player-row.is-position-view {
+  cursor: default;
+}
 
 .movement {
   min-width: 46px;
@@ -4927,9 +5031,64 @@ footer a {
     font-size: 0.63rem;
   }
 
+  .board-position-view {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 6px;
+    padding: 9px 12px;
+  }
+
+  .board-position-view > div {
+    justify-content: space-between;
+    gap: 7px;
+  }
+
+  .board-position-view > div > span {
+    font-size: 0.58rem;
+  }
+
+  .board-position-tabs {
+    flex: 1;
+  }
+
+  .board-position-tabs button {
+    min-width: 0;
+    min-height: 30px;
+    flex: 1;
+    padding-inline: 6px;
+    font-size: 0.62rem;
+  }
+
+  .board-position-view p {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    text-align: left;
+  }
+
+  .board-position-view p strong {
+    flex: none;
+    font-size: 0.65rem;
+  }
+
+  .board-position-view p span {
+    overflow: hidden;
+    margin: 0;
+    font-size: 0.55rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .position-rank {
+    min-width: 56px;
+    min-height: 29px;
+    font-size: 0.64rem;
+  }
+
   .jump-row {
     justify-content: space-between;
-    padding: 0 12px 10px;
+    padding: 10px 12px;
   }
 
   .jump-row button {
