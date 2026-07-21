@@ -297,6 +297,46 @@ test("adds a private contest control room with safe final-entry exports", async 
   assert.match(updateCenter, /href="\/admin"/);
 });
 
+test("adds an isolated Board Simulation Lab with durable issue reports", async () => {
+  const [
+    page,
+    component,
+    route,
+    simulator,
+    board,
+    schema,
+    migration,
+    backup,
+  ] = await Promise.all([
+    readFile(new URL("app/admin/simulations/page.tsx", projectRoot), "utf8"),
+    readFile(new URL("app/components/AdminBoardSimulations.tsx", projectRoot), "utf8"),
+    readFile(new URL("app/api/admin/board-simulations/route.ts", projectRoot), "utf8"),
+    readFile(new URL("app/lib/board-simulation.ts", projectRoot), "utf8"),
+    readFile(new URL("app/components/BoardTester.tsx", projectRoot), "utf8"),
+    readFile(new URL("db/schema.ts", projectRoot), "utf8"),
+    readFile(new URL("drizzle/0010_sloppy_black_widow.sql", projectRoot), "utf8"),
+    readFile(new URL("app/api/admin/backup/route.ts", projectRoot), "utf8"),
+  ]);
+
+  assert.match(page, /requireChatGPTUser\("\/admin\/simulations"\)/);
+  assert.match(page, /isAdminEmail\(user\.email\)/);
+  assert.match(component, /Completely isolated from the live contest/);
+  assert.match(component, /Run \$\{boardCount\} Board Simulation/);
+  assert.match(component, /Replay seed/);
+  assert.match(component, /Download Full Report/);
+  assert.match(route, /isAdminRequest\(request\)/);
+  assert.match(route, /contestBoardsCreated:\s*0/);
+  assert.match(route, /emailsSent:\s*0/);
+  assert.match(route, /INSERT INTO board_simulation_runs/);
+  assert.match(simulator, /BOARD_SIMULATION_VERSION/);
+  assert.match(simulator, /movePlayerInBoard/);
+  assert.match(simulator, /final-lock/);
+  assert.match(board, /movePlayerInBoard/);
+  assert.match(schema, /board_simulation_runs/);
+  assert.match(migration, /CREATE TABLE `board_simulation_runs`/);
+  assert.match(backup, /boardSimulationRuns/);
+});
+
 test("adds date-locked Random Draw operations and a privacy-safe public audit record", async () => {
   const [
     adminPage,

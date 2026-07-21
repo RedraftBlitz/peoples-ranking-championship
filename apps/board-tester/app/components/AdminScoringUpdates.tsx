@@ -163,6 +163,7 @@ export function AdminScoringUpdates({ displayName }: { displayName: string }) {
           <strong>{displayName}</strong>
           <nav aria-label="Admin navigation">
             <Link href="/admin">Contest dashboard</Link>
+            <Link href="/admin/simulations">Board Simulation Lab</Link>
             <Link href="/">Board tester</Link>
           </nav>
         </div>

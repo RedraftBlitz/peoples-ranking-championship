@@ -281,6 +281,7 @@ export function AdminRandomDraw({ displayName }: { displayName: string }) {
           <nav aria-label="Admin navigation">
             <Link href="/admin">Control room</Link>
             <Link href="/admin/updates">Data updates</Link>
+            <Link href="/admin/simulations">Board Simulation Lab</Link>
             <Link href="/random-draw/results">Public record</Link>
           </nav>
         </div>

@@ -11,6 +11,11 @@ import {
   ENTRY_DEADLINE_UTC,
   entryDeadlinePassed,
 } from "../lib/entry-rules";
+import {
+  BOARD_POOL_SIZE,
+  OFFICIAL_BOARD_CUTOFF,
+  movePlayerInBoard,
+} from "../lib/board-order";
 import { OfficialLeaderboard } from "./OfficialLeaderboard";
 
 type Position = "QB" | "RB" | "WR" | "TE";
@@ -77,8 +82,8 @@ const basePlayers = (playerData as Player[]).sort(
 const baseInitialOrder = basePlayers.map((player) => player.id);
 const STORAGE_KEY = "prc-board-draft-v2";
 const LEGACY_STORAGE_KEY = "prc-board-tester-v1";
-const BOARD_SIZE = 200;
-const OFFICIAL_CUTOFF = 150;
+const BOARD_SIZE = BOARD_POOL_SIZE;
+const OFFICIAL_CUTOFF = OFFICIAL_BOARD_CUTOFF;
 const POSITIONS: Position[] = ["QB", "RB", "WR", "TE"];
 const POSITION_LABELS: Record<Position, string> = {
   QB: "Quarterbacks",
@@ -386,24 +391,18 @@ export function BoardTester() {
   }
 
   function movePlayer(id: string, requestedRank: number) {
-    if (boardReadOnly) return;
-    if (!Number.isFinite(requestedRank)) return;
-    const targetRank = Math.min(
-      BOARD_SIZE,
-      Math.max(1, Math.round(requestedRank)),
+    const moved = movePlayerInBoard(
+      { order, personalIds },
+      id,
+      requestedRank,
+      boardReadOnly,
     );
-    const sourceIndex = order.indexOf(id);
-    if (sourceIndex < 0 || sourceIndex === targetRank - 1) return;
+    if (!moved.moved || moved.targetRank === null) return;
 
     remember();
-    const next = [...order];
-    next.splice(sourceIndex, 1);
-    next.splice(targetRank - 1, 0, id);
-    setOrder(next);
+    setOrder(moved.order);
     setFollowedPlayerId(id);
-    setPersonalIds((current) =>
-      current.includes(id) ? current : [...current, id],
-    );
+    setPersonalIds(moved.personalIds);
   }
 
   function autoScrollWhileDragging(clientY: number) {
