@@ -489,6 +489,10 @@ test("adds a verified no-Board Random Draw entry with one chance per email", asy
   assert.match(schema, /randomDrawEntries/);
   assert.match(migration, /random_draw_entries_season_email_unique/);
   assert.match(officialRules, /Free Random Draw Only entry/);
+  assert.match(officialRules, /separate prize programs/);
+  assert.match(officialRules, /does not[\s\S]*provide an additional Random Draw entry/);
+  assert.match(officialRules, /same Random Draw[\s\S]*same Random Draw prize/);
+  assert.match(officialRules, /treated identically regardless of whether it came from a[\s\S]*final Board or the Random Draw Only form/);
   assert.match(officialRules, /cryptographically secure random-number/);
   assert.match(officialRules, /Darian Hudock/);
   assert.match(officialRules, /Bernalillo County/);
