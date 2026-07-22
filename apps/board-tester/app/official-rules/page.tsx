@@ -50,8 +50,8 @@ export default function OfficialRulesPage() {
           <h2>2. Operator and important times</h2>
           <p>
             The Promotion is independently operated and personally prize-funded
-            by Darian Hudock, doing business as Redraft Blitz, 3305 Calle Cuervo
-            NW Apt 1022, Albuquerque, New Mexico 87114, United States
+            by Darian Hudock, doing business as Redraft Blitz, PO Box 56591,
+            Albuquerque, New Mexico 87187, United States
             (the “Operator”). There is no outside contest or prize sponsor.
           </p>
           <p>
@@ -289,8 +289,8 @@ export default function OfficialRulesPage() {
             effective. Failure to enforce a provision is not a waiver. Headings are
             for convenience. These Rules, the incorporated Scoring page, and the
             Privacy Notice are the complete Promotion terms. Questions may be sent
-            to admin@redraftblitz.com or Darian Hudock, Redraft Blitz, 3305 Calle
-            Cuervo NW Apt 1022, Albuquerque, NM 87114, United States.
+            to admin@redraftblitz.com or Darian Hudock, Redraft Blitz, PO Box 56591,
+            Albuquerque, NM 87187, United States.
           </p>
         </section>
       </article>

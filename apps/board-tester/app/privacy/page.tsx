@@ -20,8 +20,8 @@ export default function PrivacyPage() {
           <h2>1. Operator</h2>
           <p>
             This notice applies to the People&apos;s Ranking Championship operated
-            by Darian Hudock, doing business as Redraft Blitz, 3305 Calle Cuervo
-            NW Apt 1022, Albuquerque, NM 87114, United States. Questions and
+            by Darian Hudock, doing business as Redraft Blitz, PO Box 56591,
+            Albuquerque, NM 87187, United States. Questions and
             privacy requests may be sent to admin@redraftblitz.com.
           </p>
         </section>
