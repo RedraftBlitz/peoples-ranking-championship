@@ -27,11 +27,14 @@ export default function OfficialRulesPage() {
     >
       <article className="rules-document">
         <section>
-          <p><strong>Effective and last updated: July 21, 2026.</strong></p>
+          <p><strong>Effective and last updated: July 22, 2026.</strong></p>
           <p>
             Participation constitutes acceptance of these Official Rules. The
-            skill competition and Random Draw are collectively called the
-            “Promotion” below.
+            skill competition and Random Draw are separate prize programs
+            administered together under these Official Rules and collectively
+            called the “Promotion” below. Skill awards are determined only by
+            the published Board-scoring criteria. The Random Draw is determined
+            only by chance.
           </p>
         </section>
 
@@ -76,9 +79,11 @@ export default function OfficialRulesPage() {
             interface.
           </p>
           <p>
-            Every valid final Board also receives one automatic Random Draw
-            entry. A purchase or payment is never required and will not improve
-            an entrant&apos;s odds.
+            A valid final Board enters the skill competition and also receives
+            exactly one automatic Random Draw entry. Submitting a Board does not
+            provide an additional Random Draw entry, better Random Draw odds, or
+            preferential treatment in the drawing. A purchase or payment is never
+            required and will not improve an entrant&apos;s odds.
           </p>
         </section>
 
@@ -89,9 +94,14 @@ export default function OfficialRulesPage() {
             Board by completing the free <Link href="/random-draw">Random Draw Only form</Link>,
             confirming eligibility and these Rules, and verifying an email before
             the entry deadline. No player rankings, purchase, payment, or other
-            activity is required. Limit one Random Draw entry per verified email
-            across all entry methods. Using the same email for both methods does
-            not create an additional chance.
+            activity is required. This method provides exactly one entry into the
+            same Random Draw, for the same Random Draw prize, subject to the same
+            deadline, eligible pool, selection procedure, and odds as the entry
+            attached to a valid final Board. Limit one Random Draw entry per
+            verified email across all entry methods. Using both methods does not
+            create an additional chance. A Random Draw Only entry does not enter
+            the separate skill competition because no Board is submitted for
+            skill-based scoring.
           </p>
         </section>
 
@@ -123,8 +133,11 @@ export default function OfficialRulesPage() {
             normalized verified email, and exclude every skill-prize winner.
             This includes every Overall Champion and First Round Crown winner,
             plus second- and third-place prize winners if the 5,000-Board Prize
-            Boost activates. Odds are one divided by the final number of eligible
-            deduplicated entries.
+            Boost activates. After those disclosed exclusions, every remaining
+            entry is treated identically regardless of whether it came from a
+            final Board or the Random Draw Only form. Each eligible entry has one
+            uniform chance to win, and odds are one divided by the final number
+            of eligible deduplicated entries.
           </p>
           <p>
             Eligible entries will be ordered by immutable internal entry ID and
