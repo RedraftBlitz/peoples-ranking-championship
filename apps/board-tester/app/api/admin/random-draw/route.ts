@@ -45,7 +45,6 @@ export async function GET(request: Request) {
         combinedDeduplicatedEntries: state.candidates.length,
         eligibleEntries: state.eligibleCandidates.length,
         manualExclusions: countByCode("manual"),
-        skillPrizeExclusions: countByCode("skill_prize_winner"),
         disqualifiedBoardExclusions: countByCode("board_disqualified"),
         previousSelections: countByCode("previous_selection"),
       },

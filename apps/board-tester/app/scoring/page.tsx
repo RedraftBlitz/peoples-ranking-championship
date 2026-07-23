@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { ContestPage } from "../components/ContestPage";
 
 export const metadata: Metadata = {
@@ -132,6 +133,21 @@ export default function ScoringPage() {
             number and display alphabetically by Board Name.
           </p>
         </div>
+      </section>
+
+      <section className="contest-callout scoring-reference-callout">
+        <div>
+          <span className="panel-kicker">For the math-minded</span>
+          <h2>Want every equation and exact tiebreaker?</h2>
+          <p>
+            The Complete Scoring Reference contains the controlling formulas,
+            denominators, curve depths, precision rules, and full championship
+            tiebreaker order.
+          </p>
+        </div>
+        <Link className="button gold" href="/scoring/complete">
+          View Complete Scoring Reference
+        </Link>
       </section>
     </ContestPage>
   );

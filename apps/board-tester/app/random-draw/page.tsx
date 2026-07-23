@@ -16,7 +16,7 @@ export default function RandomDrawPage() {
       current="/random-draw"
       kicker="No Board required"
       title="One free entry. The same chance."
-      intro="No purchase, payment, or player-ranking Board is required. One entry per verified email across every entry method."
+      intro="No purchase, payment, or player-ranking Board is required. One entry per person and verified email across every entry method."
     >
       <RandomDrawEntry />
       <section className="contest-split-section">

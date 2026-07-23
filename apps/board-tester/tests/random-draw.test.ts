@@ -3,7 +3,6 @@ import test from "node:test";
 import {
   buildRandomDrawCandidates,
   hashOrderedEntryIds,
-  skillPrizeWinnerIds,
   uniformIndexFromUint32,
   type DrawCandidateInput,
 } from "../app/lib/random-draw.ts";
@@ -42,7 +41,7 @@ const inputs: DrawCandidateInput[] = [
 ];
 
 test("deduplicates by verified email and orders the pool by immutable entry ID", () => {
-  const candidates = buildRandomDrawCandidates(inputs, [], new Set(), new Set());
+  const candidates = buildRandomDrawCandidates(inputs, [], new Set());
   assert.equal(candidates.length, 2);
   assert.deepEqual(candidates.map((candidate) => candidate.entryId), ["entry-a", "entry-c"]);
   assert.deepEqual(candidates[0].sources, ["random_draw_only", "final_board"]);
@@ -69,31 +68,12 @@ test("applies the latest manual eligibility action without overriding automatic 
         createdAt: "2026-10-02T00:00:00.000Z",
       },
     ],
-    new Set(["board-1"]),
     new Set(),
   );
   assert.equal(restored.find((candidate) => candidate.emailKey === "free@example.com")?.eligible, true);
   const boardCandidate = restored.find((candidate) => candidate.emailKey === "board@example.com");
-  assert.equal(boardCandidate?.eligible, false);
-  assert.equal(boardCandidate?.exclusionCode, "skill_prize_winner");
-});
-
-test("excludes every approved skill-prize winner, including boost places two and three", () => {
-  const crownWinners = ["first-round"];
-  const final = [
-    { boardId: "champion", placement: 1, isChampion: true },
-    { boardId: "second", placement: 2, isChampion: false },
-    { boardId: "third", placement: 3, isChampion: false },
-    { boardId: "fourth", placement: 4, isChampion: false },
-  ];
-  assert.deepEqual(
-    [...skillPrizeWinnerIds(crownWinners, final, 4_999)].sort(),
-    ["champion", "first-round"],
-  );
-  assert.deepEqual(
-    [...skillPrizeWinnerIds(crownWinners, final, 5_000)].sort(),
-    ["champion", "first-round", "second", "third"],
-  );
+  assert.equal(boardCandidate?.eligible, true);
+  assert.equal(boardCandidate?.exclusionCode, null);
 });
 
 test("uses rejection sampling instead of biased modulo selection", () => {

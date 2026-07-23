@@ -137,7 +137,9 @@ export function RandomDrawEntry() {
             />
             <span>
               I have read and accept the <Link href="/official-rules">Official Rules</Link>
-              {" "}and <Link href="/privacy">Privacy Notice</Link>.
+              {" "}and <Link href="/privacy">Privacy Notice</Link>. I understand
+              the limit is one Random Draw entry per person and verified email
+              across both entry methods, and I have not entered using another email.
             </span>
           </label>
           {error && <p className="random-entry-message error" role="alert">{error}</p>}
