@@ -1858,8 +1858,9 @@ export function BoardTester() {
                   <label className="confirmation-check final-rule-check">
                     <input name="acceptedOfficialRules" type="checkbox" required />
                     <span>
-                      I agree to the Official Rules and understand only one final
-                      Board is allowed per verified email address.
+                      I agree to the Official Rules and confirm I have not submitted
+                      another final Board. Only one final Board is allowed per
+                      person and verified email address.
                     </span>
                   </label>
                   <label>

@@ -32,15 +32,9 @@ export type DrawCandidate = {
   boardName: string | null;
   submittedAt: string;
   eligible: boolean;
-  exclusionCode: "board_disqualified" | "skill_prize_winner" | "previous_selection" | "manual" | null;
+  exclusionCode: "board_disqualified" | "previous_selection" | "manual" | null;
   exclusionReason: string | null;
   eligibilityAction: EligibilityActionInput | null;
-};
-
-export type StoredLeaderboardCandidate = {
-  boardId: string;
-  placement: number;
-  isChampion: boolean;
 };
 
 export function maskDrawEmail(value: string) {
@@ -48,24 +42,9 @@ export function maskDrawEmail(value: string) {
   return `${local.slice(0, 1)}***@${domain}`;
 }
 
-export function skillPrizeWinnerIds(
-  firstRoundCrownWinnerBoardIds: readonly string[],
-  finalRows: readonly StoredLeaderboardCandidate[],
-  finalBoardCount: number,
-) {
-  const winnerIds = new Set(firstRoundCrownWinnerBoardIds);
-  for (const row of finalRows) {
-    if (row.isChampion || (finalBoardCount >= 5_000 && row.placement >= 2 && row.placement <= 3)) {
-      winnerIds.add(row.boardId);
-    }
-  }
-  return winnerIds;
-}
-
 export function buildRandomDrawCandidates(
   inputs: readonly DrawCandidateInput[],
   eligibilityActions: readonly EligibilityActionInput[],
-  skillWinnerBoardIds: ReadonlySet<string>,
   previousSelectedEmailKeys: ReadonlySet<string>,
 ) {
   const latestActionByEmail = new Map<string, EligibilityActionInput>();
@@ -97,9 +76,6 @@ export function buildRandomDrawCandidates(
       if (board?.boardModerationStatus === "disqualified") {
         exclusionCode = "board_disqualified";
         exclusionReason = "The associated Board is disqualified.";
-      } else if (board?.boardId && skillWinnerBoardIds.has(board.boardId)) {
-        exclusionCode = "skill_prize_winner";
-        exclusionReason = "This entrant received a skill-based prize.";
       } else if (previousSelectedEmailKeys.has(canonical.emailKey)) {
         exclusionCode = "previous_selection";
         exclusionReason = "This entry was selected in an earlier drawing round.";

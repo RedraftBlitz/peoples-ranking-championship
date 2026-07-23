@@ -15,7 +15,7 @@ const questions = [
   ["Does it cost anything?", "No. No purchase is necessary to build or submit a Board."],
   [
     "How many Boards can I enter?",
-    "One final Board per verified email address for the 2026 season. You may experiment with drafts, but only one can become your official entry.",
+    "One final Board per person and per verified email address for the 2026 season. You may experiment with drafts, but only one can become your official entry. Using another email, identity, or Board Name does not create another allowed entry.",
   ],
   [
     "Do I need an account?",
@@ -43,11 +43,11 @@ const questions = [
   ],
   [
     "How is the Random Draw winner chosen?",
-    `The drawing is ${RANDOM_DRAW_LABEL}. Verified final Boards enter automatically, and the free Random Draw Only form provides the same chance without rankings. Entries are deduplicated by verified email, skill-prize winners are excluded, and one entry is selected with a cryptographically secure uniform random-number process. Odds depend on the final eligible entry count.`,
+    `The drawing is ${RANDOM_DRAW_LABEL}. Verified final Boards enter automatically, and the free Random Draw Only form provides the same chance without rankings. Entries are limited to one per person and verified email across both methods. Skill-prize winners remain eligible, and one entry is selected with a cryptographically secure uniform random-number process. Odds depend on the final eligible entry count.`,
   ],
   [
     "Can I enter the Random Draw without ranking players?",
-    "Yes. Use the free Random Draw Only form before the entry deadline. It requires a verified email and eligibility and Rules confirmations, but no purchase, payment, or Board. One entry per verified email applies across both methods.",
+    "Yes. Use the free Random Draw Only form before the entry deadline. It requires a verified email and eligibility and Rules confirmations, but no purchase, payment, or Board. One entry per person and verified email applies across both methods.",
   ],
   [
     "What happens if PRC reaches 5,000 official Boards?",

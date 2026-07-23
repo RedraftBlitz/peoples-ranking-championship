@@ -1,10 +1,8 @@
 import { getD1 } from "../../db/d1";
 import {
   buildRandomDrawCandidates,
-  skillPrizeWinnerIds,
   type DrawCandidateInput,
   type EligibilityActionInput,
-  type StoredLeaderboardCandidate,
 } from "./random-draw";
 import {
   ENTRY_DEADLINE_UTC,
@@ -69,32 +67,6 @@ type WinnerActionRow = {
   acted_by: string;
   created_at: string;
 };
-
-function publicationRows(publication: PublicationRow | null) {
-  if (!publication) return [];
-  try {
-    const payload = JSON.parse(publication.results_json) as {
-      rows?: StoredLeaderboardCandidate[];
-    };
-    return Array.isArray(payload.rows) ? payload.rows : [];
-  } catch {
-    return [];
-  }
-}
-
-function firstRoundCrownWinnerBoardIds(publication: PublicationRow | null) {
-  if (!publication) return [];
-  try {
-    const payload = JSON.parse(publication.results_json) as {
-      awards?: { firstRoundCrownWinnerBoardIds?: string[] };
-    };
-    return Array.isArray(payload.awards?.firstRoundCrownWinnerBoardIds)
-      ? payload.awards.firstRoundCrownWinnerBoardIds
-      : [];
-  } catch {
-    return [];
-  }
-}
 
 function winnerActionMap(actions: readonly WinnerActionRow[]) {
   const latest = new Map<string, WinnerActionRow>();
@@ -169,13 +141,6 @@ export async function loadRandomDrawState(now = new Date()) {
         .all<WinnerActionRow>(),
     ]);
 
-  const finalRows = publicationRows(final ?? null);
-  const crownWinnerIds = firstRoundCrownWinnerBoardIds(final ?? null);
-  const skillWinners = skillPrizeWinnerIds(
-    crownWinnerIds,
-    finalRows,
-    final?.board_count ?? 0,
-  );
   const selectedEmailKeys = new Set(
     audits.results.map((audit) => audit.selected_email_key),
   );
@@ -197,7 +162,6 @@ export async function loadRandomDrawState(now = new Date()) {
       actedBy: row.acted_by,
       createdAt: row.created_at,
     })),
-    skillWinners,
     selectedEmailKeys,
   );
   const eligibleCandidates = candidates.filter((candidate) => candidate.eligible);
@@ -215,11 +179,9 @@ export async function loadRandomDrawState(now = new Date()) {
   const latestDraw = drawRecords.at(-1) ?? null;
   const entryClosed = now.getTime() >= new Date(ENTRY_DEADLINE_UTC).getTime();
   const drawTimeReached = now.getTime() >= new Date(RANDOM_DRAW_UTC).getTime();
-  const firstRoundReady = Boolean(final && crownWinnerIds.length);
-  const finalStandingsReady = Boolean(final && finalRows.length);
+  const finalStandingsReady = Boolean(final && final.completed_weeks >= 17);
   const baseReady = entryClosed
     && drawTimeReached
-    && firstRoundReady
     && finalStandingsReady
     && eligibleCandidates.length > 0;
 
@@ -232,7 +194,6 @@ export async function loadRandomDrawState(now = new Date()) {
     readiness: {
       entryClosed,
       drawTimeReached,
-      firstRoundReady,
       finalStandingsReady,
       eligiblePoolReady: eligibleCandidates.length > 0,
       canRunOfficial: baseReady && drawRecords.length === 0,

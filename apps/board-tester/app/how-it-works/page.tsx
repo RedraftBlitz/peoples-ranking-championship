@@ -34,7 +34,7 @@ const steps = [
   [
     "04",
     "Submit once—and lock it",
-    "Review your Top 150, confirm your eligibility, type the exact Board Name, and re-enter your PIN. Final submission is permanent and one final Board is allowed per verified email.",
+    "Review your Top 150, confirm your eligibility, type the exact Board Name, and re-enter your PIN. Final submission is permanent and one final Board is allowed per person and verified email.",
   ],
   [
     "05",

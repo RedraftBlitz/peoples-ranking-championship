@@ -14,7 +14,7 @@ export default function PrizesPage() {
       current="/prizes"
       kicker="2026 prize lineup"
       title="Make the best Board in the country."
-      intro="Three ways to win: the season-long championship, the First Round Crown, and a random draw from the remaining eligible field."
+      intro="Three ways to win: the season-long championship, the First Round Crown, and an equal-chance random draw from the eligible field."
     >
       <section className="prize-podium" aria-label="Contest prizes">
         <article className="prize-card champion-prize">
@@ -58,11 +58,11 @@ export default function PrizesPage() {
           <p className="prize-tagline">A separate winner from the field.</p>
           <strong className="prize-value">$50 Fanatics gift card</strong>
           <p>
-            Selected {RANDOM_DRAW_LABEL} from eligible, verified entries after
-            excluding every skill-prize winner. If the 5,000-Board Prize Boost
-            activates, that also excludes the second- and third-place prize
-            winners. A final Board enters automatically, or use the free Random Draw Only form.
-            One chance per verified email across both methods.
+            Selected {RANDOM_DRAW_LABEL} from eligible, verified entries.
+            Skill-prize winners remain eligible and receive the same single chance
+            as everyone else. A final Board enters automatically, or use the free
+            Random Draw Only form. One chance per person and verified email across
+            both methods.
           </p>
         </article>
       </section>
@@ -107,7 +107,7 @@ export default function PrizesPage() {
           <p>
             Entrants must be 18 or older and legal residents of the 50 United
             States or District of Columbia. One final Board is allowed per
-            verified email address.
+            person and verified email address.
           </p>
         </div>
         <Link className="button gold" href="/random-draw">

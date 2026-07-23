@@ -10,7 +10,7 @@ type Candidate = {
   boardName: string | null;
   submittedAt: string;
   eligible: boolean;
-  exclusionCode: "board_disqualified" | "skill_prize_winner" | "previous_selection" | "manual" | null;
+  exclusionCode: "board_disqualified" | "previous_selection" | "manual" | null;
   exclusionReason: string | null;
   manualAction: {
     action: "exclude" | "restore";
@@ -47,14 +47,12 @@ type RandomDrawData = {
     combinedDeduplicatedEntries: number;
     eligibleEntries: number;
     manualExclusions: number;
-    skillPrizeExclusions: number;
     disqualifiedBoardExclusions: number;
     previousSelections: number;
   };
   readiness: {
     entryClosed: boolean;
     drawTimeReached: boolean;
-    firstRoundReady: boolean;
     finalStandingsReady: boolean;
     eligiblePoolReady: boolean;
     canRunOfficial: boolean;
@@ -320,12 +318,12 @@ export function AdminRandomDraw({ displayName }: { displayName: string }) {
           <article>
             <span>Combined entries</span>
             <strong>{data?.summary.combinedDeduplicatedEntries ?? "—"}</strong>
-            <small>Boards and free entries, one per email</small>
+            <small>Boards and free entries, one per person and email</small>
           </article>
           <article>
-            <span>Skill-prize exclusions</span>
-            <strong>{data?.summary.skillPrizeExclusions ?? "—"}</strong>
-            <small>Automatically removed from the draw</small>
+            <span>Equal-chance entries</span>
+            <strong>{data?.summary.eligibleEntries ?? "—"}</strong>
+            <small>Skill-prize winners remain eligible</small>
           </article>
           <article>
             <span>Other exclusions</span>
@@ -336,7 +334,6 @@ export function AdminRandomDraw({ displayName }: { displayName: string }) {
         <div className="random-draw-readiness-grid">
           {data && [
             ["Entry window closed", data.readiness.entryClosed],
-            ["First Round Crown calculated", data.readiness.firstRoundReady],
             ["Week 17 standings final", data.readiness.finalStandingsReady],
             ["Drawing time reached", data.readiness.drawTimeReached],
             ["Eligible pool available", data.readiness.eligiblePoolReady],

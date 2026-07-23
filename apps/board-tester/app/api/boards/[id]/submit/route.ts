@@ -171,6 +171,7 @@ export async function POST(
       acceptedEligibility: true,
       acceptedOfficialRules: true,
       oneFinalBoardPerVerifiedEmail: true,
+      oneFinalBoardPerPerson: true,
       confirmedBoardName: true,
       confirmedPin: true,
       verifiedContactEmail: Boolean(board.recovery_email_verified_at),

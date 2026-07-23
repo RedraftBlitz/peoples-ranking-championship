@@ -384,10 +384,11 @@ test("adds date-locked Random Draw operations and a privacy-safe public audit re
 });
 
 test("publishes the contest guide and approved 2026 prize lineup", async () => {
-  const [howItWorks, prizes, scoring, faq, officialRules, contestPage, board] = await Promise.all([
+  const [howItWorks, prizes, scoring, completeScoring, faq, officialRules, contestPage, board] = await Promise.all([
     readFile(new URL("app/how-it-works/page.tsx", projectRoot), "utf8"),
     readFile(new URL("app/prizes/page.tsx", projectRoot), "utf8"),
     readFile(new URL("app/scoring/page.tsx", projectRoot), "utf8"),
+    readFile(new URL("app/scoring/complete/page.tsx", projectRoot), "utf8"),
     readFile(new URL("app/faq/page.tsx", projectRoot), "utf8"),
     readFile(new URL("app/official-rules/page.tsx", projectRoot), "utf8"),
     readFile(new URL("app/components/ContestPage.tsx", projectRoot), "utf8"),
@@ -417,10 +418,19 @@ test("publishes the contest guide and approved 2026 prize lineup", async () => {
   assert.match(scoring, /= −4 weekly value/);
   assert.match(scoring, /do not receive fixed shares of BVM/);
   assert.match(scoring, /converted into percentiles across the entire eligible player pool/);
+  assert.match(scoring, /href="\/scoring\/complete"/);
+  assert.match(completeScoring, /Board Accuracy[\s\S]*0\.80 × Positional Accuracy \+ 0\.20 × BVM Accuracy/);
+  assert.match(completeScoring, /BVM Accuracy = 100 × max\(0, 1 − total BVM error ÷ 11,325\)/);
+  assert.match(completeScoring, /Top-N denominator = 151N − N\(N \+ 1\) ÷ 2/);
+  assert.match(completeScoring, /Official championship tiebreaker ladder/);
+  assert.match(completeScoring, /Skill-prize winners remain eligible|FantasyPros Half-PPR/);
   assert.match(faq, /30 days to respond/);
   assert.match(contestPage, /Random Draw/);
   assert.match(contestPage, /href="\/privacy"/);
   assert.match(officialRules, /one final Board per[\s\S]*verified email address/);
+  assert.match(officialRules, /one Random Draw entry per[\s\S]*person and per verified email/);
+  assert.match(officialRules, /Skill-prize winners[\s\S]*remain eligible for the Random Draw/);
+  assert.match(officialRules, /href="\/scoring\/complete"/);
   assert.match(officialRules, /independently operated[\s\S]*personally prize-funded/);
   assert.match(officialRules, /duplicate physical[\s\S]*prizes will be provided when required/);
   assert.match(board, /href="\/how-it-works"/);
@@ -428,7 +438,7 @@ test("publishes the contest guide and approved 2026 prize lineup", async () => {
   assert.match(board, /name="acceptedOfficialRules"/);
 });
 
-test("enforces one final 2026 Board per verified email", async () => {
+test("enforces and records one final 2026 Board per person and verified email", async () => {
   const [submitRoute, schema, migration, rules] = await Promise.all([
     readFile(new URL("app/api/boards/[id]/submit/route.ts", projectRoot), "utf8"),
     readFile(new URL("db/schema.ts", projectRoot), "utf8"),
@@ -440,15 +450,16 @@ test("enforces one final 2026 Board per verified email", async () => {
   assert.match(submitRoute, /acceptedOfficialRules !== true/);
   assert.match(submitRoute, /WHERE season = 2026 AND entry_email_key = \?1/);
   assert.match(submitRoute, /board\.recovery_email_key/);
+  assert.match(submitRoute, /oneFinalBoardPerPerson:\s*true/);
   assert.match(schema, /board_entries_season_email_unique/);
   assert.match(migration, /CREATE UNIQUE INDEX `board_entries_season_email_unique`/);
-  assert.match(rules, /PRC-2026-FINAL-ENTRY-v4/);
+  assert.match(rules, /PRC-2026-FINAL-ENTRY-v5/);
   assert.match(rules, /2026-09-09T22:00:00\.000Z/);
   assert.match(rules, /2026-09-10T00:20:00\.000Z/);
   assert.match(rules, /2027-01-15T17:00:00\.000Z/);
 });
 
-test("adds a verified no-Board Random Draw entry with one chance per email", async () => {
+test("adds a verified no-Board Random Draw entry with one chance per person and email", async () => {
   const [
     page,
     component,
@@ -479,6 +490,7 @@ test("adds a verified no-Board Random Draw entry with one chance per email", asy
   assert.match(page, /RANDOM_DRAW_LABEL/);
   assert.match(component, /acceptedEligibility/);
   assert.match(component, /acceptedOfficialRules/);
+  assert.match(component, /one Random Draw entry per person and verified email/);
   assert.match(component, /randomDrawVerificationCode/);
   assert.match(component, /Spam or Junk/);
   assert.match(sendRoute, /UNION ALL[\s\S]*random_draw_entries/);
@@ -492,7 +504,8 @@ test("adds a verified no-Board Random Draw entry with one chance per email", asy
   assert.match(officialRules, /separate prize programs/);
   assert.match(officialRules, /does not[\s\S]*provide an additional Random Draw entry/);
   assert.match(officialRules, /same Random Draw[\s\S]*same Random Draw prize/);
-  assert.match(officialRules, /treated identically regardless of whether it came from a[\s\S]*final Board or the Random Draw Only form/);
+  assert.match(officialRules, /treated identically[\s\S]*regardless of whether it came from a[\s\S]*final Board or the Random Draw[\s\S]*Only form/);
+  assert.doesNotMatch(officialRules, /exclude every skill-prize winner/);
   assert.match(officialRules, /cryptographically secure random-number/);
   assert.match(officialRules, /Darian Hudock/);
   assert.match(officialRules, /Bernalillo County/);

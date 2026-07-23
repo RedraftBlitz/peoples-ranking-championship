@@ -27,7 +27,7 @@ export default function OfficialRulesPage() {
     >
       <article className="rules-document">
         <section>
-          <p><strong>Effective and last updated: July 22, 2026.</strong></p>
+          <p><strong>Effective and last updated: July 23, 2026.</strong></p>
           <p>
             Participation constitutes acceptance of these Official Rules. The
             skill competition and Random Draw are separate prize programs
@@ -74,9 +74,10 @@ export default function OfficialRulesPage() {
             move, protect the Board with a Board Name and six-digit PIN, verify
             a contact email, complete the required confirmations, and submit
             before Championship Lock. Entry is free. Limit one final Board per
-            verified email address for the 2026 season. Final submission is immediate,
-            permanent, and cannot be edited or withdrawn through the Board
-            interface.
+            person and per verified email address for the 2026 season. A person
+            may not use another email address, identity, or Board Name to submit
+            an additional final Board. Final submission is immediate, permanent,
+            and cannot be edited or withdrawn through the Board interface.
           </p>
           <p>
             A valid final Board enters the skill competition and also receives
@@ -98,10 +99,11 @@ export default function OfficialRulesPage() {
             same Random Draw, for the same Random Draw prize, subject to the same
             deadline, eligible pool, selection procedure, and odds as the entry
             attached to a valid final Board. Limit one Random Draw entry per
-            verified email across all entry methods. Using both methods does not
-            create an additional chance. A Random Draw Only entry does not enter
-            the separate skill competition because no Board is submitted for
-            skill-based scoring.
+            person and per verified email across all entry methods. A person may
+            not use another email address or identity to create another entry.
+            Using both methods does not create an additional chance. A Random
+            Draw Only entry does not enter the separate skill competition because
+            no Board is submitted for skill-based scoring.
           </p>
         </section>
 
@@ -113,8 +115,10 @@ export default function OfficialRulesPage() {
             1–17 and final scoring review. The First Round Crown is awarded using
             the highest full-precision Top-12 Board Accuracy. Week 18 is excluded.
             The scoring formula, omissions, precision, and tiebreakers are
-            described on the <Link href="/scoring">Scoring page</Link> and are
-            incorporated into these Rules.
+            described in the{" "}
+            <Link href="/scoring/complete">Complete Scoring Reference</Link>,
+            which is incorporated into these Rules. The shorter{" "}
+            <Link href="/scoring">Scoring page</Link> is a plain-language guide.
           </p>
           <p>
             If every approved objective tiebreaker remains identical, the result
@@ -129,15 +133,14 @@ export default function OfficialRulesPage() {
           <p>
             The drawing will occur <time dateTime={RANDOM_DRAW_UTC}>{RANDOM_DRAW_LABEL}</time>.
             Before the drawing, the Operator will combine verified final-Board
-            entries and verified Random Draw Only entries, deduplicate them by
-            normalized verified email, and exclude every skill-prize winner.
-            This includes every Overall Champion and First Round Crown winner,
-            plus second- and third-place prize winners if the 5,000-Board Prize
-            Boost activates. After those disclosed exclusions, every remaining
-            entry is treated identically regardless of whether it came from a
-            final Board or the Random Draw Only form. Each eligible entry has one
-            uniform chance to win, and odds are one divided by the final number
-            of eligible deduplicated entries.
+            entries and verified Random Draw Only entries and deduplicate them
+            under the one-entry-per-person-and-email limit. Skill-prize winners
+            remain eligible for the Random Draw and receive the same single chance
+            as every other eligible entrant. Subject only to eligibility and
+            disqualification under these Rules, every entry is treated identically
+            regardless of whether it came from a final Board or the Random Draw
+            Only form. Each eligible entry has one uniform chance to win, and odds
+            are one divided by the final number of eligible deduplicated entries.
           </p>
           <p>
             Eligible entries will be ordered by immutable internal entry ID and
@@ -217,6 +220,8 @@ export default function OfficialRulesPage() {
           <p>
             Automated, fraudulent, incomplete, abusive, tampered, duplicate, or
             Rules-violating entries may be disqualified after documented review.
+            Using multiple email addresses, identities, or Board Names to evade
+            an entry limit is a duplicate-entry violation.
             The Operator may moderate Board Names and investigate eligibility or
             technical integrity. Disqualification will not be arbitrary and will
             be applied consistently. Attempting to damage the service or interfere
