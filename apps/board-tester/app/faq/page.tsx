@@ -63,7 +63,7 @@ const questions = [
   ],
   [
     "Is PRC affiliated with the data or prize brands?",
-    "No. PRC is not affiliated with, sponsored by, or endorsed by FantasyCalc, FantasyPros, Fanatics, or LaDainian Tomlinson.",
+    "No. PRC is not affiliated with, sponsored by, or endorsed by Fantasy Football Calculator, FantasyCalc, FantasyPros, Fanatics, or LaDainian Tomlinson.",
   ],
 ] as const;
 

@@ -12,6 +12,9 @@ export type MarketPlayer = {
   marketRank: number | null;
   aliases: string[];
   fantasyCalcId: string | null;
+  sourceIds?: {
+    fantasyCalculator?: string;
+  };
 };
 
 export type MarketSnapshot = {
@@ -70,4 +73,3 @@ export async function approvedMarketSnapshotOrBase(): Promise<MarketSnapshot> {
     return baseMarketSnapshot();
   }
 }
-

@@ -137,7 +137,7 @@ test("adds a private FantasyPros API review with manual approval and CSV fallbac
   assert.match(envExample, /FANTASYPROS_API_KEY=/);
 });
 
-test("adds manual FantasyCalc market reviews without rearranging saved Boards", async () => {
+test("blends Fantasy Calculator with FantasyPros backup without rearranging saved Boards", async () => {
   const [
     component,
     importer,
@@ -148,7 +148,7 @@ test("adds manual FantasyCalc market reviews without rearranging saved Boards", 
     migration,
   ] = await Promise.all([
     readFile(new URL("app/components/AdminMarketUpdates.tsx", projectRoot), "utf8"),
-    readFile(new URL("app/lib/fantasycalc-import.ts", projectRoot), "utf8"),
+    readFile(new URL("app/lib/blended-market-import.ts", projectRoot), "utf8"),
     readFile(new URL("app/api/admin/market-updates/route.ts", projectRoot), "utf8"),
     readFile(new URL("app/api/admin/market-updates/[id]/approve/route.ts", projectRoot), "utf8"),
     readFile(new URL("app/api/market/route.ts", projectRoot), "utf8"),
@@ -156,16 +156,18 @@ test("adds manual FantasyCalc market reviews without rearranging saved Boards", 
     readFile(new URL("drizzle/0002_loud_martin_li.sql", projectRoot), "utf8"),
   ]);
 
-  assert.match(component, /Check FantasyCalc Now/);
-  assert.doesNotMatch(component, /FantasyPros ADP|FantasyPros ECR/);
-  assert.match(component, /FantasyCalc is the opening Board market source/);
+  assert.match(component, /Review Combined Market/);
+  assert.match(component, /Fantasy Calculator Half-PPR JSON sets the order/);
+  assert.match(component, /FantasyPros Overall ADP/);
   assert.match(component, /Saved Boards rearranged/);
   assert.match(component, /Existing saved Boards keep their exact order/);
   assert.match(importer, /savedBoardsRearranged:\s*0/);
-  assert.match(importer, /\["jr", "sr", "ii", "iii", "iv", "v"\]/);
-  assert.match(importer, /`FC-\$\{row\.externalId\}`/);
-  assert.match(reviewRoute, /FANTASYCALC_SOURCE_URL/);
-  assert.doesNotMatch(reviewRoute, /fantasypros_adp|FantasyPros ADP/);
+  assert.match(importer, /rows\.length < 150/);
+  assert.match(importer, /backupCandidates\.slice\(0, backupPlayersUsed\)/);
+  assert.match(importer, /`FPCALC-\$\{row\.externalId\}`/);
+  assert.match(reviewRoute, /BLENDED_MARKET_SOURCE_URL/);
+  assert.match(reviewRoute, /fantasyCalculatorFile/);
+  assert.match(reviewRoute, /fantasyProsFile/);
   assert.match(approvalRoute, /UPDATE market_snapshots/);
   assert.doesNotMatch(approvalRoute, /UPDATE boards/);
   assert.match(marketRoute, /approvedMarketSnapshotOrBase/);
@@ -190,7 +192,7 @@ test("permanently locks final entries after two-step verification", async () => 
   assert.match(component, /draggable=\{!boardReadOnly\}/);
   assert.match(component, /Final Board permanently locked/);
   assert.match(component, /Move 1 player directly · any amount/);
-  assert.match(component, /not affiliated with,[\s\S]*FantasyCalc, FantasyPros, or Fanatics/);
+  assert.match(component, /not affiliated with,[\s\S]*Fantasy Football Calculator,[\s\S]*FantasyCalc,[\s\S]*FantasyPros, or Fanatics/);
   assert.match(submitRoute, /hashPin\(pin, pinRow\.pin_salt\)/);
   assert.match(submitRoute, /secureEqual\(candidate, pinRow\.pin_hash\)/);
   assert.match(submitRoute, /status = 'entered'/);

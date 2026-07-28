@@ -91,8 +91,8 @@ export function ContestPage({
         </div>
         <small>
           People&apos;s Ranking Championship is independent and is not affiliated
-          with, sponsored by, or endorsed by FantasyCalc, FantasyPros, Fanatics,
-          or LaDainian Tomlinson.
+          with, sponsored by, or endorsed by Fantasy Football Calculator,
+          FantasyCalc, FantasyPros, Fanatics, or LaDainian Tomlinson.
         </small>
       </footer>
     </main>

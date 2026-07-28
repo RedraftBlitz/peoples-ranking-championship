@@ -2469,12 +2469,55 @@ footer a {
   line-height: 1.5;
 }
 
-.market-source-actions {
-  display: flex;
-  flex: none;
-  flex-wrap: wrap;
-  justify-content: flex-end;
+.market-upload-panel {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(180px, 1fr));
+  width: min(560px, 100%);
   gap: 8px;
+}
+
+.market-upload-panel label {
+  display: grid;
+  min-width: 0;
+  gap: 5px;
+  padding: 10px 11px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  color: var(--night);
+  background: #fffdf8;
+  font-size: 0.62rem;
+  font-weight: 850;
+}
+
+.market-upload-panel label small {
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 0.56rem;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.market-upload-panel input {
+  min-width: 0;
+  color: var(--muted);
+  font-size: 0.58rem;
+}
+
+.market-upload-panel input::file-selector-button {
+  margin-right: 7px;
+  padding: 5px 7px;
+  border: 1px solid #b8c4c2;
+  border-radius: 6px;
+  color: var(--teal);
+  background: #fff;
+  font: inherit;
+  font-weight: 850;
+}
+
+.market-upload-panel .button {
+  grid-column: 1 / -1;
+  justify-content: center;
 }
 
 .board-safety-rule {
@@ -4015,9 +4058,12 @@ footer a {
     flex-direction: column;
   }
 
-  .market-source-actions {
-    display: grid;
+  .market-upload-panel {
     grid-template-columns: 1fr;
+  }
+
+  .market-upload-panel .button {
+    grid-column: auto;
   }
 
   .market-history,

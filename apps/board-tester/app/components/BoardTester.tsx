@@ -1443,13 +1443,14 @@ export function BoardTester() {
           Final entry deadline {ENTRY_DEADLINE_LABEL} · Official leaderboard uses final Boards only
         </span>
         <span>
-          Player data sources: <a href="https://fantasycalc.com/" target="_blank" rel="noreferrer">FantasyCalc</a>
+          Player data sources: <a href="https://fantasyfootballcalculator.com/" target="_blank" rel="noreferrer">Fantasy Football Calculator</a>
           {" · "}
           <a href="https://www.fantasypros.com/" target="_blank" rel="noreferrer">FantasyPros</a>
         </span>
         <small className="brand-disclaimer">
           People&apos;s Ranking Championship is independent and is not affiliated with,
-          sponsored by, or endorsed by FantasyCalc, FantasyPros, or Fanatics.
+          sponsored by, or endorsed by Fantasy Football Calculator, FantasyCalc,
+          FantasyPros, or Fanatics.
         </small>
       </footer>
 

@@ -6,6 +6,9 @@ import { entryDeadlinePassed } from "../lib/entry-rules";
 type MarketReview = {
   ready: boolean;
   totalSourcePlayers: number;
+  primarySourcePlayers?: number;
+  backupSourcePlayers?: number;
+  backupPlayersUsed?: number;
   rankedTop200: number;
   matchedPlayers: number;
   newPlayers: number;
@@ -30,7 +33,7 @@ type MarketReview = {
 
 type MarketSnapshot = {
   id: string;
-  source: "fantasycalc";
+  source: "fantasycalc" | "fantasycalculator_fantasypros";
   status: "blocked" | "pending_review" | "approved" | "superseded";
   review: MarketReview;
   fetchedBy: string;
@@ -40,8 +43,10 @@ type MarketSnapshot = {
   approvedAt: string | null;
 };
 
-function sourceLabel() {
-  return "FantasyCalc";
+function sourceLabel(source: MarketSnapshot["source"]) {
+  return source === "fantasycalculator_fantasypros"
+    ? "Fantasy Calculator + FantasyPros"
+    : "FantasyCalc";
 }
 
 function formatDate(value: string | null) {
@@ -69,6 +74,8 @@ export function AdminMarketUpdates() {
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
   const [marketFrozen, setMarketFrozen] = useState(false);
+  const [fantasyCalculatorFile, setFantasyCalculatorFile] = useState<File | null>(null);
+  const [fantasyProsFile, setFantasyProsFile] = useState<File | null>(null);
 
   const loadHistory = useCallback(async () => {
     const response = await fetch("/api/admin/market-updates", { cache: "no-store" });
@@ -96,14 +103,21 @@ export function AdminMarketUpdates() {
     };
   }, []);
 
-  async function checkMarket() {
+  async function reviewCombinedMarket() {
+    if (!fantasyCalculatorFile || !fantasyProsFile) return;
     setBusy(true);
     setError("");
     setMessage("");
     try {
-      const response = await fetch("/api/admin/market-updates", { method: "POST" });
+      const form = new FormData();
+      form.set("fantasyCalculator", fantasyCalculatorFile);
+      form.set("fantasyPros", fantasyProsFile);
+      const response = await fetch("/api/admin/market-updates", {
+        method: "POST",
+        body: form,
+      });
       const data = (await response.json()) as { snapshot?: MarketSnapshot; duplicate?: boolean; error?: string };
-      const label = sourceLabel();
+      const label = data.snapshot ? sourceLabel(data.snapshot.source) : "Combined market";
       if (!response.ok || !data.snapshot) throw new Error(data.error ?? `${label} could not be reviewed.`);
       setActive(data.snapshot);
       setMessage(data.duplicate
@@ -119,7 +133,7 @@ export function AdminMarketUpdates() {
 
   async function approveSnapshot() {
     if (!active?.review.ready || active.status !== "pending_review") return;
-    const label = sourceLabel();
+    const label = sourceLabel(active.source);
     if (!window.confirm(
       `Approve this ${label} update?\n\nIt will set the starting order for NEW Boards and update the searchable player pool.\n\nEvery existing saved Board will keep its exact player order.`,
     )) return;
@@ -146,11 +160,37 @@ export function AdminMarketUpdates() {
         <div>
           <span className="panel-kicker">Preseason player market</span>
           <h2 id="market-update-title">Opening Board market</h2>
-          <p>FantasyCalc is the opening Board market source. Every update requires a separate manual review.</p>
+          <p>
+            Fantasy Calculator Half-PPR JSON sets the order. FantasyPros Overall ADP
+            fills missing eligible players through rank 200. Every update requires a separate manual review.
+          </p>
         </div>
-        <div className="market-source-actions">
-          <button className="button gold" type="button" onClick={checkMarket} disabled={busy}>
-            {busy ? "Checking…" : "Check FantasyCalc Now"}
+        <div className="market-upload-panel">
+          <label>
+            <span>1. Fantasy Calculator JSON</span>
+            <input
+              type="file"
+              accept=".json,application/json,text/plain"
+              onChange={(event) => setFantasyCalculatorFile(event.target.files?.[0] ?? null)}
+            />
+            <small>{fantasyCalculatorFile?.name ?? "Choose the primary file"}</small>
+          </label>
+          <label>
+            <span>2. FantasyPros ADP CSV</span>
+            <input
+              type="file"
+              accept=".csv,text/csv"
+              onChange={(event) => setFantasyProsFile(event.target.files?.[0] ?? null)}
+            />
+            <small>{fantasyProsFile?.name ?? "Choose the backup file"}</small>
+          </label>
+          <button
+            className="button gold"
+            type="button"
+            onClick={reviewCombinedMarket}
+            disabled={busy || !fantasyCalculatorFile || !fantasyProsFile}
+          >
+            {busy ? "Reviewing…" : "Review Combined Market"}
           </button>
         </div>
       </div>
@@ -176,7 +216,7 @@ export function AdminMarketUpdates() {
           <button key={snapshot.id} type="button" onClick={() => setActive(snapshot)}>
             <span>
               <strong>{formatDate(snapshot.sourceRetrievedAt)} Mountain</strong>
-              <small>{sourceLabel()} · {snapshot.review.totalSourcePlayers} players · {snapshot.review.rankChanges} Top 200 moves</small>
+              <small>{sourceLabel(snapshot.source)} · {snapshot.review.totalSourcePlayers} source records · {snapshot.review.rankChanges} Top 200 moves</small>
             </span>
             <b className={`snapshot-status ${snapshot.status}`}>{statusLabel(snapshot.status)}</b>
           </button>
@@ -188,7 +228,7 @@ export function AdminMarketUpdates() {
           <div className="review-heading">
             <div>
               <span className="panel-kicker">Review before approval</span>
-              <h3>{sourceLabel()} · {formatDate(active.sourceRetrievedAt)}</h3>
+              <h3>{sourceLabel(active.source)} · {formatDate(active.sourceRetrievedAt)}</h3>
             </div>
             <span className={`review-readiness ${active.review.ready ? "ready" : "blocked"}`}>
               {active.review.ready ? "Ready for approval" : "Approval blocked"}
@@ -196,10 +236,19 @@ export function AdminMarketUpdates() {
           </div>
 
           <div className="review-metrics market-metrics">
-            <div><span>Source players</span><strong>{active.review.totalSourcePlayers}</strong></div>
+            {active.source === "fantasycalculator_fantasypros" ? (
+              <>
+                <div><span>Primary JSON</span><strong>{active.review.primarySourcePlayers ?? 0}</strong></div>
+                <div><span>Backup fills used</span><strong>{active.review.backupPlayersUsed ?? 0}</strong></div>
+              </>
+            ) : (
+              <>
+                <div><span>Source players</span><strong>{active.review.totalSourcePlayers}</strong></div>
+                <div><span>New players</span><strong>{active.review.newPlayers}</strong></div>
+              </>
+            )}
             <div><span>Top 200 ready</span><strong>{active.review.rankedTop200}</strong></div>
             <div><span>Matched records</span><strong>{active.review.matchedPlayers}</strong></div>
-            <div><span>New players</span><strong>{active.review.newPlayers}</strong></div>
             <div><span>Become UR</span><strong>{active.review.newlyUnranked}</strong></div>
             <div className="safety-metric"><span>Saved Boards rearranged</span><strong>{active.review.savedBoardsRearranged}</strong></div>
           </div>
@@ -240,7 +289,7 @@ export function AdminMarketUpdates() {
               </div>
             </details>
             <details>
-              <summary>Not in the current {sourceLabel()} Top 200 ({active.review.removals.length})</summary>
+              <summary>Not in the current {sourceLabel(active.source)} Top 200 ({active.review.removals.length})</summary>
               <div className="review-list">
                 {active.review.removals.length ? active.review.removals.map((player) => (
                   <span key={player.id}><b>{player.name}</b><small>{player.position} · kept permanently · becomes UR for new Boards</small></span>
@@ -272,14 +321,16 @@ export function AdminMarketUpdates() {
                 ? "Market Frozen"
                 : active.status === "approved"
                   ? "Approved"
-                  : `Approve ${sourceLabel()} Update`}
+                  : `Approve ${sourceLabel(active.source)} Update`}
             </button>
           </div>
         </div>
       )}
 
       <p className="source-attribution">
-        Rankings provided by <a href="https://fantasycalc.com/" target="_blank" rel="noreferrer">FantasyCalc</a>. Manual approval is required before an update is used.
+        Primary ADP provided by <a href="https://fantasyfootballcalculator.com/" target="_blank" rel="noreferrer">Fantasy Football Calculator</a>.
+        {" "}Backup ADP provided by <a href="https://www.fantasypros.com/" target="_blank" rel="noreferrer">FantasyPros</a>.
+        {" "}Manual approval is required before an update is used.
       </p>
     </section>
   );

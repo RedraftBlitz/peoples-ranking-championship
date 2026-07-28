@@ -19,7 +19,7 @@ const steps = [
   [
     "01",
     "Build your Top 150",
-    "Start from the current FantasyCalc market order, then drag players or type a new rank. Your working Board extends through rank 200, and the line after 150 marks your official entry.",
+    "Start from the current approved Half-PPR market order, then drag players or type a new rank. Your working Board extends through rank 200, and the line after 150 marks your official entry.",
   ],
   [
     "02",
