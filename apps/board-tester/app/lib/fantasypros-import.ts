@@ -98,7 +98,7 @@ function identityIndex(identities: IdentityPlayer[]) {
   return index;
 }
 
-function parseCsv(text: string): string[][] {
+export function parseCsv(text: string): string[][] {
   const rows: string[][] = [];
   let row: string[] = [];
   let field = "";

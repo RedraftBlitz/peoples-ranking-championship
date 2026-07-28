@@ -290,8 +290,10 @@ export default function CompleteScoringPage() {
             manually reviewed before publication and retained so a published
             result can be reproduced. If live access is unavailable, the same
             approved data may be supplied through a reviewed, archived snapshot.
-            FantasyCalc may supply the preseason starting market order, but that
-            starting order never determines a PRC score.
+            Fantasy Football Calculator Half-PPR ADP supplies the preseason
+            starting order, with FantasyPros Overall ADP used only to complete
+            the eligible Top 200 when needed. That starting order never
+            determines a PRC score.
           </p>
           <p>
             Verified source, identity, clerical, or calculation errors may be

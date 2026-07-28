@@ -23,6 +23,9 @@ type FantasyCalcRow = {
 export type MarketReview = {
   ready: boolean;
   totalSourcePlayers: number;
+  primarySourcePlayers?: number;
+  backupSourcePlayers?: number;
+  backupPlayersUsed?: number;
   rankedTop200: number;
   matchedPlayers: number;
   newPlayers: number;

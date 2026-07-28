@@ -7,7 +7,7 @@ This is the operating checklist for the 2026 People's Ranking Championship.
 - [ ] Have the final Official Rules reviewed for the states where entry is allowed.
 - [ ] Confirm the published Operator mailing address is appropriate for public use.
 - [x] Retain the written FantasyPros API-use approval with the private launch records; it covers weekly player points.
-- [ ] Keep written permission or license notes for FantasyCalc data use.
+- [ ] Keep written permission or license notes for Fantasy Football Calculator data use.
 - [ ] Open `https://prc.redraftblitz.com/api/health` and confirm `status` is `ok`.
 - [ ] Sign in to `/admin` and confirm email delivery is ready, the leaderboard is in preseason mode, and no update is waiting for review.
 - [ ] Download a Full Backup from `/admin`; open the JSON and confirm its counts match the dashboard.
@@ -25,7 +25,7 @@ This is the operating checklist for the 2026 People's Ranking Championship.
 ## Market updates before the deadline
 
 1. Open `/admin/updates` on Wednesday around 10:00 AM Mountain.
-2. Check the FantasyCalc update review. If FantasyCalc is unavailable, keep the current approved/base market and document the outage; do not substitute another market source automatically.
+2. Upload the current Fantasy Football Calculator Half-PPR JSON and FantasyPros Overall ADP CSV together. Confirm the review uses Fantasy Football Calculator for every available eligible player and FantasyPros only to complete the Top 200. If either source is unavailable, keep the current approved/base market and document the outage.
 3. Never combine the two sources or switch automatically. Approve exactly one reviewed snapshot as the opening market.
 4. Resolve every blocking player-identity issue. Warnings require judgment; blockers must not be approved.
 5. Approve only after the displayed additions, removals, and largest rank moves look reasonable.
