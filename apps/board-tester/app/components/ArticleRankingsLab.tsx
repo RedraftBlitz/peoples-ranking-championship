@@ -360,6 +360,7 @@ export function ArticleRankingsLab({ displayName }: { displayName: string }) {
           <strong>{displayName}</strong>
           <nav aria-label="Admin navigation">
             <Link href="/admin">Control room</Link>
+            <Link href="/admin/dst-matchups">DST Matchup Lab</Link>
             <Link href="/admin/updates">Data updates</Link>
             <Link href="/">Public PRC Board</Link>
           </nav>
