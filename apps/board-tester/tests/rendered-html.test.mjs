@@ -344,6 +344,35 @@ test("adds an isolated Board Simulation Lab with durable issue reports", async (
   assert.match(backup, /boardSimulationRuns/);
 });
 
+test("adds a private, local-only Top 150 Article Rankings Lab with verified 2025 context", async () => {
+  const [page, component, stats, dashboard] = await Promise.all([
+    readFile(new URL("app/admin/article-rankings/page.tsx", projectRoot), "utf8"),
+    readFile(new URL("app/components/ArticleRankingsLab.tsx", projectRoot), "utf8"),
+    readFile(new URL("app/data/article-player-stats-2025.json", projectRoot), "utf8"),
+    readFile(new URL("app/components/AdminDashboard.tsx", projectRoot), "utf8"),
+  ]);
+  const dataset = JSON.parse(stats);
+
+  assert.match(page, /requireChatGPTUser\("\/admin\/article-rankings"\)/);
+  assert.match(page, /isAdminEmail\(user\.email\)/);
+  assert.match(component, /Separate from the live contest/);
+  assert.match(component, /localStorage\.setItem\(STORAGE_KEY/);
+  assert.match(component, /fetch\("\/api\/market"/);
+  assert.doesNotMatch(component, /\/api\/boards|\/api\/admin\/market-updates|\/api\/admin\/scoring-updates/);
+  assert.match(component, /draggable=\{!filtersActive\}/);
+  assert.match(component, /Top 150 article cutoff/);
+  assert.match(component, /Copy Article Outline/);
+  assert.match(component, /Download Top 150 CSV/);
+  assert.match(component, /No 2025 NFL stat line/);
+  assert.match(dashboard, /href="\/admin\/article-rankings"/);
+  assert.equal(dataset.season, 2025);
+  assert.equal(dataset.scoring, "Half-PPR");
+  assert.equal(dataset.source, "FantasyPros");
+  assert.equal(dataset.ambiguousPlayers, 0);
+  assert.ok(dataset.matchedPlayers >= 330);
+  assert.ok(dataset.currentTop150WithStats >= 140);
+});
+
 test("adds date-locked Random Draw operations and a privacy-safe public audit record", async () => {
   const [
     adminPage,

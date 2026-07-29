@@ -233,6 +233,7 @@ export function AdminDashboard({ displayName }: { displayName: string }) {
           <span>Signed in as</span>
           <strong>{displayName}</strong>
           <nav aria-label="Admin navigation">
+            <Link href="/admin/article-rankings">Article Rankings Lab</Link>
             <Link href="/admin/updates">Data updates</Link>
             <Link href="/admin/simulations">Board Simulation Lab</Link>
             <Link href="/admin/random-draw">Random Draw controls</Link>
