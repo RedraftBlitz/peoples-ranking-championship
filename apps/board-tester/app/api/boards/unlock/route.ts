@@ -43,9 +43,11 @@ export async function POST(request: Request) {
           b.recovery_email_verified_at,
           b.order_json,
           b.personal_rankings_json, b.status, b.updated_at, b.pin_salt, b.pin_hash,
-          b.failed_pin_attempts, b.locked_until, e.submitted_at
+          b.failed_pin_attempts, b.locked_until, e.submitted_at,
+          sh.token AS share_token
          FROM boards b
          LEFT JOIN board_entries e ON e.board_id = b.id
+         LEFT JOIN board_shares sh ON sh.board_id = b.id
          WHERE b.season = ?1 AND b.board_name_key = ?2`,
       )
       .bind(BOARD_SEASON, boardNameKey(boardName))

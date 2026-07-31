@@ -100,6 +100,7 @@ export async function POST(request: Request) {
           personalIds: payload.personalIds,
           updatedAt: now,
           submittedAt: null,
+          sharePath: null,
         },
       },
       { status: 201 },
