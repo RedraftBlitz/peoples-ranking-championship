@@ -641,3 +641,33 @@ test("ships an automated launch gate and an owner operating runbook", async () =
   assert.match(runbook, /Weekly scoring after Week 1/);
   assert.match(runbook, /Incident and recovery/);
 });
+
+test("adds opt-in permanent read-only Board sharing without exposing private access data", async () => {
+  const [builder, shareRoute, sharedBoard, sharedPage, actions, schema, migration] = await Promise.all([
+    readFile(new URL("app/components/BoardTester.tsx", projectRoot), "utf8"),
+    readFile(new URL("app/api/boards/[id]/share/route.ts", projectRoot), "utf8"),
+    readFile(new URL("app/lib/board-sharing.ts", projectRoot), "utf8"),
+    readFile(new URL("app/boards/[token]/page.tsx", projectRoot), "utf8"),
+    readFile(new URL("app/components/SharedBoardActions.tsx", projectRoot), "utf8"),
+    readFile(new URL("db/schema.ts", projectRoot), "utf8"),
+    readFile(new URL("drizzle/0011_gigantic_wallflower.sql", projectRoot), "utf8"),
+  ]);
+
+  assert.match(builder, /Share My Board/);
+  assert.match(builder, /Anyone with the link can view your current Top 150/);
+  assert.match(builder, /\/api\/boards\/\$\{protectedBoard\.id\}\/share/);
+  assert.match(shareRoute, /boardForSession/);
+  assert.match(shareRoute, /INSERT OR IGNORE INTO board_shares/);
+  assert.match(shareRoute, /\/boards\/\$\{share\.token\}/);
+  assert.match(sharedBoard, /moderation_status = 'active'/);
+  assert.match(sharedBoard, /order\.slice\(0, 150\)/);
+  assert.doesNotMatch(sharedBoard, /recovery_email|pin_hash|pin_salt/);
+  assert.match(sharedPage, /Official 2026 Entry/);
+  assert.match(sharedPage, /Live Protected Draft/);
+  assert.match(sharedPage, /Build your own Top 150/);
+  assert.match(actions, /navigator\.share/);
+  assert.match(actions, /clipboard\.writeText/);
+  assert.match(schema, /boardShares/);
+  assert.match(migration, /CREATE TABLE `board_shares`/);
+  assert.match(migration, /CREATE UNIQUE INDEX `board_shares_board_unique`/);
+});

@@ -1,6 +1,13 @@
 "use client";
 
-import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
+import {
+  FormEvent,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from "react";
 import playerData from "../data/players.json";
 import {
   DEMO_SNAPSHOT_LABEL,
@@ -65,6 +72,7 @@ type ProtectedBoard = {
   isRecoveryEmailVerified: boolean;
   status: "protected_draft" | "entered";
   submittedAt: string | null;
+  sharePath: string | null;
 };
 
 type BoardResponse = {
@@ -153,6 +161,14 @@ function formatSubmittedAt(value: string | null) {
   }).format(new Date(value));
 }
 
+function subscribeToDeviceCapability() {
+  return () => undefined;
+}
+
+function getAndroidTouchDragCapability() {
+  return /Android/i.test(window.navigator.userAgent) && window.navigator.maxTouchPoints > 0;
+}
+
 export function BoardTester() {
   const [players, setPlayers] = useState(basePlayers);
   const [defaultOrder, setDefaultOrder] = useState(baseInitialOrder);
@@ -165,7 +181,13 @@ export function BoardTester() {
   const [boardPositionView, setBoardPositionView] = useState<Position | "ALL">("ALL");
   const [draggedId, setDraggedId] = useState<string | null>(null);
   const [dropId, setDropId] = useState<string | null>(null);
-  const [androidTouchDrag, setAndroidTouchDrag] = useState(false);
+  const androidTouchDrag = useSyncExternalStore(
+    subscribeToDeviceCapability,
+    getAndroidTouchDragCapability,
+    () => false,
+  );
+  const [shareBusy, setShareBusy] = useState(false);
+  const [shareMessage, setShareMessage] = useState("");
   const [followedPlayerId, setFollowedPlayerId] = useState<string | null>(null);
   const [hydrated, setHydrated] = useState(false);
   const [saveState, setSaveState] = useState("Ready");
@@ -200,13 +222,9 @@ export function BoardTester() {
   const touchHoldTimerRef = useRef<number | null>(null);
   const touchAutoScrollFrameRef = useRef<number | null>(null);
 
-  boardReadOnlyRef.current = boardReadOnly;
-
   useEffect(() => {
-    setAndroidTouchDrag(
-      /Android/i.test(window.navigator.userAgent) && window.navigator.maxTouchPoints > 0,
-    );
-  }, []);
+    boardReadOnlyRef.current = boardReadOnly;
+  }, [boardReadOnly]);
 
   useEffect(() => {
     const updateDeadline = () => setEntryClosed(entryDeadlinePassed());
@@ -274,6 +292,7 @@ export function BoardTester() {
               recoveryEmailMasked: saved.protectedBoard.recoveryEmailMasked ?? null,
               isRecoveryEmailVerified:
                 saved.protectedBoard.isRecoveryEmailVerified ?? false,
+              sharePath: saved.protectedBoard.sharePath ?? null,
             };
           }
         } else {
@@ -433,7 +452,9 @@ export function BoardTester() {
     setPersonalIds(moved.personalIds);
   }
 
-  movePlayerRef.current = movePlayer;
+  useEffect(() => {
+    movePlayerRef.current = movePlayer;
+  });
 
   function autoScrollWhileDragging(clientY: number) {
     const edge = Math.min(120, window.innerHeight * 0.18);
@@ -739,6 +760,7 @@ export function BoardTester() {
         isRecoveryEmailVerified: payload.board.isRecoveryEmailVerified,
         status: "protected_draft",
         submittedAt: null,
+        sharePath: payload.board.sharePath ?? null,
       });
       setSaveState("Protected Board saved");
       setDialog(null);
@@ -789,6 +811,7 @@ export function BoardTester() {
         isRecoveryEmailVerified: payload.board.isRecoveryEmailVerified,
         status: payload.board.status,
         submittedAt: payload.board.submittedAt,
+        sharePath: payload.board.sharePath ?? null,
       });
       setSaveState(
         payload.board.status === "entered"
@@ -837,6 +860,65 @@ export function BoardTester() {
       );
     } finally {
       setBusy(false);
+    }
+  }
+
+  async function shareProtectedBoard() {
+    if (!protectedBoard || shareBusy) return;
+    let sharePath = protectedBoard.sharePath;
+
+    if (!sharePath) {
+      const confirmed = window.confirm(
+        `Share ${protectedBoard.name}?\n\nAnyone with the link can view your current Top 150. They cannot edit, recover, or submit your Board.`,
+      );
+      if (!confirmed) return;
+
+      setShareBusy(true);
+      setShareMessage("Preparing share link...");
+      try {
+        const response = await fetch(`/api/boards/${protectedBoard.id}/share`, {
+          method: "POST",
+        });
+        const payload = (await response.json()) as {
+          sharePath?: string;
+          error?: string;
+        };
+        if (!response.ok || !payload.sharePath) {
+          throw new Error(payload.error ?? "The sharing link could not be created.");
+        }
+        sharePath = payload.sharePath;
+        setProtectedBoard((current) => current ? { ...current, sharePath } : current);
+      } catch (error) {
+        setShareMessage(
+          error instanceof Error ? error.message : "The sharing link could not be created.",
+        );
+        setShareBusy(false);
+        return;
+      }
+    }
+
+    const url = new URL(sharePath, window.location.origin).toString();
+    const shareData = {
+      title: `${protectedBoard.name}'s 2026 PRC Board`,
+      text: `See ${protectedBoard.name}'s fantasy football Top 150.`,
+      url,
+    };
+
+    try {
+      if (navigator.share) {
+        await navigator.share(shareData);
+        setShareMessage("Share menu opened");
+      } else {
+        await navigator.clipboard.writeText(url);
+        setShareMessage("Board link copied");
+      }
+    } catch (error) {
+      if (!(error instanceof DOMException && error.name === "AbortError")) {
+        window.prompt("Copy this Board link:", url);
+        setShareMessage("Board link ready to copy");
+      }
+    } finally {
+      setShareBusy(false);
     }
   }
 
@@ -1024,6 +1106,7 @@ export function BoardTester() {
         isRecoveryEmailVerified: payload.board.isRecoveryEmailVerified,
         status: "entered",
         submittedAt: payload.board.submittedAt,
+        sharePath: payload.board.sharePath ?? protectedBoard.sharePath,
       });
       setUndoStack([]);
       setSaveState("Final Board permanently locked");
@@ -1205,6 +1288,16 @@ export function BoardTester() {
           <button className="button ghost" type="button" onClick={() => openDialog("unlock")}>
             Recover My Board
           </button>
+          {protectedBoard && (
+            <button
+              className="button ghost share-board-button"
+              type="button"
+              onClick={shareProtectedBoard}
+              disabled={shareBusy}
+            >
+              {shareBusy ? "Preparing..." : "Share My Board"}
+            </button>
+          )}
           <button
             className={isEntered ? "button locked" : "button secondary"}
             type="button"
@@ -1220,6 +1313,11 @@ export function BoardTester() {
           >
             {isEntered ? "Board Submitted" : entryClosed ? "Entries Closed" : "Submit Final Board"}
           </button>
+          {shareMessage && (
+            <span className="share-board-feedback" aria-live="polite">
+              {shareMessage}
+            </span>
+          )}
         </div>
       </section>
 

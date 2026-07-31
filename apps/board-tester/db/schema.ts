@@ -44,6 +44,20 @@ export const boardSessions = sqliteTable("board_sessions", {
   expiresAt: text("expires_at").notNull(),
 });
 
+export const boardShares = sqliteTable(
+  "board_shares",
+  {
+    token: text("token").primaryKey(),
+    boardId: text("board_id")
+      .notNull()
+      .references(() => boards.id, { onDelete: "cascade" }),
+    createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+  },
+  (table) => [
+    uniqueIndex("board_shares_board_unique").on(table.boardId),
+  ],
+);
+
 export const pinRecoveryRequests = sqliteTable("pin_recovery_requests", {
   id: text("id").primaryKey(),
   boardId: text("board_id")
