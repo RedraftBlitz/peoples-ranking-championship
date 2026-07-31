@@ -88,6 +88,7 @@ export function ContestPage({
           <Link href="/official-rules">Official Rules</Link>
           <Link href="/privacy">Privacy</Link>
           <Link href="/faq">FAQ</Link>
+          <a href="mailto:admin@redraftblitz.com">Need Help?</a>
         </div>
         <small>
           People&apos;s Ranking Championship is independent and is not affiliated

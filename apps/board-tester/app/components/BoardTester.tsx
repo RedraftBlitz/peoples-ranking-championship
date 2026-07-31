@@ -1447,6 +1447,9 @@ export function BoardTester() {
           {" · "}
           <a href="https://www.fantasypros.com/" target="_blank" rel="noreferrer">FantasyPros</a>
         </span>
+        <span>
+          Need help? <a href="mailto:admin@redraftblitz.com">Email PRC support</a>
+        </span>
         <small className="brand-disclaimer">
           People&apos;s Ranking Championship is independent and is not affiliated with,
           sponsored by, or endorsed by Fantasy Football Calculator, FantasyCalc,
