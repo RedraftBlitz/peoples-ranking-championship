@@ -1108,6 +1108,18 @@ a:focus-visible {
   border-bottom: 1px solid #e5e2da;
   background: var(--card);
   transition: background 120ms ease, transform 120ms ease, box-shadow 120ms ease;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+html.touch-board-dragging,
+html.touch-board-dragging body {
+  overscroll-behavior: none;
+}
+
+html.touch-board-dragging body {
+  -webkit-user-select: none;
+  user-select: none;
 }
 
 .player-row:hover {
