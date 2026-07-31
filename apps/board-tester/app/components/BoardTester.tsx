@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import playerData from "../data/players.json";
 import {
   DEMO_SNAPSHOT_LABEL,
@@ -43,6 +43,18 @@ type MarketResponse = {
 type BoardSnapshot = {
   order: string[];
   personalIds: string[];
+};
+
+type TouchDragSession = {
+  identifier: number;
+  sourceId: string;
+  startX: number;
+  startY: number;
+  lastX: number;
+  lastY: number;
+  targetId: string;
+  targetRank: number;
+  active: boolean;
 };
 
 type ProtectedBoard = {
@@ -153,6 +165,7 @@ export function BoardTester() {
   const [boardPositionView, setBoardPositionView] = useState<Position | "ALL">("ALL");
   const [draggedId, setDraggedId] = useState<string | null>(null);
   const [dropId, setDropId] = useState<string | null>(null);
+  const [androidTouchDrag, setAndroidTouchDrag] = useState(false);
   const [followedPlayerId, setFollowedPlayerId] = useState<string | null>(null);
   const [hydrated, setHydrated] = useState(false);
   const [saveState, setSaveState] = useState("Ready");
@@ -180,6 +193,20 @@ export function BoardTester() {
   const isEntered = protectedBoard?.status === "entered";
   const isPositionView = boardPositionView !== "ALL";
   const boardReadOnly = isEntered || isPositionView;
+  const boardListRef = useRef<HTMLDivElement>(null);
+  const boardReadOnlyRef = useRef(boardReadOnly);
+  const movePlayerRef = useRef<(id: string, requestedRank: number) => void>(() => undefined);
+  const touchDragRef = useRef<TouchDragSession | null>(null);
+  const touchHoldTimerRef = useRef<number | null>(null);
+  const touchAutoScrollFrameRef = useRef<number | null>(null);
+
+  boardReadOnlyRef.current = boardReadOnly;
+
+  useEffect(() => {
+    setAndroidTouchDrag(
+      /Android/i.test(window.navigator.userAgent) && window.navigator.maxTouchPoints > 0,
+    );
+  }, []);
 
   useEffect(() => {
     const updateDeadline = () => setEntryClosed(entryDeadlinePassed());
@@ -406,6 +433,8 @@ export function BoardTester() {
     setPersonalIds(moved.personalIds);
   }
 
+  movePlayerRef.current = movePlayer;
+
   function autoScrollWhileDragging(clientY: number) {
     const edge = Math.min(120, window.innerHeight * 0.18);
     const maxStep = 22;
@@ -417,6 +446,177 @@ export function BoardTester() {
       window.scrollBy({ top: Math.ceil(maxStep * strength), behavior: "auto" });
     }
   }
+
+  useEffect(() => {
+    const boardList = boardListRef.current;
+    if (!androidTouchDrag || !boardList) return;
+
+    const clearHoldTimer = () => {
+      if (touchHoldTimerRef.current !== null) {
+        window.clearTimeout(touchHoldTimerRef.current);
+        touchHoldTimerRef.current = null;
+      }
+    };
+
+    const clearAutoScrollFrame = () => {
+      if (touchAutoScrollFrameRef.current !== null) {
+        window.cancelAnimationFrame(touchAutoScrollFrameRef.current);
+        touchAutoScrollFrameRef.current = null;
+      }
+    };
+
+    const updateDropTarget = (clientX: number, clientY: number) => {
+      const session = touchDragRef.current;
+      if (!session?.active) return;
+
+      const element = document.elementFromPoint(
+        Math.max(0, Math.min(window.innerWidth - 1, clientX)),
+        Math.max(0, Math.min(window.innerHeight - 1, clientY)),
+      );
+      const row = element?.closest<HTMLElement>("[data-board-rank]");
+      if (!row || !boardList.contains(row)) return;
+
+      const targetRank = Number(row.dataset.boardRank);
+      const targetId = row.dataset.playerId;
+      if (!Number.isInteger(targetRank) || !targetId || targetId === session.targetId) return;
+
+      session.targetRank = targetRank;
+      session.targetId = targetId;
+      setDropId(targetId);
+    };
+
+    const runAutoScroll = () => {
+      const session = touchDragRef.current;
+      if (!session?.active) {
+        touchAutoScrollFrameRef.current = null;
+        return;
+      }
+
+      autoScrollWhileDragging(session.lastY);
+      updateDropTarget(session.lastX, session.lastY);
+      touchAutoScrollFrameRef.current = window.requestAnimationFrame(runAutoScroll);
+    };
+
+    const finishTouchDrag = (commit: boolean) => {
+      const session = touchDragRef.current;
+      clearHoldTimer();
+      clearAutoScrollFrame();
+      touchDragRef.current = null;
+      document.documentElement.classList.remove("touch-board-dragging");
+      setDraggedId(null);
+      setDropId(null);
+
+      if (commit && session?.active) {
+        movePlayerRef.current(session.sourceId, session.targetRank);
+      }
+    };
+
+    const cancelPendingTouch = () => {
+      clearHoldTimer();
+      touchDragRef.current = null;
+    };
+
+    const handleTouchStart = (event: globalThis.TouchEvent) => {
+      if (boardReadOnlyRef.current || event.touches.length !== 1) return;
+
+      const target = event.target;
+      if (!(target instanceof HTMLElement)) return;
+      if (target.closest("input, button, a, select, textarea, label")) return;
+
+      const row = target.closest<HTMLElement>("[data-board-rank]");
+      if (!row || !boardList.contains(row)) return;
+
+      const sourceId = row.dataset.playerId;
+      const sourceRank = Number(row.dataset.boardRank);
+      if (!sourceId || !Number.isInteger(sourceRank)) return;
+
+      const touch = event.touches[0];
+      clearHoldTimer();
+      touchDragRef.current = {
+        identifier: touch.identifier,
+        sourceId,
+        startX: touch.clientX,
+        startY: touch.clientY,
+        lastX: touch.clientX,
+        lastY: touch.clientY,
+        targetId: sourceId,
+        targetRank: sourceRank,
+        active: false,
+      };
+
+      touchHoldTimerRef.current = window.setTimeout(() => {
+        const session = touchDragRef.current;
+        if (!session) return;
+
+        session.active = true;
+        document.documentElement.classList.add("touch-board-dragging");
+        setDraggedId(session.sourceId);
+        setDropId(session.targetId);
+        touchAutoScrollFrameRef.current = window.requestAnimationFrame(runAutoScroll);
+      }, 220);
+    };
+
+    const handleTouchMove = (event: globalThis.TouchEvent) => {
+      const session = touchDragRef.current;
+      if (!session) return;
+
+      const touch = Array.from(event.touches).find(
+        (candidate) => candidate.identifier === session.identifier,
+      );
+      if (!touch) return;
+
+      session.lastX = touch.clientX;
+      session.lastY = touch.clientY;
+
+      if (!session.active) {
+        const distance = Math.hypot(
+          touch.clientX - session.startX,
+          touch.clientY - session.startY,
+        );
+        if (distance > 10) cancelPendingTouch();
+        return;
+      }
+
+      if (event.cancelable) event.preventDefault();
+      updateDropTarget(touch.clientX, touch.clientY);
+    };
+
+    const handleTouchEnd = (event: globalThis.TouchEvent) => {
+      const session = touchDragRef.current;
+      if (!session) return;
+      if (
+        !Array.from(event.changedTouches).some(
+          (touch) => touch.identifier === session.identifier,
+        )
+      ) return;
+
+      if (session.active && event.cancelable) event.preventDefault();
+      finishTouchDrag(true);
+    };
+
+    const handleTouchCancel = () => finishTouchDrag(false);
+    const handleContextMenu = (event: MouseEvent) => {
+      if (touchDragRef.current?.active) event.preventDefault();
+    };
+
+    boardList.addEventListener("touchstart", handleTouchStart, { passive: true });
+    boardList.addEventListener("touchmove", handleTouchMove, { passive: false });
+    boardList.addEventListener("touchend", handleTouchEnd, { passive: false });
+    boardList.addEventListener("touchcancel", handleTouchCancel);
+    boardList.addEventListener("contextmenu", handleContextMenu);
+
+    return () => {
+      boardList.removeEventListener("touchstart", handleTouchStart);
+      boardList.removeEventListener("touchmove", handleTouchMove);
+      boardList.removeEventListener("touchend", handleTouchEnd);
+      boardList.removeEventListener("touchcancel", handleTouchCancel);
+      boardList.removeEventListener("contextmenu", handleContextMenu);
+      clearHoldTimer();
+      clearAutoScrollFrame();
+      touchDragRef.current = null;
+      document.documentElement.classList.remove("touch-board-dragging");
+    };
+  }, [androidTouchDrag]);
 
   function submitRank(event: FormEvent<HTMLFormElement>, id: string) {
     event.preventDefault();
@@ -1171,7 +1371,7 @@ export function BoardTester() {
             <span>{isPositionView ? "Pos. rank" : "Move to"}</span>
           </div>
 
-          <div className="board-list">
+          <div className="board-list" ref={boardListRef}>
             {visibleBoardRows.map(({ player, rank, positionalRank }, index) => {
               const change = player.initialRank - rank;
               const isPersonal = personalSet.has(player.id);
@@ -1181,8 +1381,10 @@ export function BoardTester() {
                 <div key={player.id}>
                   <article
                     id={`rank-${rank}`}
+                    data-board-rank={rank}
+                    data-player-id={player.id}
                     className={`player-row ${isPersonal ? "is-personal" : ""} ${isPositionView ? "is-position-view" : ""} ${draggedId === player.id ? "is-dragging" : ""} ${dropId === player.id ? "is-drop-target" : ""}`}
-                    draggable={!boardReadOnly}
+                    draggable={!boardReadOnly && !androidTouchDrag}
                     onDragStart={(event) => {
                       if (boardReadOnly) {
                         event.preventDefault();

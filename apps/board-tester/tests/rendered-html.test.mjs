@@ -65,6 +65,13 @@ test("keeps ranking controls with the user", async () => {
   assert.match(component, /setFollowedPlayerId\(id\)/);
   assert.match(component, /scrollIntoView/);
   assert.match(component, /autoScrollWhileDragging\(event\.clientY\)/);
+  assert.match(component, /\/Android\/i\.test\(window\.navigator\.userAgent\)/);
+  assert.match(component, /addEventListener\("touchmove", handleTouchMove, \{ passive: false \}\)/);
+  assert.match(component, /target\.closest\("input, button, a, select, textarea, label"\)/);
+  assert.match(component, /distance > 10/);
+  assert.match(component, /}, 220\)/);
+  assert.match(component, /data-board-rank=\{rank\}/);
+  assert.match(component, /data-player-id=\{player\.id\}/);
   assert.match(component, /!boardReadOnly && \([\s\S]*className="drag-handle"/);
   assert.match(component, /Build Your Board/);
   assert.match(styles, /\.floating-undo\s*\{[\s\S]*position:\s*fixed/);
@@ -76,6 +83,7 @@ test("keeps ranking controls with the user", async () => {
   assert.match(styles, /\.demo-score-grid\.is-mobile-open\s*\{[\s\S]*display:\s*grid/);
   assert.match(styles, /\.mobile-demo-label\s*\{[\s\S]*display:\s*inline-flex/);
   assert.match(styles, /\.demo-score-grid\.is-mobile-open \.mobile-demo-disclaimer\s*\{[\s\S]*display:\s*block/);
+  assert.match(styles, /html\.touch-board-dragging body\s*\{[\s\S]*user-select:\s*none/);
 });
 
 test("adds a sticky read-only Position View without changing Board order", async () => {
@@ -91,7 +99,7 @@ test("adds a sticky read-only Position View without changing Board order", async
   assert.match(component, /overall order preserved · read-only/);
   assert.match(component, /className="position-rank"/);
   assert.match(component, /\{player\.position\}\{positionalRank\}/);
-  assert.match(component, /draggable=\{!boardReadOnly\}/);
+  assert.match(component, /draggable=\{!boardReadOnly && !androidTouchDrag\}/);
   assert.match(component, /const showCutLine = rank <= OFFICIAL_CUTOFF && nextRank > OFFICIAL_CUTOFF/);
   assert.match(styles, /\.board-position-view\s*\{[^}]*position:\s*sticky/);
   assert.match(styles, /\.position-rank\s*\{/);
@@ -189,7 +197,7 @@ test("permanently locks final entries after two-step verification", async () => 
   assert.match(component, /Final verification · Step 1 of 2/);
   assert.match(component, /Final verification · Step 2 of 2/);
   assert.match(component, /Permanently Submit My Board/);
-  assert.match(component, /draggable=\{!boardReadOnly\}/);
+  assert.match(component, /draggable=\{!boardReadOnly && !androidTouchDrag\}/);
   assert.match(component, /Final Board permanently locked/);
   assert.match(component, /Move 1 player directly · any amount/);
   assert.match(component, /not affiliated with,[\s\S]*Fantasy Football Calculator,[\s\S]*FantasyCalc,[\s\S]*FantasyPros, or Fanatics/);
