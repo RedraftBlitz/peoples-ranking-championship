@@ -671,3 +671,33 @@ test("adds opt-in permanent read-only Board sharing without exposing private acc
   assert.match(migration, /CREATE TABLE `board_shares`/);
   assert.match(migration, /CREATE UNIQUE INDEX `board_shares_board_unique`/);
 });
+
+test("publishes expandable full-precision scoring receipts without cluttering the leaderboard", async () => {
+  const [leaderboardLogic, publicRoute, detailsRoute, component, styles, scoringPage, completeReference] = await Promise.all([
+    readFile(new URL("app/lib/official-leaderboard.ts", projectRoot), "utf8"),
+    readFile(new URL("app/api/leaderboard/route.ts", projectRoot), "utf8"),
+    readFile(new URL("app/api/leaderboard/boards/[id]/route.ts", projectRoot), "utf8"),
+    readFile(new URL("app/components/OfficialLeaderboard.tsx", projectRoot), "utf8"),
+    readFile(new URL("app/globals.css", projectRoot), "utf8"),
+    readFile(new URL("app/scoring/page.tsx", projectRoot), "utf8"),
+    readFile(new URL("app/scoring/complete/page.tsx", projectRoot), "utf8"),
+  ]);
+
+  assert.match(leaderboardLogic, /positionalAccuracy: board\.positional\.score\.toFraction\(\)/);
+  assert.match(leaderboardLogic, /top100Accuracy: board\.topN\[100\]\.score\.toFraction\(\)/);
+  assert.match(leaderboardLogic, /exact\.toDecimal\(8, false\)/);
+  assert.match(leaderboardLogic, /exactFraction: exact\.toFraction\(\)/);
+  assert.match(publicRoute, /publicScoredLeaderboard/);
+  assert.doesNotMatch(publicRoute, /publicScoreReceipt/);
+  assert.match(detailsRoute, /publicScoreReceipt/);
+  assert.match(detailsRoute, /scheduled_for <= \?2/);
+  assert.doesNotMatch(detailsRoute, /recovery_email|pin_hash|pin_salt/);
+  assert.match(component, /View score details/);
+  assert.match(component, /Official scoring receipt/);
+  assert.match(component, /View exact audit values/);
+  assert.match(component, /rounded to eight decimals/);
+  assert.match(styles, /\.score-receipt-grid/);
+  assert.match(styles, /\.score-receipt-audit/);
+  assert.match(scoringPage, /exact stored fractions used for placement/);
+  assert.match(completeReference, /exact reduced fractions used by the engine/);
+});

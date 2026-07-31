@@ -132,6 +132,11 @@ export default function ScoringPage() {
             tie for first place. Exact ties below first share the same placement
             number and display alphabetically by Board Name.
           </p>
+          <p>
+            After scoring begins, open <strong>View score details</strong> on any
+            leaderboard Board to see every component to eight decimals and the
+            exact stored fractions used for placement.
+          </p>
         </div>
       </section>
 
