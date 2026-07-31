@@ -263,7 +263,9 @@ export default function CompleteScoringPage() {
             The scoring engine stores and compares values at its fullest
             available precision. Display rounding never selects a winner. Public
             Board Accuracy is rounded to two decimal places and shown without a
-            percent sign.
+            percent sign. Beginning with the first scored leaderboard, each Board
+            also has a public scoring receipt showing every component to eight
+            decimals and the exact reduced fractions used by the engine.
           </p>
           <p>
             Before the first approved Week 1 update, no real Board Accuracy or

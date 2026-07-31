@@ -1,9 +1,10 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { Fragment, useCallback, useEffect, useState } from "react";
 
 type LeaderboardRow = {
   id: string;
+  detailId: string | null;
   boardName: string;
   placement: number;
   boardAccuracy: string | null;
@@ -11,7 +12,48 @@ type LeaderboardRow = {
   tier: string | null;
   isChampion: boolean;
   isOfficialChampionshipTie: boolean;
+  hasScoreDetails: boolean;
 };
+
+type ScoreValue = {
+  decimal: string;
+  exactFraction: string;
+};
+
+type ScoreReceipt = {
+  id: string;
+  boardName: string;
+  placement: number;
+  tier: string;
+  completedWeeks: number;
+  scoringSpecVersion: string;
+  publishedAt: string;
+  scores: {
+    boardAccuracy: ScoreValue;
+    positionalAccuracy: ScoreValue;
+    bvmAccuracy: ScoreValue;
+    top12Accuracy: ScoreValue;
+    top24Accuracy: ScoreValue;
+    top50Accuracy: ScoreValue;
+    top100Accuracy: ScoreValue;
+  };
+};
+
+type ScoreKey = keyof ScoreReceipt["scores"];
+
+const SCORE_METRICS: readonly [ScoreKey, string][] = [
+  ["positionalAccuracy", "Positional Accuracy"],
+  ["bvmAccuracy", "BVM Accuracy"],
+  ["top12Accuracy", "Top-12 Accuracy"],
+  ["top24Accuracy", "Top-24 Accuracy"],
+  ["top50Accuracy", "Top-50 Accuracy"],
+  ["top100Accuracy", "Top-100 Accuracy"],
+];
+
+const AUDIT_METRICS: readonly [ScoreKey, string][] = [
+  ["boardAccuracy", "Board Accuracy"],
+  ...SCORE_METRICS,
+];
 
 type LeaderboardResponse = {
   mode: "preseason" | "scored";
@@ -36,10 +78,61 @@ function formatPublishedAt(value: string | null) {
   }).format(new Date(value));
 }
 
+function ScoreReceiptPanel({ receipt }: { receipt: ScoreReceipt }) {
+  return (
+    <div className="score-receipt">
+      <div className="score-receipt-heading">
+        <div>
+          <span className="panel-kicker">Official scoring receipt</span>
+          <h3>{receipt.boardName}</h3>
+          <p>Through Week {receipt.completedWeeks} · Place {receipt.placement} · {receipt.tier}</p>
+        </div>
+        <div className="score-receipt-primary">
+          <span>Board Accuracy</span>
+          <strong>{receipt.scores.boardAccuracy.decimal}</strong>
+          <small>Eight-decimal display</small>
+        </div>
+      </div>
+
+      <div className="score-receipt-grid">
+        {SCORE_METRICS.map(([key, label]) => (
+          <div key={key}>
+            <span>{label}</span>
+            <strong>{receipt.scores[key].decimal}</strong>
+          </div>
+        ))}
+      </div>
+
+      <p className="score-receipt-note">
+        The values above are rounded to eight decimals for readability. Placement uses the exact stored values below, never the rounded display.
+      </p>
+
+      <details className="score-receipt-audit">
+        <summary>View exact audit values</summary>
+        <p>These reduced fractions are the complete values compared by the scoring engine.</p>
+        <div>
+          {AUDIT_METRICS.map(([key, label]) => (
+            <span key={key}>
+              <b>{label}</b>
+              <code>{receipt.scores[key].exactFraction}</code>
+            </span>
+          ))}
+        </div>
+      </details>
+
+      <small className="score-receipt-version">Scoring specification: {receipt.scoringSpecVersion}</small>
+    </div>
+  );
+}
+
 export function OfficialLeaderboard({ currentBoardName }: { currentBoardName: string | null }) {
   const [data, setData] = useState<LeaderboardResponse | null>(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
+  const [openScoreDetailsId, setOpenScoreDetailsId] = useState<string | null>(null);
+  const [scoreDetailsLoadingId, setScoreDetailsLoadingId] = useState<string | null>(null);
+  const [scoreDetailsError, setScoreDetailsError] = useState("");
+  const [scoreReceipts, setScoreReceipts] = useState<Record<string, ScoreReceipt>>({});
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -60,6 +153,34 @@ export function OfficialLeaderboard({ currentBoardName }: { currentBoardName: st
     const timeout = window.setTimeout(() => void load(), 0);
     return () => window.clearTimeout(timeout);
   }, [load]);
+
+  async function toggleScoreDetails(row: LeaderboardRow) {
+    if (!row.detailId || !row.hasScoreDetails) return;
+    if (openScoreDetailsId === row.detailId) {
+      setOpenScoreDetailsId(null);
+      return;
+    }
+
+    setOpenScoreDetailsId(row.detailId);
+    setScoreDetailsError("");
+    if (scoreReceipts[row.detailId]) return;
+
+    setScoreDetailsLoadingId(row.detailId);
+    try {
+      const response = await fetch(`/api/leaderboard/boards/${encodeURIComponent(row.detailId)}`, {
+        cache: "no-store",
+      });
+      const payload = (await response.json()) as ScoreReceipt & { error?: string };
+      if (!response.ok) throw new Error(payload.error ?? "Scoring details are unavailable.");
+      setScoreReceipts((current) => ({ ...current, [row.detailId!]: payload }));
+    } catch (caught) {
+      setScoreDetailsError(
+        caught instanceof Error ? caught.message : "Scoring details are unavailable.",
+      );
+    } finally {
+      setScoreDetailsLoadingId(null);
+    }
+  }
 
   const scored = data?.mode === "scored";
 
@@ -135,36 +256,66 @@ export function OfficialLeaderboard({ currentBoardName }: { currentBoardName: st
           </div>
           {data.rows.map((row) => {
             const isCurrent = row.id === currentBoardName;
+            const detailsOpen = Boolean(row.detailId && openScoreDetailsId === row.detailId);
+            const receipt = row.detailId ? scoreReceipts[row.detailId] : null;
             return (
-              <div
-                className={`demo-leaderboard-row ${isCurrent ? "is-current" : ""}`}
-                role="row"
-                key={row.id}
-              >
-                <strong role="cell">{row.placement}</strong>
-                <span role="cell">
-                  <b>{row.boardName}</b>
-                  <small>
-                    {isCurrent
-                      ? "Your final Board"
-                      : row.isOfficialChampionshipTie
-                        ? "Official championship tie"
-                        : row.isChampion
-                          ? "Leader"
-                          : scored
-                            ? row.tier
-                            : "Final entry"}
-                  </small>
-                </span>
-                {scored ? (
-                  <>
-                    <strong role="cell">{row.boardAccuracy}</strong>
-                    <span role="cell">{row.percentile}</span>
-                  </>
-                ) : (
-                  <span className="preseason-status" role="cell">Entered</span>
+              <Fragment key={row.detailId ?? row.id}>
+                <div
+                  className={`demo-leaderboard-row ${isCurrent ? "is-current" : ""}`}
+                  role="row"
+                >
+                  <strong role="cell">{row.placement}</strong>
+                  <span role="cell">
+                    <b>{row.boardName}</b>
+                    <small>
+                      {isCurrent
+                        ? "Your final Board"
+                        : row.isOfficialChampionshipTie
+                          ? "Official championship tie"
+                          : row.isChampion
+                            ? "Leader"
+                            : scored
+                              ? row.tier
+                              : "Final entry"}
+                    </small>
+                    {scored && row.hasScoreDetails && (
+                      <button
+                        className="score-details-trigger"
+                        type="button"
+                        aria-expanded={detailsOpen}
+                        aria-controls={`score-details-${row.detailId}`}
+                        onClick={() => void toggleScoreDetails(row)}
+                      >
+                        {detailsOpen ? "Hide score details" : "View score details"}
+                      </button>
+                    )}
+                  </span>
+                  {scored ? (
+                    <>
+                      <strong role="cell">{row.boardAccuracy}</strong>
+                      <span role="cell">{row.percentile}</span>
+                    </>
+                  ) : (
+                    <span className="preseason-status" role="cell">Entered</span>
+                  )}
+                </div>
+                {detailsOpen && row.detailId && (
+                  <div
+                    className="score-details-panel"
+                    id={`score-details-${row.detailId}`}
+                    role="region"
+                    aria-label={`${row.boardName} scoring details`}
+                  >
+                    {scoreDetailsLoadingId === row.detailId ? (
+                      <p className="score-details-state">Loading official scoring receipt…</p>
+                    ) : scoreDetailsError ? (
+                      <p className="score-details-state error" role="alert">{scoreDetailsError}</p>
+                    ) : receipt ? (
+                      <ScoreReceiptPanel receipt={receipt} />
+                    ) : null}
+                  </div>
                 )}
-              </div>
+              </Fragment>
             );
           })}
         </div>

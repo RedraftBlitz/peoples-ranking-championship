@@ -1,4 +1,5 @@
 import {
+  Rational,
   SCORING_SPEC_VERSION,
   formatScore,
   firstRoundCrownWinnerIds,
@@ -25,6 +26,12 @@ export type StoredLeaderboardRow = {
   boardName: string;
   placement: number;
   boardAccuracy: string;
+  positionalAccuracy?: string;
+  bvmAccuracy?: string;
+  top12Accuracy?: string;
+  top24Accuracy?: string;
+  top50Accuracy?: string;
+  top100Accuracy?: string;
   fieldPercentile: string;
   tier: PerformanceTier;
   isChampion: boolean;
@@ -33,6 +40,7 @@ export type StoredLeaderboardRow = {
 
 export type PublicLeaderboardRow = {
   id: string;
+  detailId: string | null;
   boardName: string;
   placement: number;
   boardAccuracy: string | null;
@@ -40,6 +48,28 @@ export type PublicLeaderboardRow = {
   tier: PerformanceTier | null;
   isChampion: boolean;
   isOfficialChampionshipTie: boolean;
+  hasScoreDetails: boolean;
+};
+
+export type PublicScoreValue = {
+  decimal: string;
+  exactFraction: string;
+};
+
+export type PublicScoreReceipt = {
+  id: string;
+  boardName: string;
+  placement: number;
+  tier: PerformanceTier;
+  scores: {
+    boardAccuracy: PublicScoreValue;
+    positionalAccuracy: PublicScoreValue;
+    bvmAccuracy: PublicScoreValue;
+    top12Accuracy: PublicScoreValue;
+    top24Accuracy: PublicScoreValue;
+    top50Accuracy: PublicScoreValue;
+    top100Accuracy: PublicScoreValue;
+  };
 };
 
 function stableHash(value: string) {
@@ -64,6 +94,7 @@ export function buildPreseasonLeaderboard(
     })
     .map((entry, index) => ({
       id: entry.boardName,
+      detailId: null,
       boardName: entry.boardName,
       placement: index + 1,
       boardAccuracy: null,
@@ -71,6 +102,7 @@ export function buildPreseasonLeaderboard(
       tier: null,
       isChampion: false,
       isOfficialChampionshipTie: false,
+      hasScoreDetails: false,
     }));
 }
 
@@ -103,11 +135,23 @@ function scoreOfficialField(
     ]),
   );
   const field = scoreField(boards, snapshot, curveData as CurveRowInput[]);
+  const scoreDetailsByBoardId = new Map(field.boards.map((board) => [
+    board.boardId,
+    {
+      positionalAccuracy: board.positional.score.toFraction(),
+      bvmAccuracy: board.bvm.score.toFraction(),
+      top12Accuracy: board.topN[12].score.toFraction(),
+      top24Accuracy: board.topN[24].score.toFraction(),
+      top50Accuracy: board.topN[50].score.toFraction(),
+      top100Accuracy: board.topN[100].score.toFraction(),
+    },
+  ]));
   const rows = field.leaderboard.map((row) => ({
     boardId: row.boardId,
     boardName: publicNames.get(row.boardId) ?? row.boardName,
     placement: row.placement,
     boardAccuracy: row.boardAccuracy.toFraction(),
+    ...scoreDetailsByBoardId.get(row.boardId)!,
     fieldPercentile: row.fieldPercentile.toFraction(),
     tier: row.tier,
     isChampion: row.isChampion,
@@ -132,6 +176,7 @@ export function publicScoredLeaderboard(
 ): PublicLeaderboardRow[] {
   return rows.map((row) => ({
     id: row.boardName,
+    detailId: row.boardId,
     boardName: row.boardName,
     placement: row.placement,
     boardAccuracy: formatScore(row.boardAccuracy),
@@ -139,7 +184,50 @@ export function publicScoredLeaderboard(
     tier: row.tier,
     isChampion: row.isChampion,
     isOfficialChampionshipTie: row.isOfficialChampionshipTie,
+    hasScoreDetails: Boolean(
+      row.positionalAccuracy
+      && row.bvmAccuracy
+      && row.top12Accuracy
+      && row.top24Accuracy
+      && row.top50Accuracy
+      && row.top100Accuracy
+    ),
   }));
+}
+
+function publicScoreValue(value: string): PublicScoreValue {
+  const exact = Rational.from(value);
+  return {
+    decimal: exact.toDecimal(8, false),
+    exactFraction: exact.toFraction(),
+  };
+}
+
+export function publicScoreReceipt(row: StoredLeaderboardRow): PublicScoreReceipt | null {
+  if (
+    !row.positionalAccuracy
+    || !row.bvmAccuracy
+    || !row.top12Accuracy
+    || !row.top24Accuracy
+    || !row.top50Accuracy
+    || !row.top100Accuracy
+  ) return null;
+
+  return {
+    id: row.boardId,
+    boardName: row.boardName,
+    placement: row.placement,
+    tier: row.tier,
+    scores: {
+      boardAccuracy: publicScoreValue(row.boardAccuracy),
+      positionalAccuracy: publicScoreValue(row.positionalAccuracy),
+      bvmAccuracy: publicScoreValue(row.bvmAccuracy),
+      top12Accuracy: publicScoreValue(row.top12Accuracy),
+      top24Accuracy: publicScoreValue(row.top24Accuracy),
+      top50Accuracy: publicScoreValue(row.top50Accuracy),
+      top100Accuracy: publicScoreValue(row.top100Accuracy),
+    },
+  };
 }
 
 export function leaderboardPublicationPayload(
