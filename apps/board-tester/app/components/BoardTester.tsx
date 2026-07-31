@@ -1,6 +1,13 @@
 "use client";
 
-import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
+import {
+  FormEvent,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from "react";
 import playerData from "../data/players.json";
 import {
   DEMO_SNAPSHOT_LABEL,
@@ -154,6 +161,14 @@ function formatSubmittedAt(value: string | null) {
   }).format(new Date(value));
 }
 
+function subscribeToDeviceCapability() {
+  return () => undefined;
+}
+
+function getAndroidTouchDragCapability() {
+  return /Android/i.test(window.navigator.userAgent) && window.navigator.maxTouchPoints > 0;
+}
+
 export function BoardTester() {
   const [players, setPlayers] = useState(basePlayers);
   const [defaultOrder, setDefaultOrder] = useState(baseInitialOrder);
@@ -166,7 +181,11 @@ export function BoardTester() {
   const [boardPositionView, setBoardPositionView] = useState<Position | "ALL">("ALL");
   const [draggedId, setDraggedId] = useState<string | null>(null);
   const [dropId, setDropId] = useState<string | null>(null);
-  const [androidTouchDrag, setAndroidTouchDrag] = useState(false);
+  const androidTouchDrag = useSyncExternalStore(
+    subscribeToDeviceCapability,
+    getAndroidTouchDragCapability,
+    () => false,
+  );
   const [shareBusy, setShareBusy] = useState(false);
   const [shareMessage, setShareMessage] = useState("");
   const [followedPlayerId, setFollowedPlayerId] = useState<string | null>(null);
@@ -203,13 +222,9 @@ export function BoardTester() {
   const touchHoldTimerRef = useRef<number | null>(null);
   const touchAutoScrollFrameRef = useRef<number | null>(null);
 
-  boardReadOnlyRef.current = boardReadOnly;
-
   useEffect(() => {
-    setAndroidTouchDrag(
-      /Android/i.test(window.navigator.userAgent) && window.navigator.maxTouchPoints > 0,
-    );
-  }, []);
+    boardReadOnlyRef.current = boardReadOnly;
+  }, [boardReadOnly]);
 
   useEffect(() => {
     const updateDeadline = () => setEntryClosed(entryDeadlinePassed());
@@ -437,7 +452,9 @@ export function BoardTester() {
     setPersonalIds(moved.personalIds);
   }
 
-  movePlayerRef.current = movePlayer;
+  useEffect(() => {
+    movePlayerRef.current = movePlayer;
+  });
 
   function autoScrollWhileDragging(clientY: number) {
     const edge = Math.min(120, window.innerHeight * 0.18);
