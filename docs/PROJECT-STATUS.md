@@ -1,6 +1,6 @@
 # Project Status
 
-This file is a concise status view of the 2026 PRC Source-of-Truth Audit. The audit is a read-only consolidation, not a new Bible version. Later owner approvals and implementation authority are recorded in the controlled `SCORING-SPEC.md`; where this historical status summary conflicts with that newer approval record, the controlled Scoring Specification governs scoring implementation.
+This file began as a concise status view of the 2026 PRC Source-of-Truth Audit. The audit is read-only historical evidence. The current owner-approved operating decisions are consolidated in `2026-LIVE-DECISIONS.md`; that register supersedes unresolved or conflicting notes here. The controlled `SCORING-SPEC.md` remains authoritative for scoring mathematics.
 
 ## 1. Locked product behavior safe to prototype
 
@@ -13,7 +13,7 @@ These items may be represented in non-production UI and state-flow prototypes. P
 - **Draft identity and protection:** Browser-only guest drafts, Board Name and six-digit PIN protection, optional recovery email at protection, verified email at entry, and the locked ownership and unrecoverable-access outcomes may be prototyped. One verified email may create one official Board per season, without replacing the unresolved broader one-person rule.
 - **Entry and lock states:** Official Entry is immediate, server-confirmed, one-time, and immutable. `Officially Enter My Board` is the individual action; Championship Lock is the field-wide deadline and simultaneous reveal. Protected and browser-only unsubmitted drafts have the locked post-deadline outcomes described by the audit.
 - **Visibility and permanent Boards:** Submitted Top 150s stay private before reveal. At reveal, every valid official Board becomes public at its permanent URL. Owner and public views share the same component, and official Boards remain immutable through provisional and final scoring.
-- **Consensus and Leaderboard presentation:** People's Consensus launches as editorial/social content rather than a dedicated application page. Before scoring, the Leaderboard shows 25 randomized, unnumbered public Boards; ranked standings begin after the first scored Tuesday. The locked columns, precision split, and permanent-Board detail model may be prototyped without calculating scores.
+- **Consensus and Leaderboard presentation:** People's Consensus launches as editorial/social content generated from a private administrator tool. Before scoring, the Leaderboard shows every official Board in deterministic randomized order; its numbers are display positions until scored standings begin. The locked precision split and permanent-Board detail model are implemented.
 - **Awards and lifecycle surfaces:** The locked award names, winner exclusions, weeks 1-17 lifecycle, Week 18 exclusion, and provisional/final states may be represented. Award calculations and prize details remain blocked where specified below.
 
 ## 2. Scoring and data implementation boundaries
@@ -28,18 +28,15 @@ These items may be represented in non-production UI and state-flow prototypes. P
 - The permanent v1 PRC Player ID crosswalk is generated and passes 8,323 checks. Production joins must use its immutable IDs, approved aliases, external-source mappings, and fail-closed manual-review queue; display name, team, suffix, or position alone never establishes identity.
 - Do not implement production source ingestion until source permissions, attribution, access, archival behavior, correction handling, coverage thresholds, and tested fallbacks are approved.
 
-## 3. Launch decisions that remain unresolved
+## 3. Current remaining external gates
 
-| ID | Unresolved decision |
-| --- | --- |
-| UR-001 | Exact 2026 Championship deadline, time, IANA timezone, public wording, and display rule |
-| UR-002 | Complete 2026 master calendar, including opening, MV, lock, scoring, correction, and finalization milestones |
-| UR-003 | Final opening eligibility rules, Board/search pool treatment, and curated fallback; the permanent ID crosswalk is complete |
-| UR-004 | Current-MV source terms, attribution, access, limits, archival rights, and tested fallback |
-| UR-005 | Weekly scoring-data rights, export availability, correction handling, and reproducible backup |
-| UR-006 | Partially approved 2026-07-20: 18+, legal residents of the 50 United States and D.C., one final Board per verified email, no purchase, and a 30-day winner-response window. Redraft Blitz is independently owner-operated and personally prize-funded with no outside sponsor. Final Boards reveal September 9 at 6:00 PM Eastern; scoring begins at the verified 8:20 PM Eastern NFL kickoff. Jurisdictional review, disputes, privacy, taxes, failures, Random Draw timing/audit, and full public wording remain. |
-| UR-007 | Approved 2026-07-20: Base Champion package ARV approximately $450, including an approximately $200 PSA/DNA- or JSA-authenticated full-size LaDainian Tomlinson signed helmet, $200 Fanatics gift card, People's Cup, and permanent recognition; First Round Crown receives $100 Fanatics; Random Draw receives $50 Fanatics. At 5,000 valid official Boards, the Champion gift card increases to $400, second place receives $200 Fanatics, and third place receives $100 Fanatics; boosted Champion ARV approximately $650. Every irreducibly tied eligible award winner receives the full applicable prize. |
-| UR-008 | Privacy, Terms, retention, deletion, security-token, analytics, vendor, public-permanence, correction, contact, and request-handling rules |
-| UR-009 | Board Name moderation policy, enforcement, notice, appeal, and audit trail |
+The owner has resolved the calendar, eligibility, entry limits, player-pool behavior, saved-Board behavior, public permanence, moderation, prizes, Random Draw operation, privacy publication, and scoring implementation decisions. See `2026-LIVE-DECISIONS.md` for the current contract.
 
-Core scoring implementation may begin under the controlled Scoring Specification. The scoring regression pack and permanent player-ID crosswalk are complete. Production launch still requires the remaining Player Data Pack decisions, source operating permissions and fallbacks, unresolved launch items at their assigned gates, and an approved Volume III that translates the locked contract into technical architecture without changing behavior.
+The remaining launch work is external or operational:
+
+- final legal review of the published Official Rules and privacy/contest structure;
+- written Fantasy Football Calculator data permission or license notes;
+- public-volume observation and response if infrastructure limits appear; and
+- launch content, tester feedback, and promotion.
+
+The scoring regression pack and permanent player-ID crosswalk are complete. Weekly data and every proposed Market snapshot remain subject to manual review and fail-closed identity checks.

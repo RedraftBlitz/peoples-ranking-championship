@@ -1,6 +1,10 @@
 import type { Metadata } from "next";
 import { ContestPage } from "../components/ContestPage";
-import { ENTRY_DEADLINE_LABEL, RANDOM_DRAW_LABEL } from "../lib/entry-rules";
+import {
+  ENTRY_DEADLINE_LABEL,
+  ENTRY_OPEN_LABEL,
+  RANDOM_DRAW_LABEL,
+} from "../lib/entry-rules";
 
 export const metadata: Metadata = {
   title: "FAQ · People's Ranking Championship",
@@ -27,7 +31,7 @@ const questions = [
   ],
   [
     "When is the deadline?",
-    `Final submission closes ${ENTRY_DEADLINE_LABEL}.`,
+    `Official entries open ${ENTRY_OPEN_LABEL}. Final submission closes ${ENTRY_DEADLINE_LABEL}. Protected Boards that are not finally submitted lock as Draft Locked — Not Entered.`,
   ],
   [
     "Why is the preseason leaderboard randomized?",

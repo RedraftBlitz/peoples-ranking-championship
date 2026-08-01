@@ -1,6 +1,7 @@
 import { boardForSession, publicBoard } from "../../../lib/board-storage";
 import { validateBoardState } from "../../../lib/board-validation";
 import { getD1 } from "../../../../db/d1";
+import { entryDeadlinePassed } from "../../../lib/entry-rules";
 
 export async function PUT(
   request: Request,
@@ -18,6 +19,15 @@ export async function PUT(
     if (board.status === "entered") {
       return Response.json(
         { error: "This Board was finally submitted and is permanently locked." },
+        { status: 409 },
+      );
+    }
+    if (entryDeadlinePassed()) {
+      return Response.json(
+        {
+          error:
+            "Championship Lock has passed. This protected draft is locked and was not entered in the contest.",
+        },
         { status: 409 },
       );
     }

@@ -18,6 +18,7 @@ export type EntryForLeaderboard = {
   boardId: string;
   boardName: string;
   publicBoardName?: string;
+  publicBoardPath?: string | null;
   playerIds: string[];
 };
 
@@ -41,6 +42,7 @@ export type StoredLeaderboardRow = {
 export type PublicLeaderboardRow = {
   id: string;
   detailId: string | null;
+  boardPath: string | null;
   boardName: string;
   placement: number;
   boardAccuracy: string | null;
@@ -82,7 +84,8 @@ function stableHash(value: string) {
 }
 
 export function buildPreseasonLeaderboard(
-  entries: readonly Pick<EntryForLeaderboard, "boardId" | "boardName">[],
+  entries: readonly Pick<EntryForLeaderboard, "boardId" | "boardName" | "publicBoardPath">[],
+  revealPublicBoards = false,
 ): PublicLeaderboardRow[] {
   return [...entries]
     .sort((left, right) => {
@@ -95,6 +98,7 @@ export function buildPreseasonLeaderboard(
     .map((entry, index) => ({
       id: entry.boardName,
       detailId: null,
+      boardPath: revealPublicBoards ? entry.publicBoardPath ?? null : null,
       boardName: entry.boardName,
       placement: index + 1,
       boardAccuracy: null,
@@ -177,6 +181,7 @@ export function publicScoredLeaderboard(
   return rows.map((row) => ({
     id: row.boardName,
     detailId: row.boardId,
+    boardPath: null,
     boardName: row.boardName,
     placement: row.placement,
     boardAccuracy: formatScore(row.boardAccuracy),

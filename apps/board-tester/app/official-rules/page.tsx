@@ -6,6 +6,8 @@ import {
   CHAMPIONSHIP_REVEAL_UTC,
   ENTRY_DEADLINE_LABEL,
   ENTRY_DEADLINE_UTC,
+  ENTRY_OPEN_LABEL,
+  ENTRY_OPEN_UTC,
   RANDOM_DRAW_LABEL,
   RANDOM_DRAW_UTC,
   SCORING_START_LABEL,
@@ -58,7 +60,8 @@ export default function OfficialRulesPage() {
             (the “Operator”). There is no outside contest or prize sponsor.
           </p>
           <p>
-            Entries close <time dateTime={ENTRY_DEADLINE_UTC}>{ENTRY_DEADLINE_LABEL}</time>.
+            Entries open <time dateTime={ENTRY_OPEN_UTC}>{ENTRY_OPEN_LABEL}</time> and
+            close <time dateTime={ENTRY_DEADLINE_UTC}>{ENTRY_DEADLINE_LABEL}</time>.
             Final Boards are revealed at{" "}
             <time dateTime={CHAMPIONSHIP_REVEAL_UTC}>{CHAMPIONSHIP_REVEAL_LABEL}</time>,
             and scoring begins with the official NFL opener at{" "}
@@ -78,6 +81,9 @@ export default function OfficialRulesPage() {
             may not use another email address, identity, or Board Name to submit
             an additional final Board. Final submission is immediate, permanent,
             and cannot be edited or withdrawn through the Board interface.
+            A protected Board that is not finally submitted before Championship
+            Lock becomes a read-only <strong>Draft Locked — Not Entered</strong>
+            record and is not part of the contest field.
           </p>
           <p>
             A valid final Board enters the skill competition and also receives
@@ -204,7 +210,7 @@ export default function OfficialRulesPage() {
         <section>
           <h2>9. Public Boards, publicity, and winners list</h2>
           <p>
-            Board Names and final Top 150s may become public at Championship Lock
+            Board Names and final Top 150s become public at the Championship reveal
             and remain part of the permanent contest record. Results may identify
             winners by Board Name and state. A winner&apos;s legal name, photograph,
             or likeness will be used for promotional purposes only with consent or

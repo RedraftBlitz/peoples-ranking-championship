@@ -6,6 +6,8 @@ import {
   CHAMPIONSHIP_REVEAL_UTC,
   ENTRY_DEADLINE_LABEL,
   ENTRY_DEADLINE_UTC,
+  ENTRY_OPEN_LABEL,
+  ENTRY_OPEN_UTC,
   SCORING_START_LABEL,
   SCORING_START_UTC,
 } from "../lib/entry-rules";
@@ -66,9 +68,12 @@ export default function HowItWorksPage() {
           <span className="panel-kicker">Championship Lock</span>
           <h2>Final submission closes September 9.</h2>
           <p>
+            Official entries open{" "}
+            <time dateTime={ENTRY_OPEN_UTC}>{ENTRY_OPEN_LABEL}</time> and close{" "}
             <time dateTime={ENTRY_DEADLINE_UTC}>{ENTRY_DEADLINE_LABEL}</time>.
             Submitting early locks your Board immediately—there is no editing
-            window after final submission.
+            window after final submission. Protected Boards not finally submitted
+            by the deadline lock as Draft Locked — Not Entered.
           </p>
         </div>
         <Link className="button gold" href="/">

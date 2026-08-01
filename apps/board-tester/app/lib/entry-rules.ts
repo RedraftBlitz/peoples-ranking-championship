@@ -1,3 +1,6 @@
+export const ENTRY_OPEN_UTC = "2026-08-01T00:00:00.000Z";
+export const ENTRY_OPEN_LABEL =
+  "July 31, 2026 at 8:00 PM Eastern · 6:00 PM Mountain";
 export const ENTRY_DEADLINE_UTC = "2026-09-09T20:00:00.000Z";
 export const ENTRY_DEADLINE_LABEL =
   "September 9, 2026 at 4:00 PM Eastern · 2:00 PM Mountain";
@@ -10,8 +13,16 @@ export const SCORING_START_LABEL =
 export const RANDOM_DRAW_UTC = "2027-01-15T17:00:00.000Z";
 export const RANDOM_DRAW_LABEL =
   "January 15, 2027 at 12:00 PM Eastern / 10:00 AM Mountain";
-export const ENTRY_RULES_VERSION = "PRC-2026-FINAL-ENTRY-v5";
+export const ENTRY_RULES_VERSION = "PRC-2026-FINAL-ENTRY-v6";
+
+export function entryPeriodNotStarted(now = new Date()) {
+  return now.getTime() < new Date(ENTRY_OPEN_UTC).getTime();
+}
 
 export function entryDeadlinePassed(now = new Date()) {
   return now.getTime() >= new Date(ENTRY_DEADLINE_UTC).getTime();
+}
+
+export function entryWindowOpen(now = new Date()) {
+  return !entryPeriodNotStarted(now) && !entryDeadlinePassed(now);
 }

@@ -213,8 +213,9 @@ export function BoardTester() {
     [players],
   );
   const isEntered = protectedBoard?.status === "entered";
+  const isLockedUnsubmitted = Boolean(entryClosed && protectedBoard && !isEntered);
   const isPositionView = boardPositionView !== "ALL";
-  const boardReadOnly = isEntered || isPositionView;
+  const boardReadOnly = isEntered || isLockedUnsubmitted || isPositionView;
   const boardListRef = useRef<HTMLDivElement>(null);
   const boardReadOnlyRef = useRef(boardReadOnly);
   const movePlayerRef = useRef<(id: string, requestedRank: number) => void>(() => undefined);
@@ -337,6 +338,11 @@ export function BoardTester() {
         return;
       }
 
+      if (isLockedUnsubmitted) {
+        setSaveState("Draft Locked — Not Entered");
+        return;
+      }
+
       if (!protectedBoard) {
         setSaveState("Saved on this device");
         return;
@@ -363,7 +369,7 @@ export function BoardTester() {
       window.clearTimeout(timeout);
       controller.abort();
     };
-  }, [hydrated, isEntered, order, personalIds, protectedBoard]);
+  }, [hydrated, isEntered, isLockedUnsubmitted, order, personalIds, protectedBoard]);
 
   useEffect(() => {
     if (!followedPlayerId) return;
@@ -1000,6 +1006,7 @@ export function BoardTester() {
           isRecoveryEmailVerified: true,
           status: payload.board.status,
           submittedAt: payload.board.submittedAt,
+          sharePath: payload.board.sharePath,
         });
         setDialogMessage("That email is already verified.");
         return;
@@ -1049,6 +1056,7 @@ export function BoardTester() {
         isRecoveryEmailVerified: payload.board.isRecoveryEmailVerified,
         status: payload.board.status,
         submittedAt: payload.board.submittedAt,
+        sharePath: payload.board.sharePath,
       });
       setVerificationCodeSent(false);
       setVerificationCode("");
@@ -1147,6 +1155,8 @@ export function BoardTester() {
             {activeView === "board"
               ? isEntered
                 ? "Your Board is final."
+                : isLockedUnsubmitted
+                  ? "This draft is locked."
                 : "Build Your Board"
               : "Follow every Board."}
           </h1>
@@ -1154,6 +1164,8 @@ export function BoardTester() {
             <p>
               {isEntered
                 ? "Your official Top 150 is permanently locked and can no longer be edited."
+                : isLockedUnsubmitted
+                  ? "This protected Board was not finally submitted before Championship Lock and is not in the contest."
                 : "Drag a player to a new spot or type any rank from 1–200. Everyone between the two ranks shifts automatically."}
             </p>
           ) : (
@@ -1172,6 +1184,8 @@ export function BoardTester() {
                 ? protectedBoard
                   ? isEntered
                     ? `${protectedBoard.name} · final entry`
+                    : isLockedUnsubmitted
+                      ? `${protectedBoard.name} · not entered`
                     : protectedBoard.name
                   : "Browser draft · no account needed"
                 : "Final entries only · updated after approval"}
@@ -1185,15 +1199,19 @@ export function BoardTester() {
           {activeView === "board"
             ? isEntered
               ? "Final entry locked"
+              : isLockedUnsubmitted
+                ? "Draft Locked — Not Entered"
               : entryClosed
                 ? "Final entry closed"
-                : "Entry deadline · September 9"
+                : "Official entries open"
             : "Official leaderboard"}
         </strong>
         <span className="notice-detail">
           {activeView === "board"
             ? isEntered
               ? `Submitted ${formatSubmittedAt(protectedBoard?.submittedAt ?? null)} · no further edits are allowed.`
+              : isLockedUnsubmitted
+                ? "Championship Lock passed before final submission. This Board is read-only and is not part of the contest field."
               : entryClosed
                 ? "Final entry is closed. Draft Boards can no longer be submitted."
                 : `Final submission closes ${ENTRY_DEADLINE_LABEL}. Submitting early locks the Board immediately.`
@@ -1203,9 +1221,11 @@ export function BoardTester() {
           {activeView === "board"
             ? isEntered
               ? "Permanently locked"
+              : isLockedUnsubmitted
+                ? "Locked · not entered"
               : entryClosed
                 ? "Submissions closed"
-                : "Closes Sep 9 · 4 PM ET"
+                : "Open now · closes Sep 9"
             : "Updates after weekly approval"}
         </span>
       </section>
@@ -1242,13 +1262,21 @@ export function BoardTester() {
       <section className="draft-lifecycle" aria-label="Draft protection">
         <div className="draft-identity">
           <span className={`state-pill ${isEntered ? "entered" : protectedBoard ? "protected" : "browser"}`}>
-            {isEntered ? "Final entry" : protectedBoard ? "Protected draft" : "Browser draft"}
+            {isEntered
+              ? "Final entry"
+              : isLockedUnsubmitted
+                ? "Draft Locked — Not Entered"
+                : protectedBoard
+                  ? "Protected draft"
+                  : "Browser draft"}
           </span>
           <div>
             <h2>{protectedBoard?.name ?? "Your unnamed Board"}</h2>
             <p>
               {isEntered
                 ? `Permanently locked · ${formatSubmittedAt(protectedBoard?.submittedAt ?? null)}`
+                : isLockedUnsubmitted
+                  ? "Read-only · not submitted · not in the contest"
                 : protectedBoard
                 ? protectedBoard.isRecoveryEmailVerified
                   ? "PIN protected · contact email verified"
@@ -1268,7 +1296,13 @@ export function BoardTester() {
               : "Move 1 player directly · any amount"}
           </span>
           <span className={protectedBoard ? "ready" : "waiting"}>
-            {isEntered ? "Final & locked" : protectedBoard ? "Protected" : "Protection needed"}
+            {isEntered
+              ? "Final & locked"
+              : isLockedUnsubmitted
+                ? "Locked · not entered"
+                : protectedBoard
+                  ? "Protected"
+                  : "Protection needed"}
           </span>
           {protectedBoard && !isEntered && (
             <span className={protectedBoard.isRecoveryEmailVerified ? "ready" : "waiting"}>
@@ -1281,7 +1315,12 @@ export function BoardTester() {
 
         <div className="draft-actions">
           {!protectedBoard && (
-            <button className="button gold" type="button" onClick={() => openDialog("protect")}>
+            <button
+              className="button gold"
+              type="button"
+              onClick={() => openDialog("protect")}
+              disabled={entryClosed}
+            >
               Protect My Board
             </button>
           )}
@@ -1723,10 +1762,18 @@ export function BoardTester() {
         <button
           className="primary"
           type="button"
-          disabled={isEntered || (Boolean(protectedBoard) && !entryPreviewReady)}
+          disabled={entryClosed || isEntered || (Boolean(protectedBoard) && !entryPreviewReady)}
           onClick={() => openDialog(protectedBoard ? "entry" : "protect")}
         >
-          {isEntered ? "Final" : protectedBoard ? "Submit" : "Protect"}
+          {isEntered
+            ? "Final"
+            : isLockedUnsubmitted
+              ? "Not Entered"
+              : protectedBoard
+                ? "Submit"
+                : entryClosed
+                  ? "Closed"
+                  : "Protect"}
         </button>
       </nav>
         </>

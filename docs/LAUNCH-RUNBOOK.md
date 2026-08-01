@@ -13,6 +13,7 @@ This is the operating checklist for the 2026 People's Ranking Championship.
 - [ ] Download a Full Backup from `/admin`; open the JSON and confirm its counts match the dashboard.
 - [ ] Test one new Board, PIN recovery, email verification, and Board recovery on a second device.
 - [ ] Test the Random Draw Only form with an email that has not submitted a Board.
+- [ ] Confirm the official entry window opened July 31, 2026 at 8:00 PM Eastern.
 - [ ] Confirm the entry deadline shown throughout the site is September 9, 2026 at 4:00 PM Eastern.
 
 ## Launch-day watch
@@ -52,7 +53,10 @@ This is the operating checklist for the 2026 People's Ranking Championship.
 ## Deadline and prize operations
 
 - At September 9, 2026, 4:00 PM Eastern, confirm new final submissions and Random Draw Only entries are closed.
+- Confirm every protected but unsubmitted Board is read-only and clearly labeled `Draft Locked — Not Entered`.
 - Export the final entry CSV and a Full Backup, then preserve both unchanged.
+- At the 6:00 PM Eastern reveal, confirm every official leaderboard Board Name links to its permanent read-only Top 150 page.
+- Open `/admin/consensus`, regenerate the People's Consensus against the final field and latest approved Market baseline, and save its CSV with the reveal records.
 - Contact potential winners using verified entry emails and follow the 30-day response rule in the Official Rules.
 - Before January 15, review the deduplicated field in `/admin/random-draw`, remove any documented ineligible or test entries, and run a practice test.
 - At January 15, 2027 at 10:00 AM Mountain, use `/admin/random-draw` to conduct the date-locked official drawing and download the private winner contact file.

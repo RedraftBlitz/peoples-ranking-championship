@@ -21,7 +21,7 @@ If this document conflicts with a governing source, the source hierarchy in the 
 - Scores are saved at the engine's fullest available precision, ordered and tiered at that precision, and displayed to two decimals without a percent symbol.
 - BVM uses a 70% season-value / 30% weekly-net-value blend, replacement ranks QB13/RB37/WR49/TE13, and permits negative weekly value.
 - Exact BVM-value ties use higher Season VOR percentile, then higher Weekly Net VOR percentile, then permanent PRC Player ID ascending.
-- Before the first scored Tuesday, the Leaderboard shows 25 randomized, unnumbered public Boards and no scoring accuracy or percentile. Those results appear beginning with the Week 1 scoring update.
+- Before the first scored update, the Leaderboard shows every official Board in deterministic randomized order and no scoring accuracy or percentile. Preseason numbers are display positions only. Scored standings appear beginning with the Week 1 scoring update.
 - Exact Board Accuracy ties outside the championship decision share one placement number and are displayed alphabetically by Board Name.
 - Row-level Player Accuracy is removed from the 2026 launch. `Accuracy` means the complete-Board Board Accuracy score unless a future approved version explicitly introduces another metric.
 - The versioned regression pack uses exact rational arithmetic and an exact-decimal 2025 BVM fixture; its standard run passes 889 checks and its archived-source rebuild passes 896.
@@ -361,7 +361,7 @@ The thresholds and full-precision comparison rule are `LOCKED / CONFIRMED`. Tier
 
 ### 6.3 Leaderboard timing and field percentile
 
-After Championship Lock but before the first scored Tuesday, the Leaderboard shows 25 randomized, unnumbered public Boards. Board Accuracy and field percentile are not displayed before scoring exists.
+Before the first scored update, the Leaderboard shows every official Board in deterministic randomized order. Preseason numbers are display positions only. Board Accuracy and field percentile are not displayed before scoring exists.
 
 Beginning with the Week 1 scoring update, ranked standings and accuracy results appear. Field percentile is calculated from exact full-precision Board Accuracy over all valid scored Boards in the published snapshot:
 

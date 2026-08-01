@@ -2,8 +2,9 @@
 
 ## Current documents
 
-- [`PROJECT-STATUS.md`](PROJECT-STATUS.md) - concise separation of prototype-safe behavior, implementation blockers, and unresolved launch decisions.
-- [`PRODUCT-SPEC.md`](PRODUCT-SPEC.md) - locked product and user-experience behavior only; it does not authorize application implementation.
+- [`2026-LIVE-DECISIONS.md`](2026-LIVE-DECISIONS.md) - current owner-approved contest, product, data, and operating decisions. Read this first; it supersedes older unresolved or conflicting notes.
+- [`PROJECT-STATUS.md`](PROJECT-STATUS.md) - historical audit-oriented status plus the current remaining external gates.
+- [`PRODUCT-SPEC.md`](PRODUCT-SPEC.md) - detailed product and user-experience behavior; the Live Decision Register governs later owner-approved changes.
 - [`SCORING-SPEC.md`](SCORING-SPEC.md) - controlled scoring mathematics, winner ordering, and approved regression evidence.
 - [`PLAYER-IDENTITY-SPEC.md`](PLAYER-IDENTITY-SPEC.md) - permanent PRC Player IDs, aliases, external source mappings, manual-review rules, and required source attribution.
 - [`../tests/README.md`](../tests/README.md) - commands and coverage for the exact scoring regression pack and archived 2025 BVM rebuild.
@@ -30,4 +31,4 @@ Audit SHA-256:
 - `DESIGN-SPEC.md`
 - `BUILD-PLAN.md`
 
-The future documents must not invent requirements or silently resolve blockers recorded in `PROJECT-STATUS.md` and `SCORING-SPEC.md`. The audit remains read-only historical evidence; later approvals recorded in the controlled specifications govern where they explicitly close an audited gap.
+The future documents must not invent requirements. The audit remains read-only historical evidence; the Live Decision Register and controlled specifications govern where later approvals close an audited gap.

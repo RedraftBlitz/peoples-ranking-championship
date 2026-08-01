@@ -60,16 +60,24 @@ export default async function SharedBoardPage({
       current=""
       kicker={isOfficial ? "Official 2026 Entry" : "Public Draft Board"}
       title={`${board.name}'s Top 150`}
-      intro="A read-only People's Ranking Championship Board shared by its owner."
+      intro={isOfficial
+        ? "A permanent read-only 2026 People's Ranking Championship entry."
+        : "A read-only People's Ranking Championship Board shared by its owner."}
     >
       <section className="shared-board-summary">
         <div>
           <span className={`shared-board-status ${isOfficial ? "official" : "draft"}`}>
-            {isOfficial ? "Official 2026 Entry" : "Live Protected Draft"}
+            {isOfficial
+              ? "Official 2026 Entry"
+              : board.lockedUnsubmitted
+                ? "Draft Locked — Not Entered"
+                : "Live Protected Draft"}
           </span>
           <p>
             {isOfficial
               ? `Permanently submitted ${formatDate(board.submittedAt ?? board.updatedAt)}.`
+              : board.lockedUnsubmitted
+                ? "Championship Lock passed before final submission. This Board is not in the contest."
               : `Updates whenever ${board.name} saves a new ranking order.`}
           </p>
         </div>

@@ -14,6 +14,7 @@ import {
   ENTRY_DEADLINE_UTC,
   ENTRY_RULES_VERSION,
   entryDeadlinePassed,
+  entryPeriodNotStarted,
 } from "../../../../lib/entry-rules";
 import { submissionEmailVerificationRequired } from "../../../../lib/email-delivery";
 import { enforceRateLimit, RATE_LIMITS } from "../../../../lib/rate-limit";
@@ -43,6 +44,12 @@ export async function POST(
     if (board.status === "entered") {
       return Response.json(
         { error: "This Board has already been finally submitted and permanently locked." },
+        { status: 409 },
+      );
+    }
+    if (entryPeriodNotStarted()) {
+      return Response.json(
+        { error: "Official 2026 entries have not opened yet." },
         { status: 409 },
       );
     }
@@ -164,6 +171,8 @@ export async function POST(
     }
 
     const submittedAt = now.toISOString();
+    const permanentShareToken =
+      board.share_token ?? crypto.randomUUID().replaceAll("-", "");
     const confirmation = {
       reviewedTop150: true,
       acceptedPermanentLock: true,
@@ -210,6 +219,12 @@ export async function POST(
           submittedAt,
           board.id,
         ),
+      db
+        .prepare(
+          `INSERT OR IGNORE INTO board_shares (token, board_id, created_at)
+           VALUES (?1, ?2, ?3)`,
+        )
+        .bind(permanentShareToken, board.id, submittedAt),
     ]);
 
     return Response.json({
@@ -220,6 +235,7 @@ export async function POST(
         status: "entered",
         updated_at: submittedAt,
         submitted_at: submittedAt,
+        share_token: permanentShareToken,
       }),
       entry: {
         boardName: board.board_name,

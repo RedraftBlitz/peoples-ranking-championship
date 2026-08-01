@@ -2,7 +2,11 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ContestPage } from "../components/ContestPage";
 import { RandomDrawEntry } from "../components/RandomDrawEntry";
-import { ENTRY_DEADLINE_LABEL, RANDOM_DRAW_LABEL } from "../lib/entry-rules";
+import {
+  ENTRY_DEADLINE_LABEL,
+  ENTRY_OPEN_LABEL,
+  RANDOM_DRAW_LABEL,
+} from "../lib/entry-rules";
 
 export const metadata: Metadata = {
   title: "Free Random Draw Entry | People's Ranking Championship",
@@ -21,10 +25,11 @@ export default function RandomDrawPage() {
       <RandomDrawEntry />
       <section className="contest-split-section">
         <article>
-          <span className="panel-kicker">Entry deadline</span>
+          <span className="panel-kicker">Entry window</span>
           <h2>{ENTRY_DEADLINE_LABEL}</h2>
           <p>
-            Final Board entries and Random Draw Only entries close at the same time.
+            Opens {ENTRY_OPEN_LABEL}. Final Board entries and Random Draw Only
+            entries close at the same time.
           </p>
         </article>
         <article>

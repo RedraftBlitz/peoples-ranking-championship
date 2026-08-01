@@ -8,6 +8,7 @@ import {
 import {
   ENTRY_RULES_VERSION,
   entryDeadlinePassed,
+  entryPeriodNotStarted,
 } from "../../../lib/entry-rules";
 import { enforceRateLimit, RATE_LIMITS } from "../../../lib/rate-limit";
 
@@ -18,6 +19,12 @@ export async function POST(request: Request) {
   try {
     const limited = await enforceRateLimit(request, RATE_LIMITS.sendRandomDrawCode);
     if (limited) return limited;
+    if (entryPeriodNotStarted()) {
+      return Response.json(
+        { error: "Official 2026 entries have not opened yet." },
+        { status: 409 },
+      );
+    }
     if (entryDeadlinePassed()) {
       return Response.json(
         { error: "Random Draw entry is closed." },

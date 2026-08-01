@@ -17,12 +17,28 @@ import {
   validatePin,
 } from "../../../lib/board-validation";
 import { enforceRateLimit, RATE_LIMITS } from "../../../lib/rate-limit";
+import {
+  entryDeadlinePassed,
+  entryPeriodNotStarted,
+} from "../../../lib/entry-rules";
 
 export async function POST(request: Request) {
   let failureStage = "parse_request";
   try {
     const limited = await enforceRateLimit(request, RATE_LIMITS.protect);
     if (limited) return limited;
+    if (entryPeriodNotStarted()) {
+      return Response.json(
+        { error: "Official 2026 Board protection has not opened yet." },
+        { status: 409 },
+      );
+    }
+    if (entryDeadlinePassed()) {
+      return Response.json(
+        { error: "Championship Lock has passed. New protected Boards cannot be created." },
+        { status: 409 },
+      );
+    }
     const payload = (await request.json()) as {
       boardName?: string;
       pin?: string;

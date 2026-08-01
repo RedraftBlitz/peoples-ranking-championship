@@ -155,6 +155,7 @@ export function AdminDashboard({ displayName }: { displayName: string }) {
     () => (data ? countdown(data.deadlineUtc, now) : "Loading deadline…"),
     [data, now],
   );
+  const deadlinePassed = Boolean(data && now >= new Date(data.deadlineUtc).getTime());
 
   function searchEntries(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -233,6 +234,7 @@ export function AdminDashboard({ displayName }: { displayName: string }) {
           <span>Signed in as</span>
           <strong>{displayName}</strong>
           <nav aria-label="Admin navigation">
+            <Link href="/admin/consensus">People&apos;s Consensus</Link>
             <Link href="/admin/article-rankings">Article Rankings Lab</Link>
             <Link href="/admin/dst-matchups">DST Matchup Lab</Link>
             <Link href="/admin/updates">Data updates</Link>
@@ -276,9 +278,13 @@ export function AdminDashboard({ displayName }: { displayName: string }) {
             <small>Every saved contest Board</small>
           </article>
           <article>
-            <span>Editable drafts</span>
+            <span>{deadlinePassed ? "Locked non-entries" : "Editable drafts"}</span>
             <strong>{data?.summary.protectedDrafts ?? "—"}</strong>
-            <small>Still open for ranking changes</small>
+            <small>
+              {deadlinePassed
+                ? "Draft Locked — Not Entered"
+                : "Still open for ranking changes"}
+            </small>
           </article>
           <article>
             <span>Final entries</span>
