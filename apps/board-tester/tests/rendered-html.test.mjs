@@ -94,7 +94,7 @@ test("adds a sticky read-only Position View without changing Board order", async
 
   assert.match(component, /const \[boardPositionView, setBoardPositionView\]/);
   assert.match(component, /boardRows\.filter\(\(\{ player \}\) => player\.position === boardPositionView\)/);
-  assert.match(component, /const boardReadOnly = isEntered \|\| isPositionView/);
+  assert.match(component, /const boardReadOnly = isEntered \|\| isLockedUnsubmitted \|\| isPositionView/);
   assert.match(component, /View Board by position/);
   assert.match(component, /overall order preserved · read-only/);
   assert.match(component, /className="position-rank"/);
@@ -492,7 +492,8 @@ test("enforces and records one final 2026 Board per person and verified email", 
   assert.match(submitRoute, /oneFinalBoardPerPerson:\s*true/);
   assert.match(schema, /board_entries_season_email_unique/);
   assert.match(migration, /CREATE UNIQUE INDEX `board_entries_season_email_unique`/);
-  assert.match(rules, /PRC-2026-FINAL-ENTRY-v5/);
+  assert.match(rules, /PRC-2026-FINAL-ENTRY-v6/);
+  assert.match(rules, /2026-08-01T00:00:00\.000Z/);
   assert.match(rules, /2026-09-09T22:00:00\.000Z/);
   assert.match(rules, /2026-09-10T00:20:00\.000Z/);
   assert.match(rules, /2027-01-15T17:00:00\.000Z/);
@@ -700,4 +701,52 @@ test("publishes expandable full-precision scoring receipts without cluttering th
   assert.match(styles, /\.score-receipt-audit/);
   assert.match(scoringPage, /exact stored fractions used for placement/);
   assert.match(completeReference, /exact reduced fractions used by the engine/);
+});
+
+test("opens entries, freezes non-entries, reveals permanent Boards, and generates Consensus", async () => {
+  const [
+    rules,
+    protectRoute,
+    saveRoute,
+    submitRoute,
+    board,
+    leaderboardRoute,
+    leaderboard,
+    consensusRoute,
+    consensusLogic,
+    consensusPage,
+    migration,
+    decisions,
+  ] = await Promise.all([
+    readFile(new URL("app/lib/entry-rules.ts", projectRoot), "utf8"),
+    readFile(new URL("app/api/boards/protect/route.ts", projectRoot), "utf8"),
+    readFile(new URL("app/api/boards/[id]/route.ts", projectRoot), "utf8"),
+    readFile(new URL("app/api/boards/[id]/submit/route.ts", projectRoot), "utf8"),
+    readFile(new URL("app/components/BoardTester.tsx", projectRoot), "utf8"),
+    readFile(new URL("app/api/leaderboard/route.ts", projectRoot), "utf8"),
+    readFile(new URL("app/components/OfficialLeaderboard.tsx", projectRoot), "utf8"),
+    readFile(new URL("app/api/admin/consensus/route.ts", projectRoot), "utf8"),
+    readFile(new URL("app/lib/people-consensus.ts", projectRoot), "utf8"),
+    readFile(new URL("app/components/AdminPeopleConsensus.tsx", projectRoot), "utf8"),
+    readFile(new URL("drizzle/0012_permanent_board_urls.sql", projectRoot), "utf8"),
+    readFile(new URL("../../docs/2026-LIVE-DECISIONS.md", projectRoot), "utf8"),
+  ]);
+
+  assert.match(rules, /ENTRY_OPEN_UTC/);
+  assert.match(protectRoute, /entryPeriodNotStarted/);
+  assert.match(protectRoute, /entryDeadlinePassed/);
+  assert.match(saveRoute, /entryDeadlinePassed/);
+  assert.match(saveRoute, /protected draft is locked and was not entered/);
+  assert.match(submitRoute, /INSERT OR IGNORE INTO board_shares/);
+  assert.match(board, /isLockedUnsubmitted/);
+  assert.match(board, /Draft Locked.*Not Entered/);
+  assert.match(leaderboardRoute, /CHAMPIONSHIP_REVEAL_UTC/);
+  assert.match(leaderboardRoute, /publicBoardPath/);
+  assert.match(leaderboard, /leaderboard-board-link/);
+  assert.match(consensusRoute, /isAdminRequest/);
+  assert.match(consensusLogic, /CONSENSUS_OMITTED_RANK = 151/);
+  assert.match(consensusLogic, /exactRankTotal \/ boards\.length/);
+  assert.match(consensusPage, /Download CSV/);
+  assert.match(migration, /randomblob\(16\)/);
+  assert.match(decisions, /July 31, 2026 at 8:00 PM Eastern/);
 });

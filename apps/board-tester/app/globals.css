@@ -811,16 +811,29 @@ a:focus-visible {
 }
 
 .demo-leaderboard-row b,
+.leaderboard-board-link,
 .demo-leaderboard-row small {
   display: block;
 }
 
-.demo-leaderboard-row b {
+.demo-leaderboard-row b,
+.leaderboard-board-link {
   overflow: hidden;
   color: var(--night);
   font-size: 0.83rem;
+  font-weight: 800;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.leaderboard-board-link {
+  text-decoration-color: color-mix(in srgb, var(--teal) 45%, transparent);
+  text-underline-offset: 3px;
+}
+
+.leaderboard-board-link:hover {
+  color: var(--teal);
+  text-decoration-color: currentColor;
 }
 
 .demo-leaderboard-row small {
@@ -7956,5 +7969,186 @@ footer a {
 
   .contest-wordmark-copy strong {
     font-size: 0.92rem;
+  }
+}
+
+.consensus-method,
+.consensus-table-section {
+  margin-top: 18px;
+  padding: 26px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: var(--card);
+}
+
+.consensus-method {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.consensus-method h2,
+.consensus-table-section h2 {
+  margin: 7px 0;
+  color: var(--night);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(1.65rem, 3vw, 2.55rem);
+}
+
+.consensus-method p {
+  max-width: 760px;
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.consensus-actions {
+  display: flex;
+  flex: 0 0 auto;
+  gap: 10px;
+}
+
+.consensus-summary {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.consensus-summary article {
+  display: grid;
+  align-content: start;
+  gap: 7px;
+  min-height: 112px;
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--card);
+}
+
+.consensus-summary span,
+.consensus-summary small {
+  color: var(--muted);
+  font-size: 0.68rem;
+}
+
+.consensus-summary strong {
+  overflow: hidden;
+  color: var(--night);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.55rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.consensus-table-section .dashboard-section-heading time {
+  color: var(--muted);
+  font-size: 0.7rem;
+}
+
+.consensus-table {
+  overflow: hidden;
+  margin-top: 18px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+}
+
+.consensus-table-head,
+.consensus-table article {
+  display: grid;
+  grid-template-columns: 62px minmax(220px, 1fr) 90px 80px 88px 80px;
+  align-items: center;
+  gap: 12px;
+}
+
+.consensus-table-head {
+  padding: 12px 16px;
+  color: #fff;
+  background: var(--night);
+  font-size: 0.64rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.consensus-table article {
+  min-height: 66px;
+  padding: 10px 16px;
+  border-top: 1px solid var(--line);
+}
+
+.consensus-table article:first-of-type {
+  border-top: 0;
+}
+
+.consensus-table article > b {
+  color: var(--night);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.35rem;
+}
+
+.consensus-table article div {
+  display: grid;
+  gap: 3px;
+}
+
+.consensus-table article div strong {
+  color: var(--night);
+  font-size: 0.83rem;
+}
+
+.consensus-table article small,
+.consensus-table article > span {
+  color: var(--muted);
+  font-size: 0.7rem;
+}
+
+.consensus-table article em {
+  font-size: 0.72rem;
+  font-style: normal;
+  font-weight: 800;
+}
+
+.consensus-table article em.up { color: #087a62; }
+.consensus-table article em.down { color: #b14232; }
+.consensus-table article em.flat { color: var(--muted); }
+
+@media (max-width: 820px) {
+  .consensus-method {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .consensus-actions .button {
+    flex: 1;
+  }
+
+  .consensus-summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .consensus-table {
+    overflow-x: auto;
+  }
+
+  .consensus-table-head,
+  .consensus-table article {
+    min-width: 690px;
+  }
+}
+
+@media (max-width: 520px) {
+  .consensus-method,
+  .consensus-table-section {
+    padding: 20px 16px;
+  }
+
+  .consensus-actions {
+    flex-direction: column;
+  }
+
+  .consensus-summary {
+    grid-template-columns: 1fr;
   }
 }

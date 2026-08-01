@@ -5,7 +5,10 @@ import {
   validateEmail,
   validateEmailCode,
 } from "../../../lib/board-validation";
-import { entryDeadlinePassed } from "../../../lib/entry-rules";
+import {
+  entryDeadlinePassed,
+  entryPeriodNotStarted,
+} from "../../../lib/entry-rules";
 import { enforceRateLimit, RATE_LIMITS } from "../../../lib/rate-limit";
 
 const SEASON = 2026;
@@ -22,6 +25,12 @@ export async function POST(request: Request) {
   try {
     const limited = await enforceRateLimit(request, RATE_LIMITS.verifyRandomDraw);
     if (limited) return limited;
+    if (entryPeriodNotStarted()) {
+      return Response.json(
+        { error: "Official 2026 entries have not opened yet." },
+        { status: 409 },
+      );
+    }
     if (entryDeadlinePassed()) {
       return Response.json(
         { error: "Random Draw entry is closed." },

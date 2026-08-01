@@ -2,12 +2,12 @@
 
 ## Document status
 
-- **Status:** Controlled product-behavior draft
-- **Scope:** Locked product and user-experience behavior only
+- **Status:** Controlled product-behavior reference
+- **Scope:** Detailed product and user-experience behavior, subject to later decisions in `2026-LIVE-DECISIONS.md`
 - **Source basis:** [`PRC_2026_Consolidated_Source_of_Truth_Audit_v1.0.pdf`](reference/PRC_2026_Consolidated_Source_of_Truth_Audit_v1.0.pdf), especially pages 1-4 and 8-11
-- **Implementation authority:** None
+- **Implementation authority:** Owner-approved decisions in `2026-LIVE-DECISIONS.md`
 
-This document translates the audit's consolidated locked behavior into a readable product specification. It is not a new Bible version, does not approve unresolved items, does not change a formula, and does not authorize application implementation. If this document conflicts with a governing source, the authority hierarchy in the audit controls.
+This document translates the audit's consolidated behavior into a readable product specification. Later owner-approved changes are recorded in `2026-LIVE-DECISIONS.md`; that register supersedes older unresolved or conflicting product notes here. This document does not change the controlled scoring formula.
 
 The [accompanying audit](reference/PRC_2026_Consolidated_Source_of_Truth_Audit_v1.0.pdf) is a read-only reference. Its SHA-256 is:
 
@@ -57,7 +57,7 @@ Primary PRC navigation:
 - The complete eligible QB/RB/WR/TE player pool remains searchable.
 - Only ranks 1-150 are submitted as the official artifact.
 
-The approved Player Identity Pack supplies permanent player IDs and source aliases for the 413-record identity seed. Final opening eligibility, Board/search pool treatment, Current Market Value operation, and curated fallback remain unresolved under UR-003/UR-004. This section therefore locks the user-facing list model but does not independently approve the remaining production data decisions.
+The approved Player Identity Pack supplies permanent player IDs and source aliases for the 413-record identity seed. The current opening eligibility, Board/search pool treatment, Market operation, and reviewed fallback are recorded in `2026-LIVE-DECISIONS.md`.
 
 ## 3. Board movement and Personal Rankings
 
@@ -70,10 +70,10 @@ The approved Player Identity Pack supplies permanent player IDs and source alias
 
 ## 4. Market Value behavior
 
-### 4.1 Tuesday synchronization
+### 4.1 Wednesday Market publication
 
-- After an administrator-approved Tuesday Market Value publication, untouched players reorder around fixed Personal Rankings.
-- User-choice modes such as update all, keep all, or untouched only are excluded.
+- After an administrator-approved Wednesday Market publication, new Boards use the approved starting order and searchable player pool.
+- Existing saved Boards retain their exact player order. No Market publication silently rearranges a protected or browser-saved Board.
 
 ### 4.2 Market Value difference display
 
@@ -89,7 +89,7 @@ The approved Player Identity Pack supplies permanent player IDs and source alias
 - Official Entry stores Locked Market Value for that Board.
 - Official Entry ends all future Market Value synchronization for that Board.
 
-The Current Market Value source contract remains unresolved under UR-004. The supplied Half-PPR Fantasy Football Calculator sample does not silently replace the locked PPR Current-Market-Value decision.
+Fantasy Football Calculator Half-PPR data is the approved primary preseason Market source. FantasyPros Overall ADP is used only to complete the Top 200 when required. Every snapshot requires manual review and written Fantasy Football Calculator permission/license remains an external launch record.
 
 ## 5. Draft identity, protection, and ownership
 
@@ -107,14 +107,14 @@ The Current Market Value source contract remains unresolved under UR-004. The su
 - A verified email is required for Official Entry.
 - Without a recovery email or surviving browser access, staff do not override ownership.
 
-### 5.3 Participation limit currently locked
+### 5.3 Participation limit
 
-- One verified email may create one official Board per season.
-- This rule does not replace the broader one-person rule or its still-unresolved enforcement language.
+- One person and one verified email may create one official Board per season.
+- Multiple identities, emails, or Board Names may not be used to evade the limit.
 
 ### 5.4 Unsubmitted draft outcomes at Championship Lock
 
-- A protected unsubmitted draft freezes privately as `Draft Locked - Not Entered`.
+- A protected unsubmitted draft freezes permanently as `Draft Locked — Not Entered`.
 - A browser-only unsubmitted draft becomes permanently ineligible.
 - Neither outcome creates an official entry.
 
@@ -130,16 +130,16 @@ The Current Market Value source contract remains unresolved under UR-004. The su
 
 ### 6.2 Championship Lock
 
-- Championship Lock is the field-wide deadline and simultaneous public reveal.
+- Championship Lock is the field-wide entry deadline. Public reveal follows two hours later.
 - Championship Lock is not the name of an individual submission action.
 - A complete valid request received by the server before the deadline counts even if processing finishes later.
 - Verification alone never reserves time.
 
-The exact 2026 date, time, IANA timezone, public wording, and display rule remain unresolved under UR-001. The complete 2026 master calendar remains unresolved under UR-002.
+Championship Lock is September 9, 2026 at 4:00 PM Eastern / 2:00 PM Mountain. Public reveal is September 9, 2026 at 6:00 PM Eastern / 4:00 PM Mountain.
 
 ### 6.3 Privacy before reveal
 
-- Submitted Top 150s remain private before reveal.
+- Submitted Top 150s remain private by default before reveal. An owner may voluntarily share their unguessable read-only Board URL before reveal.
 - Public surfaces may show only a randomized set of Board Names, `Officially Entered` status, and field size.
 
 ### 6.4 Public reveal and permanent Board
@@ -148,29 +148,29 @@ The exact 2026 date, time, IANA timezone, public wording, and display rule remai
 - Reveal does not change Board contents.
 - Owner and public views use the same permanent Board URL and component after reveal.
 - Official Boards remain immutable through provisional and final scoring.
-- People's Consensus is calculated at the reveal event, subject to the unresolved player-data dependencies in this document.
+- People's Consensus is generated from the final active field and the latest approved Market baseline.
 
 ## 7. People's Consensus
 
 - The candidate pool is the union of players appearing in at least one official Top 150.
 - A player omitted from a Board receives rank 151 on that Board for Consensus purposes.
 - Field averages are sorted and only the final Top 150 is published.
-- People's Consensus launches as Redraft Blitz editorial and social content, not as a dedicated application page.
+- People's Consensus launches as Redraft Blitz editorial and social content generated from a private administrator page, not as a separate public application.
 
-The permanent player-ID crosswalk now exists and is approved. These rules do not authorize production publication before the remaining Player Data Pack, source-operation, and fallback decisions are approved.
+The permanent player-ID crosswalk exists and is approved. Consensus generation uses permanent PRC Player IDs and fails closed on records missing from the approved player pool.
 
 ## 8. Leaderboard and Board presentation
 
 ### 8.1 Before scoring begins
 
-- After Championship Lock but before scoring, the Leaderboard shows 25 randomized, unnumbered public Boards.
+- After entry begins and before scoring, the Leaderboard shows every official Board in a deterministic randomized order. Placement numbers are display positions only during preseason.
 - Ranked standings begin only after the first scored Tuesday.
 
 ### 8.2 Active Leaderboard
 
 - Active Leaderboard columns are limited to placement, Board Name, and Board Accuracy.
 - Board Accuracy displays to two decimal places with no percent symbol.
-- Full stored precision and detail live on the permanent Board page.
+- Expandable leaderboard receipts expose deeper decimal and exact fractional scoring values. Permanent Board URLs expose the immutable official Top 150.
 
 ### 8.3 Score presentation boundary
 
@@ -188,7 +188,7 @@ This section locks presentation only. It does not authorize scoring implementati
 - The champion is determined by final Board Accuracy and the objective tiebreaker ladder.
 - The champion receives the People's Cup and permanent recognition.
 - The `First Round Crown` recognizes the highest Top-12 Board Accuracy. Its exact calculation is controlled by the approved Scoring Specification.
-- `Random Draw` is selected from remaining eligible participants after excluding every skill-prize winner. This includes the Overall Champion and First Round Crown winner, plus second- and third-place prize winners when the 5,000-Board boost activates.
+- `Random Draw` is selected from the deduplicated eligible field. Skill-prize winners remain eligible and retain the same single Random Draw chance as every other eligible entrant.
 - At 5,000 valid official Boards, the Champion's Fanatics gift card increases from $200 to $400, second place receives a $200 Fanatics gift card, and third place receives a $100 Fanatics gift card. The helmet, People's Cup, First Round Crown, and Random Draw prizes remain unchanged.
 - The 2026-07-20 owner approval sets the announced prizes as follows: the People's Ranking Champion receives a LaDainian Tomlinson full-size signed helmet, a $200 Fanatics gift card, the physical People's Cup, and permanent recognition; the First Round Crown winner receives a $100 Fanatics gift card; and the Random Draw winner receives a $50 Fanatics gift card.
 - The People's Cup may be kept permanently by the champion or voluntarily returned to continue the passing-trophy tradition.

@@ -1,10 +1,12 @@
 "use client";
 
 import { Fragment, useCallback, useEffect, useState } from "react";
+import Link from "next/link";
 
 type LeaderboardRow = {
   id: string;
   detailId: string | null;
+  boardPath: string | null;
   boardName: string;
   placement: number;
   boardAccuracy: string | null;
@@ -266,7 +268,13 @@ export function OfficialLeaderboard({ currentBoardName }: { currentBoardName: st
                 >
                   <strong role="cell">{row.placement}</strong>
                   <span role="cell">
-                    <b>{row.boardName}</b>
+                    {row.boardPath ? (
+                      <Link className="leaderboard-board-link" href={row.boardPath}>
+                        {row.boardName}
+                      </Link>
+                    ) : (
+                      <b>{row.boardName}</b>
+                    )}
                     <small>
                       {isCurrent
                         ? "Your final Board"

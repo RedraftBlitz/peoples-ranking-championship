@@ -1,5 +1,6 @@
 import { getD1 } from "../../db/d1";
 import { approvedMarketSnapshotOrBase } from "./market-data";
+import { entryDeadlinePassed } from "./entry-rules";
 
 const SHARE_TOKEN_PATTERN = /^[a-f0-9]{32}$/;
 
@@ -24,6 +25,7 @@ export type SharedBoard = {
   status: "protected_draft" | "entered";
   updatedAt: string;
   submittedAt: string | null;
+  lockedUnsubmitted: boolean;
   players: SharedBoardPlayer[];
 };
 
@@ -72,6 +74,7 @@ export async function sharedBoardByToken(token: string): Promise<SharedBoard | n
     status: row.status === "entered" ? "entered" : "protected_draft",
     updatedAt: row.updated_at,
     submittedAt: row.submitted_at,
+    lockedUnsubmitted: row.status !== "entered" && entryDeadlinePassed(),
     players,
   };
 }

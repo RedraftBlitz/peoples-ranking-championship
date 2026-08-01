@@ -6,12 +6,14 @@ import {
   type EntryForLeaderboard,
   type StoredLeaderboardRow,
 } from "../../lib/official-leaderboard";
+import { CHAMPIONSHIP_REVEAL_UTC } from "../../lib/entry-rules";
 
 type EntryRow = {
   board_id: string;
   board_name: string;
   final_top_150_json: string;
   moderation_status: string;
+  share_token: string | null;
 };
 
 type PublicationRow = {
@@ -28,9 +30,11 @@ type PublicationRow = {
 async function officialEntries(): Promise<EntryForLeaderboard[]> {
   const result = await getD1()
     .prepare(
-      `SELECT e.board_id, e.board_name, e.final_top_150_json, b.moderation_status
+      `SELECT e.board_id, e.board_name, e.final_top_150_json, b.moderation_status,
+        sh.token AS share_token
        FROM board_entries e
        JOIN boards b ON b.id = e.board_id
+       LEFT JOIN board_shares sh ON sh.board_id = e.board_id
        WHERE e.season = ?1 AND b.moderation_status <> 'disqualified'
        ORDER BY e.submitted_at ASC, e.id ASC`,
     )
@@ -42,6 +46,7 @@ async function officialEntries(): Promise<EntryForLeaderboard[]> {
       ? `Board under review · ${row.board_id.slice(0, 6).toUpperCase()}`
       : row.board_name,
     playerIds: JSON.parse(row.final_top_150_json) as string[],
+    publicBoardPath: row.share_token ? `/boards/${row.share_token}` : null,
   }));
 }
 async function currentPublication(now: string) {
@@ -61,12 +66,22 @@ async function currentPublication(now: string) {
 export async function GET() {
   try {
     const now = new Date().toISOString();
+    const revealPublicBoards = now >= CHAMPIONSHIP_REVEAL_UTC;
+    const entries = await officialEntries();
+    const publicPathByBoardId = new Map(
+      entries.map((entry) => [entry.boardId, entry.publicBoardPath ?? null]),
+    );
     const publication = await currentPublication(now);
     if (publication) {
       const payload = JSON.parse(publication.results_json) as {
         rows: StoredLeaderboardRow[];
       };
-      const rows = publicScoredLeaderboard(payload.rows);
+      const rows = publicScoredLeaderboard(payload.rows).map((row) => ({
+        ...row,
+        boardPath: revealPublicBoards && row.detailId
+          ? publicPathByBoardId.get(row.detailId) ?? null
+          : null,
+      }));
       return Response.json({
         mode: "scored",
         season: LEADERBOARD_SEASON,
@@ -79,8 +94,7 @@ export async function GET() {
       });
     }
 
-    const entries = await officialEntries();
-    const rows = buildPreseasonLeaderboard(entries);
+    const rows = buildPreseasonLeaderboard(entries, revealPublicBoards);
     return Response.json({
       mode: "preseason",
       season: LEADERBOARD_SEASON,
