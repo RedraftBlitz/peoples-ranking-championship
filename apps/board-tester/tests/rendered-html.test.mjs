@@ -606,6 +606,33 @@ test("provides safe full backups and public readiness monitoring", async () => {
   assert.match(dashboard, /Abuse blocks · 24h/);
 });
 
+test("adds privacy-conscious public traffic counts to the private admin dashboard", async () => {
+  const [tracker, trafficRoute, trafficLogic, dashboardRoute, dashboard, privacy, schema, migration] = await Promise.all([
+    readFile(new URL("app/components/TrafficTracker.tsx", projectRoot), "utf8"),
+    readFile(new URL("app/api/traffic/route.ts", projectRoot), "utf8"),
+    readFile(new URL("app/lib/traffic.ts", projectRoot), "utf8"),
+    readFile(new URL("app/api/admin/dashboard/route.ts", projectRoot), "utf8"),
+    readFile(new URL("app/components/AdminDashboard.tsx", projectRoot), "utf8"),
+    readFile(new URL("app/privacy/page.tsx", projectRoot), "utf8"),
+    readFile(new URL("db/schema.ts", projectRoot), "utf8"),
+    readFile(new URL("drizzle/0013_nifty_diamondback.sql", projectRoot), "utf8"),
+  ]);
+
+  assert.match(tracker, /fetch\("\/api\/traffic"/);
+  assert.match(tracker, /pathname\.startsWith\("\/admin"\)/);
+  assert.match(trafficRoute, /ON CONFLICT\(day, path, visitor_hash\) DO UPDATE/);
+  assert.match(trafficRoute, /status: 204/);
+  assert.match(trafficLogic, /\/boards\/shared/);
+  assert.match(trafficLogic, /HttpOnly; Secure; SameSite=Lax/);
+  assert.match(dashboardRoute, /COUNT\(DISTINCT visitor_hash\)/);
+  assert.match(dashboardRoute, /topPages:/);
+  assert.match(dashboard, /PRC visitor activity/);
+  assert.match(dashboard, /Earlier visits are not included/);
+  assert.match(privacy, /not used for advertising or tracking across other sites/);
+  assert.match(schema, /trafficDaily/);
+  assert.match(migration, /CREATE TABLE `traffic_daily`/);
+});
+
 test("audits moderation and excludes disqualified Boards from standings", async () => {
   const [moderation, leaderboard, approval, dashboard, schema, migration] = await Promise.all([
     readFile(new URL("app/api/admin/boards/[id]/moderate/route.ts", projectRoot), "utf8"),

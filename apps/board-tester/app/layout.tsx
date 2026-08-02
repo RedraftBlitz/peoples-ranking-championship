@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { TrafficTracker } from "./components/TrafficTracker";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://prc.redraftblitz.com"),
@@ -36,7 +37,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        <TrafficTracker />
+        {children}
+      </body>
     </html>
   );
 }

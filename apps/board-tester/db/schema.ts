@@ -365,6 +365,27 @@ export const securityEvents = sqliteTable(
   ],
 );
 
+export const trafficDaily = sqliteTable(
+  "traffic_daily",
+  {
+    day: text("day").notNull(),
+    path: text("path").notNull(),
+    visitorHash: text("visitor_hash").notNull(),
+    viewCount: integer("view_count").notNull().default(1),
+    firstViewedAt: text("first_viewed_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+    lastViewedAt: text("last_viewed_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+  },
+  (table) => [
+    uniqueIndex("traffic_daily_day_path_visitor_unique").on(
+      table.day,
+      table.path,
+      table.visitorHash,
+    ),
+    index("traffic_daily_day_idx").on(table.day),
+    index("traffic_daily_visitor_idx").on(table.visitorHash),
+  ],
+);
+
 export const boardSimulationRuns = sqliteTable(
   "board_simulation_runs",
   {

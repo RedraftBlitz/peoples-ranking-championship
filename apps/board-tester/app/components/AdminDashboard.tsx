@@ -41,6 +41,13 @@ type DashboardData = {
     deliveryConfigured: boolean;
     verificationRequired: boolean;
   };
+  traffic: {
+    today: { pageViews: number; visitors: number };
+    sevenDays: { pageViews: number; visitors: number };
+    allTime: { pageViews: number; visitors: number };
+    topPages: Array<{ path: string; pageViews: number; visitors: number }>;
+    trackingSince: string | null;
+  };
   operations: {
     market: {
       status: string;
@@ -98,6 +105,29 @@ function countdown(deadline: string, now: number) {
 function percent(part: number, total: number) {
   if (!total) return "0%";
   return `${Math.round((part / total) * 100)}%`;
+}
+
+function formatNumber(value: number | undefined) {
+  if (value === undefined) return "—";
+  return new Intl.NumberFormat("en-US").format(value);
+}
+
+const trafficPageLabels: Record<string, string> = {
+  "/": "Build Your Board",
+  "/boards/shared": "Shared Boards",
+  "/faq": "FAQ",
+  "/how-it-works": "How It Works",
+  "/official-rules": "Official Rules",
+  "/privacy": "Privacy Notice",
+  "/prizes": "Prizes",
+  "/random-draw": "Random Draw",
+  "/random-draw/results": "Random Draw Results",
+  "/scoring": "Scoring",
+  "/scoring/complete": "Complete Scoring Reference",
+};
+
+function trafficPageLabel(path: string) {
+  return trafficPageLabels[path] ?? path;
 }
 
 export function AdminDashboard({ displayName }: { displayName: string }) {
@@ -338,6 +368,76 @@ export function AdminDashboard({ displayName }: { displayName: string }) {
             <strong>{data?.summary.blockedRequests24h ?? "—"}</strong>
             <small>Automatic request limits protecting public forms</small>
           </article>
+        </div>
+      </section>
+
+      <section className="admin-overview admin-traffic-overview" aria-labelledby="admin-traffic-title">
+        <div className="dashboard-section-heading">
+          <div>
+            <span className="panel-kicker">Private traffic counter</span>
+            <h2 id="admin-traffic-title">PRC visitor activity</h2>
+            <p>
+              Privacy-friendly first-party counts. Approximate visitors represent
+              visitor devices, not identified people. Earlier visits are not included.
+            </p>
+          </div>
+          <small className="traffic-tracking-since">
+            {data?.traffic.trackingSince
+              ? `Tracking since ${formatDate(data.traffic.trackingSince)}`
+              : "Tracking begins with the first visit after this update"}
+          </small>
+        </div>
+
+        <div className="admin-stat-grid" aria-live="polite">
+          <article className="primary">
+            <span>Page views today</span>
+            <strong>{formatNumber(data?.traffic.today.pageViews)}</strong>
+            <small>Public PRC pages viewed today in Mountain Time</small>
+          </article>
+          <article>
+            <span>Approx. visitors today</span>
+            <strong>{formatNumber(data?.traffic.today.visitors)}</strong>
+            <small>Distinct first-party visitor devices today</small>
+          </article>
+          <article>
+            <span>Page views · 7 days</span>
+            <strong>{formatNumber(data?.traffic.sevenDays.pageViews)}</strong>
+            <small>Rolling seven-day public page activity</small>
+          </article>
+          <article>
+            <span>Approx. visitors · 7 days</span>
+            <strong>{formatNumber(data?.traffic.sevenDays.visitors)}</strong>
+            <small>Distinct visitor devices during the last seven days</small>
+          </article>
+          <article>
+            <span>All-time page views</span>
+            <strong>{formatNumber(data?.traffic.allTime.pageViews)}</strong>
+            <small>Since privacy-friendly tracking began</small>
+          </article>
+          <article>
+            <span>All-time approx. visitors</span>
+            <strong>{formatNumber(data?.traffic.allTime.visitors)}</strong>
+            <small>Distinct visitor devices since tracking began</small>
+          </article>
+        </div>
+
+        <div className="traffic-top-pages">
+          <div>
+            <strong>Most-viewed pages · last 7 days</strong>
+            <small>Shared Board tokens are grouped together and never displayed.</small>
+          </div>
+          {data?.traffic.topPages.length ? (
+            <ol>
+              {data.traffic.topPages.map((page) => (
+                <li key={page.path}>
+                  <span>{trafficPageLabel(page.path)}</span>
+                  <small>{formatNumber(page.pageViews)} views · {formatNumber(page.visitors)} visitors</small>
+                </li>
+              ))}
+            </ol>
+          ) : (
+            <p>No public visits have been counted yet.</p>
+          )}
         </div>
       </section>
 

@@ -5,6 +5,7 @@ import {
   submissionEmailVerificationRequired,
 } from "../../../lib/email-delivery";
 import { ENTRY_DEADLINE_UTC } from "../../../lib/entry-rules";
+import { mountainDateKey, mountainDateKeyDaysAgo } from "../../../lib/traffic";
 
 const SEASON = 2026;
 const PAGE_SIZE = 50;
@@ -63,6 +64,17 @@ type PublicationStatusRow = {
   approved_at: string;
 };
 
+type TrafficSummaryRow = {
+  page_views: number;
+  visitors: number;
+};
+
+type TrafficPageRow = {
+  path: string;
+  page_views: number;
+  visitors: number;
+};
+
 function maskedEmail(value: string | null) {
   if (!value) return null;
   const [local = "", domain = ""] = value.split("@");
@@ -102,6 +114,8 @@ export async function GET(request: Request) {
     const searchPattern = `%${query.toLocaleLowerCase("en-US")}%`;
     const offset = (page - 1) * PAGE_SIZE;
     const now = new Date().toISOString();
+    const today = mountainDateKey();
+    const sevenDayStart = mountainDateKeyDaysAgo(6);
     const securityWindowStart = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
     const db = getD1();
 
@@ -116,6 +130,11 @@ export async function GET(request: Request) {
       pendingMarket,
       blockedRequests,
       pendingScoring,
+      trafficToday,
+      trafficSevenDays,
+      trafficAllTime,
+      topTrafficPages,
+      trafficTrackingStart,
     ] = await Promise.all([
       db
         .prepare(
@@ -224,6 +243,46 @@ export async function GET(request: Request) {
         )
         .bind(SEASON)
         .first<{ count: number }>(),
+      db
+        .prepare(
+          `SELECT COALESCE(SUM(view_count), 0) AS page_views,
+            COUNT(DISTINCT visitor_hash) AS visitors
+           FROM traffic_daily WHERE day = ?1`,
+        )
+        .bind(today)
+        .first<TrafficSummaryRow>(),
+      db
+        .prepare(
+          `SELECT COALESCE(SUM(view_count), 0) AS page_views,
+            COUNT(DISTINCT visitor_hash) AS visitors
+           FROM traffic_daily WHERE day >= ?1`,
+        )
+        .bind(sevenDayStart)
+        .first<TrafficSummaryRow>(),
+      db
+        .prepare(
+          `SELECT COALESCE(SUM(view_count), 0) AS page_views,
+            COUNT(DISTINCT visitor_hash) AS visitors
+           FROM traffic_daily`,
+        )
+        .first<TrafficSummaryRow>(),
+      db
+        .prepare(
+          `SELECT path, SUM(view_count) AS page_views,
+            COUNT(DISTINCT visitor_hash) AS visitors
+           FROM traffic_daily
+           WHERE day >= ?1
+           GROUP BY path
+           ORDER BY page_views DESC, path ASC
+           LIMIT 5`,
+        )
+        .bind(sevenDayStart)
+        .all<TrafficPageRow>(),
+      db
+        .prepare(
+          `SELECT MIN(first_viewed_at) AS first_viewed_at FROM traffic_daily`,
+        )
+        .first<{ first_viewed_at: string | null }>(),
     ]);
 
     const totalMatching = matching?.count ?? 0;
@@ -249,6 +308,26 @@ export async function GET(request: Request) {
         email: {
           deliveryConfigured: emailDeliveryConfigured(),
           verificationRequired: submissionEmailVerificationRequired(),
+        },
+        traffic: {
+          today: {
+            pageViews: trafficToday?.page_views ?? 0,
+            visitors: trafficToday?.visitors ?? 0,
+          },
+          sevenDays: {
+            pageViews: trafficSevenDays?.page_views ?? 0,
+            visitors: trafficSevenDays?.visitors ?? 0,
+          },
+          allTime: {
+            pageViews: trafficAllTime?.page_views ?? 0,
+            visitors: trafficAllTime?.visitors ?? 0,
+          },
+          topPages: topTrafficPages.results.map((page) => ({
+            path: page.path,
+            pageViews: page.page_views,
+            visitors: page.visitors,
+          })),
+          trackingSince: trafficTrackingStart?.first_viewed_at ?? null,
         },
         operations: {
           market: market
