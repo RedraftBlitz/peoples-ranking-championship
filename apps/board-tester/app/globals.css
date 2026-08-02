@@ -3324,6 +3324,80 @@ footer a {
   line-height: 1.4;
 }
 
+.traffic-tracking-since {
+  max-width: 250px;
+  color: var(--muted);
+  font-size: 0.61rem;
+  line-height: 1.45;
+  text-align: right;
+}
+
+.traffic-top-pages {
+  display: grid;
+  grid-template-columns: minmax(180px, 0.7fr) minmax(0, 1.3fr);
+  gap: 18px;
+  margin-top: 14px;
+  padding: 16px 17px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: #fffdf8;
+}
+
+.traffic-top-pages > div {
+  display: grid;
+  align-content: start;
+  gap: 5px;
+}
+
+.traffic-top-pages > div strong {
+  color: var(--night);
+  font-size: 0.72rem;
+}
+
+.traffic-top-pages > div small,
+.traffic-top-pages > p,
+.traffic-top-pages li small {
+  color: var(--muted);
+  font-size: 0.61rem;
+  line-height: 1.4;
+}
+
+.traffic-top-pages > p {
+  margin: 0;
+}
+
+.traffic-top-pages ol {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.traffic-top-pages li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--line);
+}
+
+.traffic-top-pages li:last-child {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+.traffic-top-pages li span {
+  color: var(--night);
+  font-size: 0.67rem;
+  font-weight: 850;
+}
+
+.traffic-top-pages li small {
+  white-space: nowrap;
+}
+
 .operations-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -5718,6 +5792,21 @@ footer a {
   .simulation-results,
   .simulation-history {
     padding: 18px;
+  }
+
+  .traffic-tracking-since {
+    max-width: none;
+    text-align: left;
+  }
+
+  .traffic-top-pages {
+    grid-template-columns: 1fr;
+  }
+
+  .traffic-top-pages li {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 3px;
   }
 
   .admin-stat-grid,

@@ -11,7 +11,7 @@ export default function PrivacyPage() {
   return (
     <ContestPage
       current="/privacy"
-      kicker="Effective July 20, 2026"
+      kicker="Effective August 1, 2026"
       title="Privacy Notice"
       intro="The information PRC needs, why it is used, and what becomes public."
     >
@@ -34,7 +34,11 @@ export default function PrivacyPage() {
             and prize-claim information from potential winners. PINs, email codes,
             recovery codes, and session credentials are stored only as protected
             hashes or short-lived credentials where technically applicable. Hosting
-            infrastructure may process basic request, device, and security logs.
+            infrastructure may process basic request, device, and security logs. PRC
+            also uses a random first-party visitor cookie to count aggregate page
+            views and approximate unique visitor devices. The visitor value is stored
+            only as a one-way hash, is not linked to Board Names or email addresses,
+            and is not used for advertising or tracking across other sites.
           </p>
         </section>
         <section>
