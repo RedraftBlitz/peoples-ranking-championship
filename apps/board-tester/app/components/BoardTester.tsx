@@ -25,6 +25,7 @@ import {
 } from "../lib/board-order";
 import { OfficialLeaderboard } from "./OfficialLeaderboard";
 import { PrcChampionshipMark, RedraftBlitzCredit } from "./PrcBrand";
+import { RankingsImportDialog } from "./RankingsImportDialog";
 
 type Position = "QB" | "RB" | "WR" | "TE";
 type AppView = "board" | "leaderboard";
@@ -89,6 +90,7 @@ type EmailStatusResponse = {
 };
 
 type DialogName =
+  | "import"
   | "protect"
   | "unlock"
   | "recovery"
@@ -675,6 +677,16 @@ export function BoardTester() {
     remember();
     setOrder(defaultOrder);
     setPersonalIds([]);
+  }
+
+  function applyImportedRankings(nextOrder: string[], importedIds: string[]) {
+    if (boardReadOnly || !importedIds.length) return;
+    remember();
+    setOrder(nextOrder);
+    setPersonalIds((current) => [...new Set([...current, ...importedIds])]);
+    setBoardPositionView("ALL");
+    setFollowedPlayerId(importedIds[0] ?? null);
+    setDialog(null);
   }
 
   function jumpTo(rank: number) {
@@ -1301,8 +1313,8 @@ export function BoardTester() {
           <span className={completeTop150 ? "ready" : "waiting"}>Top 150 complete</span>
           <span className={hasPersonalRanking ? "ready" : "waiting"}>
             {hasPersonalRanking
-              ? `${personalIds.length} direct player move${personalIds.length === 1 ? "" : "s"}`
-              : "Move 1 player directly · any amount"}
+              ? `${personalIds.length} personally ranked player${personalIds.length === 1 ? "" : "s"}`
+              : "Move or import at least 1 player"}
           </span>
           <span className={protectedBoard ? "ready" : "waiting"}>
             {isEntered
@@ -1355,7 +1367,7 @@ export function BoardTester() {
               !protectedBoard
                 ? "Protect this Board before final submission."
                 : !hasPersonalRanking
-                  ? "Move at least one player directly by any amount before final submission."
+                  ? "Move at least one player or import rankings before final submission."
                   : undefined
             }
           >
@@ -1449,6 +1461,16 @@ export function BoardTester() {
               <h2>Ranks 1–200</h2>
             </div>
             <div className="toolbar-actions">
+              <button
+                className="button gold"
+                type="button"
+                onClick={() => openDialog("import")}
+                disabled={boardReadOnly}
+                title={isPositionView ? "Return to All players before importing rankings." : undefined}
+              >
+                <span className="import-label-long">Import Rankings</span>
+                <span className="import-label-short">Import</span>
+              </button>
               <button
                 className="button secondary"
                 type="button"
@@ -1742,8 +1764,8 @@ export function BoardTester() {
           <div className="pool-note">
             <strong>Personal Rankings</strong>
             <p>
-              Only a player you move directly becomes a Personal Ranking.
-              Players shifted automatically do not.
+              Players you move directly or place through an import become
+              Personal Rankings. Players shifted automatically do not.
             </p>
           </div>
         </aside>
@@ -1816,7 +1838,7 @@ export function BoardTester() {
       {dialog && (
         <div className="dialog-backdrop" role="presentation">
           <section
-            className="dialog-card"
+            className={`dialog-card ${dialog === "import" ? "import-dialog" : ""}`}
             role="dialog"
             aria-modal="true"
             aria-labelledby="dialog-title"
@@ -1829,6 +1851,14 @@ export function BoardTester() {
             >
               ×
             </button>
+
+            {dialog === "import" && (
+              <RankingsImportDialog
+                players={players}
+                currentOrder={order}
+                onApply={applyImportedRankings}
+              />
+            )}
 
             {dialog === "protect" && (
               <>

@@ -65,8 +65,9 @@ The approved Player Identity Pack supplies permanent player IDs and source alias
 - Reposition accepts a destination rank from 1 through 200.
 - A move shifts intervening ranks once.
 - A move autosaves, recalculates, and supports Undo.
-- A Personal Ranking is created only when the user directly moves that player.
+- A Personal Ranking is created when the user directly moves that player or intentionally places the player through the reviewed rankings importer.
 - Passive displacement caused by another move does not create a Personal Ranking.
+- Rankings imports are parsed in the browser, matched through permanent player IDs and aliases, reviewed before application, and stored only as the resulting Board order. The source file itself is not uploaded or retained.
 
 ## 4. Market Value behavior
 

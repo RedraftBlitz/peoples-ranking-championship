@@ -20,7 +20,7 @@
 - A recovery email is optional while drafting. A verified recovery email is required for final Board submission.
 - Board Name and six-digit PIN protect a saved Board. Forgotten-PIN recovery uses the verified recovery email.
 - Permanent PRC Player IDs and the controlled alias crosswalk govern player identity. Ambiguous or unmatched records fail closed for manual review.
-- A final Board contains exactly 150 ordered players and must include at least one intentional player move from its starting Market order.
+- A final Board contains exactly 150 ordered players and must include at least one intentional player placement, made either directly or through the entrant-controlled rankings importer.
 
 ## Player Market and saved Boards
 
@@ -28,6 +28,7 @@
 - Fantasy Football Calculator Half-PPR data is the primary preseason Market source. FantasyPros Overall ADP is used only to complete the Top 200 when required. No source is automatically approved.
 - Every proposed snapshot must pass identity and coverage review before administrator approval. If a source is unavailable or the review blocks, the current approved/base Market remains active.
 - An approved Market update changes the starting order for new Boards and the searchable player pool. It never changes the exact order on an existing saved Board.
+- The rankings importer accepts common CSV, tab-separated, and ordered-list layouts. It reads files only in the entrant's browser, matches against permanent PRC IDs and aliases, shows unmatched/ambiguous/duplicate rows before application, preserves the relative order of non-imported players, and applies the import as one Undo-able Board action.
 - The site carries the required source attribution and non-affiliation statements. Written FantasyPros API-use approval is retained; written Fantasy Football Calculator permission/license remains an external launch record to obtain.
 
 ## Public Boards, Consensus, and leaderboard
