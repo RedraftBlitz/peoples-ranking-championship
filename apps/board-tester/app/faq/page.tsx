@@ -46,6 +46,10 @@ const questions = [
     "No. Your official entry is your Top 150. The working Board extends to 200 and the broader pool stays searchable so you can bring an unranked player onto the Board.",
   ],
   [
+    "Can I import rankings I already made?",
+    "Yes. Upload a common CSV, TSV, or text export, or paste rankings copied from a spreadsheet. PRC identifies the player and overall-rank columns, matches names through the permanent alias list, and shows any uncertain rows before you apply it. The original file stays in your browser and is not uploaded or retained.",
+  ],
+  [
     "How is the Random Draw winner chosen?",
     `The drawing is ${RANDOM_DRAW_LABEL}. Verified final Boards enter automatically, and the free Random Draw Only form provides the same chance without rankings. Entries are limited to one per person and verified email across both methods. Skill-prize winners remain eligible, and one entry is selected with a cryptographically secure uniform random-number process. Odds depend on the final eligible entry count.`,
   ],

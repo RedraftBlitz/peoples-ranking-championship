@@ -73,10 +73,11 @@ export default function OfficialRulesPage() {
         <section>
           <h2>3. Entering the skill competition</h2>
           <p>
-            Build a complete ordered Top 150, make at least one direct player
-            move, protect the Board with a Board Name and six-digit PIN, verify
-            a contact email, complete the required confirmations, and submit
-            before Championship Lock. Entry is free. Limit one final Board per
+            Build a complete ordered Top 150, make at least one intentional
+            player placement directly or through the entrant-controlled rankings
+            importer, protect the Board with a Board Name and six-digit PIN,
+            verify a contact email, complete the required confirmations, and
+            submit before Championship Lock. Entry is free. Limit one final Board per
             person and per verified email address for the 2026 season. A person
             may not use another email address, identity, or Board Name to submit
             an additional final Board. Final submission is immediate, permanent,

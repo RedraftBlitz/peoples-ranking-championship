@@ -49,8 +49,10 @@ test("emits a deployable build without starter-preview remnants", async () => {
 });
 
 test("keeps ranking controls with the user", async () => {
-  const [component, styles] = await Promise.all([
+  const [component, importer, importModel, styles] = await Promise.all([
     readFile(new URL("app/components/BoardTester.tsx", projectRoot), "utf8"),
+    readFile(new URL("app/components/RankingsImportDialog.tsx", projectRoot), "utf8"),
+    readFile(new URL("app/lib/board-import.ts", projectRoot), "utf8"),
     readFile(new URL("app/globals.css", projectRoot), "utf8"),
   ]);
 
@@ -74,6 +76,14 @@ test("keeps ranking controls with the user", async () => {
   assert.match(component, /data-player-id=\{player\.id\}/);
   assert.match(component, /!boardReadOnly && \([\s\S]*className="drag-handle"/);
   assert.match(component, /Build Your Board/);
+  assert.match(component, /Import Rankings/);
+  assert.match(component, /remember\(\);[\s\S]*setOrder\(nextOrder\)/);
+  assert.match(importer, /Upload a rankings export or paste rows/);
+  assert.match(importer, /PRC does not upload or keep it/);
+  assert.match(importer, /Download PRC Template/);
+  assert.match(importer, /Nothing changes until you apply/);
+  assert.match(importer, /Apply \{preview\.matched\.length\} Players to My Board/);
+  assert.match(importModel, /Players missing from the import keep their current relative order|knownCurrent\.filter/);
   assert.match(styles, /\.floating-undo\s*\{[\s\S]*position:\s*fixed/);
   assert.match(styles, /\.mobile-board-controls\s*\{[\s\S]*position:\s*fixed/);
   assert.match(styles, /\.drag-handle\s*\{[\s\S]*display:\s*inline-flex/);
@@ -199,7 +209,7 @@ test("permanently locks final entries after two-step verification", async () => 
   assert.match(component, /Permanently Submit My Board/);
   assert.match(component, /draggable=\{!boardReadOnly && !androidTouchDrag\}/);
   assert.match(component, /Final Board permanently locked/);
-  assert.match(component, /Move 1 player directly · any amount/);
+  assert.match(component, /Move or import at least 1 player/);
   assert.match(component, /not affiliated with,[\s\S]*Fantasy Football Calculator,[\s\S]*FantasyCalc,[\s\S]*FantasyPros, or Fanatics/);
   assert.match(submitRoute, /hashPin\(pin, pinRow\.pin_salt\)/);
   assert.match(submitRoute, /secureEqual\(candidate, pinRow\.pin_hash\)/);
@@ -435,6 +445,7 @@ test("publishes the contest guide and approved 2026 prize lineup", async () => {
   ]);
 
   assert.match(howItWorks, /Weeks 1–17 count; Week 18 does not/);
+  assert.match(howItWorks, /import an existing rankings file/);
   assert.match(prizes, /LaDainian Tomlinson full-size signed helmet/);
   assert.doesNotMatch(prizes, /Greatest Fantasy Football Player of All Time/);
   assert.match(prizes, /\$200 Fanatics gift card/);
@@ -468,9 +479,11 @@ test("publishes the contest guide and approved 2026 prize lineup", async () => {
   assert.match(completeScoring, /Official championship tiebreaker ladder/);
   assert.match(completeScoring, /Skill-prize winners remain eligible|FantasyPros Half-PPR/);
   assert.match(faq, /30 days to respond/);
+  assert.match(faq, /original file stays in your browser and is not uploaded or retained/);
   assert.match(contestPage, /Random Draw/);
   assert.match(contestPage, /href="\/privacy"/);
   assert.match(officialRules, /one final Board per[\s\S]*verified email address/);
+  assert.match(officialRules, /intentional[\s\S]*player placement directly or through the entrant-controlled rankings[\s\S]*importer/);
   assert.match(officialRules, /one Random Draw entry per[\s\S]*person and per verified email/);
   assert.match(officialRules, /Skill-prize winners[\s\S]*remain eligible for the Random Draw/);
   assert.match(officialRules, /href="\/scoring\/complete"/);

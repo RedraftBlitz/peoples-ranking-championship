@@ -21,12 +21,12 @@ const steps = [
   [
     "01",
     "Build your Top 150",
-    "Start from the current approved Half-PPR market order, then drag players or type a new rank. Your working Board extends through rank 200, and the line after 150 marks your official entry.",
+    "Start from the current approved Half-PPR market order, import an existing rankings file, drag players, or type a new rank. Your working Board extends through rank 200, and the line after 150 marks your official entry.",
   ],
   [
     "02",
     "Make it yours",
-    "Move at least one player directly by any amount. Players shifted automatically do not count as Personal Rankings, but every direct move does.",
+    "Move at least one player directly or apply a reviewed rankings import. Players shifted automatically do not count as Personal Rankings, but every intentional placement does.",
   ],
   [
     "03",
