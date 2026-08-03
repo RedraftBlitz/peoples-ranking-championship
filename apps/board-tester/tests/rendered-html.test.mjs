@@ -458,6 +458,10 @@ test("publishes the contest guide and approved 2026 prize lineup", async () => {
   assert.match(scoring, /do not receive fixed shares of BVM/);
   assert.match(scoring, /converted into percentiles across the entire eligible player pool/);
   assert.match(scoring, /href="\/scoring\/complete"/);
+  assert.match(board, /Scoring format[\s\S]*Half-PPR[\s\S]*4-point passing TDs[\s\S]*Weeks 1–17/);
+  assert.match(completeScoring, /Passing touchdown[\s\S]*4 points/);
+  assert.match(completeScoring, /Interception thrown[\s\S]*−1 point/);
+  assert.match(completeScoring, /fantasypros\.com\/scoring-settings/);
   assert.match(completeScoring, /Board Accuracy[\s\S]*0\.80 × Positional Accuracy \+ 0\.20 × BVM Accuracy/);
   assert.match(completeScoring, /BVM Accuracy = 100 × max\(0, 1 − total BVM error ÷ 11,325\)/);
   assert.match(completeScoring, /Top-N denominator = 151N − N\(N \+ 1\) ÷ 2/);
