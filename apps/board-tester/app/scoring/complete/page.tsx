@@ -29,6 +29,34 @@ export default function CompleteScoringPage() {
             ID and assigned one approved position: QB, RB, WR, or TE.
           </p>
           <p>
+            “Half-PPR” uses the FantasyPros default offensive scoring settings
+            below. In particular, passing touchdowns are worth four points.
+          </p>
+          <div className="scoring-reference-table-wrap">
+            <table>
+              <thead>
+                <tr><th>Offensive event</th><th>Fantasy points</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>Passing yards</td><td>1 point per 25 yards</td></tr>
+                <tr><td>Passing touchdown</td><td>4 points</td></tr>
+                <tr><td>Interception thrown</td><td>−1 point</td></tr>
+                <tr><td>Rushing or receiving yards</td><td>1 point per 10 yards</td></tr>
+                <tr><td>Rushing or receiving touchdown</td><td>6 points</td></tr>
+                <tr><td>Reception</td><td>0.5 points</td></tr>
+                <tr><td>Fumble lost to opponent</td><td>−2 points</td></tr>
+                <tr><td>Passing, rushing, or receiving two-point conversion</td><td>2 points</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>
+            These settings follow the published{" "}
+            <a href="https://www.fantasypros.com/scoring-settings/" target="_blank" rel="noreferrer">
+              FantasyPros fantasy-points scoring reference
+            </a>
+            . Only QB, RB, WR, and TE production is used by PRC.
+          </p>
+          <p>
             The official scoring inputs are cumulative Half-PPR points
             (“TTL”), completed weekly Half-PPR points, the approved expected-value
             curves, and the BVM Top 150 generated for the same scoring snapshot.

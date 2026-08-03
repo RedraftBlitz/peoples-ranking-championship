@@ -39,6 +39,7 @@
 
 ## Scoring decisions
 
+- Official production uses FantasyPros default Half-PPR offensive scoring, including 4 points per passing touchdown, 1 point per 25 passing yards, and 0.5 points per reception. NFL Weeks 1–17 count; Week 18 is excluded.
 - Board Accuracy is `80% Positional Accuracy + 20% BVM Accuracy`.
 - BVM is constructed with the approved 70% season-value / 30% spike-week weighting, replacement ranks QB13/RB37/WR49/TE13, negative weeks allowed, the locked full-precision curve, and the exact normalization in `SCORING-SPEC.md`.
 - Internal values and ordering retain full precision. Public Board Accuracy shows two decimals with no percent symbol.

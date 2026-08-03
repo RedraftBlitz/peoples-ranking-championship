@@ -1174,6 +1174,15 @@ export function BoardTester() {
               randomized; official scoring begins after Week 1.
             </p>
           )}
+          <div
+            className="contest-format-line"
+            aria-label="Scoring format: Half-PPR, 4-point passing touchdowns, NFL Weeks 1 through 17"
+          >
+            <strong>Scoring format</strong>
+            <span>Half-PPR</span>
+            <span>4-point passing TDs</span>
+            <span>Weeks 1–17</span>
+          </div>
         </div>
         <div className="hero-status" aria-live="polite">
           <span className="status-dot" />

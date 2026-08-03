@@ -26,6 +26,7 @@ If this document conflicts with a governing source, the source hierarchy in the 
 - Row-level Player Accuracy is removed from the 2026 launch. `Accuracy` means the complete-Board Board Accuracy score unless a future approved version explicitly introduces another metric.
 - The versioned regression pack uses exact rational arithmetic and an exact-decimal 2025 BVM fixture; its standard run passes 889 checks and its archived-source rebuild passes 896.
 - A live 2026 BVM reference is generated from in-season scoring data; it is not a preseason prerequisite.
+- Official Half-PPR production uses FantasyPros default offensive scoring: 1 point per 25 passing yards, 4 per passing touchdown, -1 per interception thrown, 1 per 10 rushing/receiving yards, 6 per rushing/receiving touchdown, 0.5 per reception, -2 per fumble lost, and 2 per two-point conversion.
 
 ### Status labels
 
@@ -42,6 +43,7 @@ If this document conflicts with a governing source, the source hierarchy in the 
 | Element | Canonical rule | Status |
 | --- | --- | --- |
 | Competition result window | Weeks 1-17, Half-PPR; Week 18 excluded | `LOCKED / CONFIRMED` |
+| Fantasy point format | FantasyPros default Half-PPR offensive scoring, including 4 points per passing touchdown | `LOCKED / CONFIRMED` |
 | Positional Accuracy | Expected-value error normalized by the sum of the larger predicted/actual expected value for each scored player | `LOCKED / CONFIRMED` |
 | BVM Accuracy | Final BVM Top-150 overall-rank error normalized by 11,325; omitted targets use rank 151 | `LOCKED / CONFIRMED` |
 | Board Accuracy | `0.80 × Positional Accuracy + 0.20 × BVM Accuracy` | `LOCKED / CONFIRMED` |
